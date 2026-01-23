@@ -29,8 +29,7 @@ A self-hosted RSS reader that strips away the clutter. Feedy fetches articles an
 
 ```bash
 git clone <repository-url>
-cd reader
-cp .env.example .env
+cd <folder-name>
 docker compose up -d
 ```
 
