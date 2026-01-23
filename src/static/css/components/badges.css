@@ -1,0 +1,21 @@
+/* Badge styles */
+
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-primary {
+  @apply bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-300;
+}
+
+.badge-success {
+  @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300;
+}
+
+.badge-warning {
+  @apply bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300;
+}
+
+.badge-neutral {
+  @apply bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400;
+}

@@ -1,0 +1,157 @@
+<!-- Theme toggle script -->
+<script>
+    (function() {
+        function setTheme(theme) {
+            localStorage.setItem('theme', theme);
+            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.classList.remove('dark', 'monochrome');
+
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else if (theme === 'monochrome') {
+                document.documentElement.classList.add('monochrome');
+            }
+
+            updateThemeButtons(theme);
+        }
+
+        function updateThemeButtons(theme) {
+            var buttons = document.querySelectorAll('[data-theme-btn]');
+            buttons.forEach(function(btn) {
+                var btnTheme = btn.getAttribute('data-theme-btn');
+                btn.classList.toggle('active', btnTheme === theme);
+            });
+        }
+
+        // Initialize button states
+        var currentTheme = localStorage.getItem('theme') || 'light';
+        updateThemeButtons(currentTheme);
+
+        // Add click handlers
+        document.querySelectorAll('[data-theme-btn]').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var theme = this.getAttribute('data-theme-btn');
+                setTheme(theme);
+            });
+        });
+    })();
+
+    // Themed Modal System
+    var Modal = (function() {
+        var modalElement = null;
+        var resolveCallback = null;
+
+        function createModal() {
+            if (modalElement) return;
+            modalElement = document.createElement('div');
+            modalElement.id = 'themed-modal';
+            modalElement.className = 'fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm hidden';
+            modalElement.innerHTML =
+                '<div class="bg-white dark:bg-zinc-800 rounded-xl p-6 w-full max-w-md mx-4 shadow-2xl animate-scale-in">' +
+                    '<div id="modal-icon" class="hidden w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center"></div>' +
+                    '<h3 id="modal-title" class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 text-center mb-2"></h3>' +
+                    '<p id="modal-message" class="text-zinc-600 dark:text-zinc-400 text-center mb-6"></p>' +
+                    '<div id="modal-buttons" class="flex justify-center gap-3"></div>' +
+                '</div>';
+            document.body.appendChild(modalElement);
+            modalElement.addEventListener('click', function(e) {
+                if (e.target === modalElement) {
+                    closeModal(false);
+                }
+            });
+        }
+
+        function closeModal(result) {
+            if (modalElement) {
+                modalElement.classList.add('hidden');
+            }
+            if (resolveCallback) {
+                resolveCallback(result);
+                resolveCallback = null;
+            }
+        }
+
+        function show(options) {
+            createModal();
+            var title = options.title || '';
+            var message = options.message || '';
+            var type = options.type || 'info';
+            var confirmText = options.confirmText || 'OK';
+            var cancelText = options.cancelText || 'Cancel';
+            var showCancel = options.showCancel !== false;
+            var isDanger = options.danger || false;
+
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+
+            var iconEl = document.getElementById('modal-icon');
+            if (type === 'warning' || type === 'confirm') {
+                iconEl.className = 'w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center ' +
+                    (isDanger ? 'bg-red-100 dark:bg-red-900/30' : 'bg-amber-100 dark:bg-amber-900/30');
+                iconEl.innerHTML = '<svg class="w-6 h-6 ' + (isDanger ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400') + '" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
+                iconEl.classList.remove('hidden');
+            } else if (type === 'error') {
+                iconEl.className = 'w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center bg-red-100 dark:bg-red-900/30';
+                iconEl.innerHTML = '<svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
+                iconEl.classList.remove('hidden');
+            } else if (type === 'success') {
+                iconEl.className = 'w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center bg-green-100 dark:bg-green-900/30';
+                iconEl.innerHTML = '<svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
+                iconEl.classList.remove('hidden');
+            } else {
+                iconEl.classList.add('hidden');
+            }
+
+            var buttonsHtml = '';
+            if (showCancel && options.type === 'confirm') {
+                buttonsHtml += '<button type="button" onclick="Modal.close(false)" class="btn btn-secondary">' + cancelText + '</button>';
+            }
+            var confirmBtnClass = isDanger ? 'btn btn-danger' : 'btn btn-primary';
+            buttonsHtml += '<button type="button" onclick="Modal.close(true)" class="' + confirmBtnClass + '">' + confirmText + '</button>';
+            document.getElementById('modal-buttons').innerHTML = buttonsHtml;
+
+            modalElement.classList.remove('hidden');
+
+            return new Promise(function(resolve) {
+                resolveCallback = resolve;
+            });
+        }
+
+        return {
+            alert: function(message, title) {
+                return show({
+                    title: title || 'Notice',
+                    message: message,
+                    type: 'info',
+                    showCancel: false,
+                    confirmText: 'OK'
+                });
+            },
+            error: function(message, title) {
+                return show({
+                    title: title || 'Error',
+                    message: message,
+                    type: 'error',
+                    showCancel: false,
+                    confirmText: 'OK'
+                });
+            },
+            confirm: function(message, title, options) {
+                options = options || {};
+                return show({
+                    title: title || 'Confirm',
+                    message: message,
+                    type: 'confirm',
+                    showCancel: true,
+                    confirmText: options.confirmText || 'Confirm',
+                    cancelText: options.cancelText || 'Cancel',
+                    danger: options.danger || false
+                });
+            },
+            close: closeModal
+        };
+    })();
+</script>

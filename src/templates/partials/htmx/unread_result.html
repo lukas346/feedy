@@ -1,0 +1,16 @@
+<div id="unread-result" class="p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-700 dark:text-emerald-300 transition-opacity duration-500">
+    {{ t('fetch_result.unread_single') if count == 1 else t('fetch_result.unread_plural', count=count) }}
+</div>
+<script>
+(function() {
+    var el = document.getElementById('unread-result');
+    if (el) {
+        setTimeout(function() {
+            el.style.opacity = '0';
+            setTimeout(function() {
+                el.remove();
+            }, 500);
+        }, 4000);
+    }
+})();
+</script>

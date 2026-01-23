@@ -1,0 +1,27 @@
+/* Section styles */
+
+.section {
+  @apply card p-6 space-y-4;
+}
+
+.section-header {
+  @apply flex justify-between items-center pb-4
+         border-b border-zinc-200/50 dark:border-zinc-700/50;
+}
+
+.section-title {
+  @apply text-lg font-semibold text-zinc-900 dark:text-zinc-100;
+}
+
+/* List item styles (using settings-item to avoid conflict with Tailwind's list-item utility) */
+.settings-item {
+  @apply flex items-center justify-between py-1 px-4 rounded-lg
+         bg-white dark:bg-zinc-800/30
+         border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700
+         hover:bg-zinc-50 dark:hover:bg-zinc-800/50
+         transition-all duration-200 cursor-pointer;
+}
+
+.settings-item-active {
+  @apply border-rose-200 dark:border-rose-800 bg-rose-50/50 dark:bg-rose-900/20;
+}

@@ -1,0 +1,20 @@
+<div id="fetch-result" class="p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-700 dark:text-emerald-300 transition-opacity duration-500">
+    {% if refetch %}
+    {{ t('fetch_result.refetched_single') if new_articles == 1 else t('fetch_result.refetched_plural', count=new_articles) }}
+    {% else %}
+    {{ t('fetch_result.fetched_single') if new_articles == 1 else t('fetch_result.fetched_plural', count=new_articles) }}
+    {% endif %}
+</div>
+<script>
+(function() {
+    var el = document.getElementById('fetch-result');
+    if (el) {
+        setTimeout(function() {
+            el.style.opacity = '0';
+            setTimeout(function() {
+                el.remove();
+            }, 500);
+        }, 4000);
+    }
+})();
+</script>

@@ -1,0 +1,115 @@
+/* HTMX indicator */
+.htmx-indicator {
+  @apply hidden;
+}
+
+.htmx-request .htmx-indicator,
+.htmx-request.htmx-indicator {
+  @apply inline-block;
+}
+
+.htmx-request #search-icon {
+  @apply opacity-0;
+}
+
+/* Search results animations */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes staggerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-slide-in {
+  animation: fadeSlideIn 0.3s ease-out forwards;
+}
+
+.search-result-item {
+  animation: staggerFadeIn 0.25s ease-out forwards;
+  opacity: 0;
+}
+
+/* Stagger delays for search results */
+.search-result-item:nth-child(1) { animation-delay: 0ms; }
+.search-result-item:nth-child(2) { animation-delay: 30ms; }
+.search-result-item:nth-child(3) { animation-delay: 60ms; }
+.search-result-item:nth-child(4) { animation-delay: 90ms; }
+.search-result-item:nth-child(5) { animation-delay: 120ms; }
+.search-result-item:nth-child(6) { animation-delay: 150ms; }
+.search-result-item:nth-child(7) { animation-delay: 180ms; }
+.search-result-item:nth-child(8) { animation-delay: 210ms; }
+.search-result-item:nth-child(9) { animation-delay: 240ms; }
+.search-result-item:nth-child(10) { animation-delay: 270ms; }
+.search-result-item:nth-child(n+11) { animation-delay: 300ms; }
+
+/* Monochrome: disable search animations */
+.monochrome .search-result-item {
+  animation: none;
+  opacity: 1;
+}
+
+.monochrome .animate-fade-slide-in {
+  animation: none;
+}
+
+.monochrome .search-card {
+  @apply hover:shadow-none hover:scale-100 focus-within:shadow-none focus-within:scale-100;
+}
+
+/* Custom scrollbar */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.zinc.400') transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: theme('colors.zinc.400');
+  border-radius: 3px;
+}
+
+.dark .scrollbar-thin {
+  scrollbar-color: theme('colors.zinc.600') transparent;
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: theme('colors.zinc.600');
+}
+
+/* Text balance */
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Hide scrollbar */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

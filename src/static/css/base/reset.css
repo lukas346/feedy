@@ -1,0 +1,40 @@
+/* Base styles and resets */
+
+/* Disable animations in monochrome mode for e-ink */
+.monochrome,
+.monochrome * {
+  animation: none !important;
+  animation-duration: 0s !important;
+  transition: none !important;
+  transition-duration: 0s !important;
+  scroll-behavior: auto !important;
+}
+
+/* Disable smooth scrolling in monochrome mode */
+.monochrome {
+  scroll-behavior: auto;
+}
+
+/* Monochrome body - pure white background */
+.monochrome body {
+  background-color: white !important;
+}
+
+/* Hide gradient decorations in monochrome mode */
+.monochrome .gradient-bg-decoration {
+  display: none !important;
+}
+
+/* Base body styles */
+html {
+  font-size: 14px;
+}
+
+body {
+  @apply antialiased;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}

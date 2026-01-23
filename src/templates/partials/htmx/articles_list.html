@@ -1,0 +1,69 @@
+{% if articles %}
+<div class="divide-y divide-zinc-300 dark:divide-zinc-600">
+    {% for article in articles %}
+    <a href="/article/{{ article.id }}"
+       class="block p-5 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all duration-200 group animate-fade-in"
+       style="animation-delay: {{ loop.index0 * 30 }}ms">
+        <div class="flex items-start space-x-4">
+            <!-- Unread indicator -->
+            <div class="mt-2 indicator-dot flex-shrink-0 {% if not article.is_read %}indicator-dot-active{% else %}indicator-dot-inactive{% endif %}"></div>
+
+            <!-- Article content -->
+            <div class="flex-1 min-w-0">
+                <h3 class="text-base font-medium text-zinc-900 dark:text-zinc-100
+                          group-hover:text-blue-600 dark:group-hover:text-blue-400
+                          transition-colors line-clamp-2
+                          {% if not article.is_read %}font-semibold{% endif %}">
+                    {{ article.title }}
+                </h3>
+                <div class="flex items-center space-x-3 mt-2">
+                    <span class="text-sm text-zinc-500 dark:text-zinc-400">
+                        {% if article.published_at %}
+                        {{ article.published_at.strftime('%b %d, %Y') }}
+                        {% else %}
+                        {{ article.fetched_at.strftime('%b %d, %Y') }}
+                        {% endif %}
+                    </span>
+                    {% if article.reading_time_minutes %}
+                    <span class="text-sm text-zinc-400 dark:text-zinc-500">·</span>
+                    <span class="text-sm text-zinc-500 dark:text-zinc-400">{{ t('reader.reading_time', minutes=article.reading_time_minutes) }}</span>
+                    {% endif %}
+                    {% if not article.is_read %}
+                    <span class="badge badge-primary">{{ t('articles.new') }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Arrow -->
+            <svg class="w-5 h-5 text-zinc-300 dark:text-zinc-600 group-hover:text-blue-500 dark:group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+{% if has_more %}
+<!-- Infinite scroll trigger -->
+<div hx-get="/articles/list?website_id={{ website_id }}&limit={{ limit }}&offset={{ next_offset }}"
+     hx-trigger="intersect once"
+     hx-swap="outerHTML"
+     class="flex justify-center py-8 border-t border-zinc-100 dark:border-zinc-800">
+    <div class="spinner h-8 w-8"></div>
+</div>
+{% endif %}
+
+{% else %}
+<!-- Empty state -->
+<div class="p-12 text-center">
+    <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+        <svg class="w-8 h-8 text-zinc-400 dark:text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+    </div>
+    <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-1">{{ t('articles.no_articles_title') }}</h3>
+    <p class="text-zinc-500 dark:text-zinc-400 text-sm max-w-xs mx-auto">
+        {{ t('articles.no_articles_description') }}
+    </p>
+</div>
+{% endif %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('nav.feeds') }} - {{ t('common.rss_reader') }}{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div>
+            <h1 class="page-title">{{ t('feeds.title') }}</h1>
+            <p class="mt-1 text-zinc-500 dark:text-zinc-400">{{ t('feeds.subtitle') }}</p>
+        </div>
+        <div class="flex items-center gap-4 self-start">
+            <a href="/settings#add-feed" class="btn btn-primary inline-flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                <span>{{ t('feeds.add_feed') }}</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Feeds list container -->
+    <div id="feeds-list" hx-get="/feeds/list" hx-trigger="load" hx-swap="innerHTML">
+        <!-- Loading skeleton -->
+        <div class="space-y-6">
+            <div class="card p-6 animate-pulse">
+                <div class="h-6 w-32 skeleton mb-4"></div>
+                <div class="space-y-3">
+                    <div class="h-12 skeleton"></div>
+                    <div class="h-12 skeleton"></div>
+                    <div class="h-12 skeleton"></div>
+                </div>
+            </div>
+            <div class="card p-6 animate-pulse">
+                <div class="h-6 w-24 skeleton mb-4"></div>
+                <div class="space-y-3">
+                    <div class="h-12 skeleton"></div>
+                    <div class="h-12 skeleton"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

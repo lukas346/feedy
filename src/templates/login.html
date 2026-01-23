@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}">
+<head>
+    {% include "partials/includes/common/head.html" %}
+    <title>{{ t('login.title') }} - {{ t('common.app_name') }}</title>
+</head>
+<body class="min-h-screen bg-zinc-50 dark:bg-dark-bg text-zinc-900 dark:text-zinc-100 transition-colors duration-300 flex items-center justify-center">
+    {% include "partials/includes/common/gradient_bg.html" %}
+
+    <!-- Theme switcher -->
+    <div class="fixed top-4 right-4">
+        {% include "partials/includes/common/theme_switcher.html" %}
+    </div>
+
+    <div class="w-full max-w-md mx-4 animate-fade-in">
+
+        <!-- Login Card -->
+        <div class="card p-8">
+            <h2 class="text-xl font-semibold text-center mb-6">{{ t('login.welcome_back') }}</h2>
+
+            {% if error %}
+            <div class="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="/login" class="space-y-4">
+                <div class="input-group">
+                    <label for="password" class="input-label">{{ t('login.password') }}</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        required
+                        autofocus
+                        class="input"
+                        placeholder="{{ t('login.enter_password') }}"
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-primary w-full">
+                    {{ t('login.sign_in') }}
+                </button>
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <p class="mt-6 text-center text-zinc-400 dark:text-zinc-600 text-sm">
+            {{ t('login.default_password') }}
+        </p>
+    </div>
+
+    {% include "partials/includes/common/theme_scripts.html" %}
+</body>
+</html>

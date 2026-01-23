@@ -1,0 +1,130 @@
+<!-- Security Section -->
+<section class="card p-6">
+    <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 dark:from-violet-500/10 dark:to-purple-500/10 flex items-center justify-center">
+                <svg class="w-5 h-5 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+            </div>
+            <div>
+                <h2 class="section-title">{{ t('settings.security.title') }}</h2>
+                <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ t('settings.security.subtitle') }}</p>
+            </div>
+        </div>
+        <button
+            onclick="showChangePasswordModal()"
+            class="btn btn-primary inline-flex items-center space-x-2"
+        >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+            </svg>
+            <span>{{ t('settings.security.change_password') }}</span>
+        </button>
+    </div>
+</section>
+
+<script>
+    // Password change modal
+    function showChangePasswordModal() {
+        var modal = document.getElementById('change-password-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'change-password-modal';
+            modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm';
+            modal.innerHTML =
+                '<div class="bg-white dark:bg-zinc-800 rounded-xl p-6 w-full max-w-md mx-4 shadow-2xl animate-scale-in">' +
+                    '<h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">{{ t("change_password.title") }}</h3>' +
+                    '<div id="password-modal-message"></div>' +
+                    '<form id="change-password-form" class="space-y-4">' +
+                        '<div class="input-group">' +
+                            '<label class="input-label">{{ t("change_password.current_password") }}</label>' +
+                            '<input type="password" id="modal-current-password" class="input" placeholder="{{ t("change_password.enter_current") }}" required>' +
+                        '</div>' +
+                        '<div class="input-group">' +
+                            '<label class="input-label">{{ t("change_password.new_password") }}</label>' +
+                            '<input type="password" id="modal-new-password" class="input" placeholder="{{ t("change_password.enter_new") }}" required minlength="4">' +
+                        '</div>' +
+                        '<div class="input-group">' +
+                            '<label class="input-label">{{ t("change_password.confirm_password") }}</label>' +
+                            '<input type="password" id="modal-confirm-password" class="input" placeholder="{{ t("change_password.enter_confirm") }}" required minlength="4">' +
+                        '</div>' +
+                        '<div class="flex justify-end gap-2 pt-2">' +
+                            '<button type="button" onclick="hideChangePasswordModal()" class="btn btn-secondary">{{ t("common.cancel") }}</button>' +
+                            '<button type="submit" id="modal-save-password-btn" class="btn btn-primary inline-flex items-center space-x-2">' +
+                                '<span class="btn-text">{{ t("common.save") }}</span>' +
+                                '<span class="btn-spinner hidden"><div class="spinner h-4 w-4"></div></span>' +
+                            '</button>' +
+                        '</div>' +
+                    '</form>' +
+                '</div>';
+            document.body.appendChild(modal);
+
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) hideChangePasswordModal();
+            });
+
+            document.getElementById('change-password-form').addEventListener('submit', handlePasswordChange);
+        }
+
+        document.getElementById('change-password-form').reset();
+        document.getElementById('password-modal-message').innerHTML = '';
+        modal.classList.remove('hidden');
+        document.getElementById('modal-current-password').focus();
+    }
+
+    function hideChangePasswordModal() {
+        var modal = document.getElementById('change-password-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            setButtonLoading(document.getElementById('modal-save-password-btn'), false);
+        }
+    }
+
+    async function handlePasswordChange(e) {
+        e.preventDefault();
+
+        var currentPassword = document.getElementById('modal-current-password').value;
+        var newPassword = document.getElementById('modal-new-password').value;
+        var confirmPassword = document.getElementById('modal-confirm-password').value;
+        var messageDiv = document.getElementById('password-modal-message');
+        var btn = document.getElementById('modal-save-password-btn');
+
+        messageDiv.innerHTML = '';
+
+        if (newPassword !== confirmPassword) {
+            messageDiv.innerHTML = '<div class="p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm mb-4">{{ t("change_password.passwords_dont_match") }}</div>';
+            return;
+        }
+
+        if (newPassword.length < 4) {
+            messageDiv.innerHTML = '<div class="p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm mb-4">{{ t("change_password.password_min_length") }}</div>';
+            return;
+        }
+
+        setButtonLoading(btn, true);
+
+        try {
+            var response = await fetch('/api/change-password', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    current_password: currentPassword,
+                    new_password: newPassword
+                })
+            });
+
+            if (response.ok) {
+                hideChangePasswordModal();
+                await Modal.alert('{{ t("change_password.password_changed") }}', '{{ t("common.success") }}');
+            } else {
+                var data = await response.json();
+                messageDiv.innerHTML = '<div class="p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm mb-4">' + (data.detail || 'Failed to change password') + '</div>';
+            }
+        } catch (error) {
+            messageDiv.innerHTML = '<div class="p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm mb-4">Failed to change password. Please try again.</div>';
+        } finally {
+            setButtonLoading(btn, false);
+        }
+    }
+</script>

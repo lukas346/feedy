@@ -1,0 +1,68 @@
+<!-- Blocked Domains Section -->
+<section class="card p-6">
+    <div class="section-header mb-6">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500/20 to-orange-500/20 dark:from-red-500/10 dark:to-orange-500/10 flex items-center justify-center">
+                <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                </svg>
+            </div>
+            <div>
+                <h2 class="section-title">{{ t('settings.blocked_domains.title') }}</h2>
+                <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ t('settings.blocked_domains.subtitle') }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blocked Domains List -->
+    <div id="blocked-domains-list" hx-get="/settings/blocked-domains" hx-trigger="load, refresh" hx-swap="innerHTML">
+        <div class="flex justify-center py-8">
+            <div class="spinner h-8 w-8"></div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Blocked domain handlers
+    async function unblockDomain(id, domain, btnElement) {
+        var confirmed = await Modal.confirm(
+            '{{ t("settings.blocked_domains.unblock_confirm_message") }}',
+            '{{ t("settings.blocked_domains.unblock") }}' + ' "' + domain + '"?',
+            { confirmText: '{{ t("settings.blocked_domains.unblock") }}' }
+        );
+        if (confirmed) {
+            var item = btnElement ? btnElement.closest('.settings-item') : document.querySelector('[data-domain-id="' + id + '"]');
+            if (item && btnElement) {
+                btnElement.disabled = true;
+                btnElement.innerHTML = '<div class="spinner h-4 w-4"></div>';
+            }
+
+            var restoreButton = function() {
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+                }
+            };
+
+            fetch('/api/blocked-domains/' + id, {
+                method: 'DELETE'
+            }).then(async function(response) {
+                if (response.ok) {
+                    if (item) {
+                        animateItemOut(item, function() {
+                            htmx.trigger('#blocked-domains-list', 'refresh');
+                        });
+                    } else {
+                        htmx.trigger('#blocked-domains-list', 'refresh');
+                    }
+                } else {
+                    restoreButton();
+                    await Modal.error('{{ t("settings.blocked_domains.unblock_failed") }}', '{{ t("common.error") }}');
+                }
+            }).catch(async function() {
+                restoreButton();
+                await Modal.error('{{ t("settings.blocked_domains.unblock_failed") }}', '{{ t("common.error") }}');
+            });
+        }
+    }
+</script>

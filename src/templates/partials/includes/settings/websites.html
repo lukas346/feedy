@@ -1,0 +1,599 @@
+<!-- Websites Section -->
+<section class="card p-6">
+    <div class="section-header mb-6">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 dark:from-emerald-500/10 dark:to-teal-500/10 flex items-center justify-center">
+                <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 5c7.18 0 13 5.82 13 13M6 11a7 7 0 017 7m-6 0a1 1 0 11-2 0 1 1 0 012 0z"/>
+                </svg>
+            </div>
+            <div>
+                <h2 class="section-title">{{ t('settings.feeds.title') }}</h2>
+                <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ t('settings.feeds.subtitle') }}</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button
+                id="fetch-all-btn"
+                hx-post="/settings/fetch-all"
+                hx-target="#fetch-result-container"
+                hx-swap="innerHTML"
+                hx-indicator="#fetch-spinner"
+                class="btn btn-secondary inline-flex items-center space-x-2"
+            >
+                <svg id="fetch-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <span>{{ t('settings.feeds.fetch_all') }}</span>
+                <div id="fetch-spinner" class="htmx-indicator">
+                    <div class="spinner h-4 w-4"></div>
+                </div>
+            </button>
+            <button
+                onclick="showAddWebsiteForm()"
+                class="btn btn-primary inline-flex items-center space-x-2"
+            >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                <span>{{ t('settings.feeds.add') }}</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Fetch Result Container -->
+    <div id="fetch-result-container" class="mb-4"></div>
+
+    <!-- Add Website Form (hidden by default) -->
+    <form
+        id="add-website-form"
+        class="hidden mb-6 p-5 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-200 dark:border-zinc-700 animate-scale-in"
+        hx-post="/settings/websites"
+        hx-target="#websites-list"
+        hx-swap="innerHTML"
+        hx-on::after-request="handleWebsiteFormResponse(event)"
+    >
+        <!-- Feed Discovery Section -->
+        <div class="mb-4 discover-section">
+            <label class="input-label discover-section-label mb-2 block">{{ t('settings.feeds.discover.title') }}</label>
+            <div class="flex gap-2">
+                <input
+                    type="url"
+                    id="discover-url-input"
+                    class="input flex-1"
+                    placeholder="{{ t('settings.feeds.discover.placeholder') }}"
+                >
+                <button
+                    type="button"
+                    id="discover-feed-btn"
+                    onclick="discoverFeed()"
+                    class="btn btn-primary inline-flex items-center space-x-2 whitespace-nowrap"
+                >
+                    <svg class="w-4 h-4 discover-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <span class="btn-text">{{ t('settings.feeds.discover.button') }}</span>
+                    <span class="btn-spinner hidden">
+                        <div class="spinner h-4 w-4"></div>
+                    </span>
+                </button>
+            </div>
+            <p class="text-xs discover-section-hint mt-2">
+                {{ t('settings.feeds.discover.hint') }}
+            </p>
+            <div id="discover-error" class="hidden mt-2 text-sm text-red-600 dark:text-red-400"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="input-group">
+                <label class="input-label">{{ t('settings.feeds.website_name') }}</label>
+                <input
+                    type="text"
+                    name="name"
+                    id="website-name-input"
+                    required
+                    class="input"
+                    placeholder="{{ t('settings.feeds.website_name_placeholder') }}"
+                >
+            </div>
+            <div class="input-group">
+                <label class="input-label">{{ t('settings.feeds.category') }}</label>
+                <select
+                    name="category_id"
+                    id="website-category-select"
+                    required
+                    class="input"
+                >
+                    <option value="">{{ t('common.loading') }}</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label class="input-label">{{ t('settings.feeds.website_url') }}</label>
+                <input
+                    type="url"
+                    name="url"
+                    id="website-url-input"
+                    required
+                    class="input"
+                    placeholder="{{ t('settings.feeds.website_url_placeholder') }}"
+                >
+            </div>
+            <div class="input-group">
+                <label class="input-label">{{ t('settings.feeds.rss_url') }}</label>
+                <input
+                    type="url"
+                    name="rss_url"
+                    id="website-rss-url-input"
+                    required
+                    class="input"
+                    placeholder="{{ t('settings.feeds.rss_url_placeholder') }}"
+                >
+            </div>
+            <div class="input-group md:col-span-2">
+                <label class="input-label">{{ t('settings.feeds.fetch_interval') }}</label>
+                <input
+                    type="number"
+                    name="fetch_interval_minutes"
+                    value="60"
+                    min="5"
+                    required
+                    class="input max-w-xs"
+                >
+            </div>
+        </div>
+        <div class="flex justify-end gap-2">
+            <button type="button" onclick="hideAddWebsiteForm()" class="btn btn-secondary">
+                {{ t('common.cancel') }}
+            </button>
+            <button type="submit" id="add-feed-btn" class="btn btn-primary inline-flex items-center space-x-2">
+                <span class="btn-text">{{ t('settings.feeds.add') }}</span>
+                <span class="btn-spinner hidden">
+                    <div class="spinner h-4 w-4"></div>
+                </span>
+            </button>
+        </div>
+    </form>
+
+    <!-- Websites List -->
+    <div id="websites-list" hx-get="/settings/websites" hx-trigger="load, refresh" hx-swap="innerHTML">
+        <div class="flex justify-center py-8">
+            <div class="spinner h-8 w-8"></div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Handle #add-feed hash and ?url= query param to auto-open add feed form
+    document.addEventListener('DOMContentLoaded', function() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var urlToDiscover = urlParams.get('url');
+
+        if (window.location.hash === '#add-feed' || urlToDiscover) {
+            setTimeout(function() {
+                showAddWebsiteForm();
+                var feedsSection = document.getElementById('add-website-form').closest('section');
+                if (feedsSection) {
+                    feedsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+
+                // If URL parameter is present, auto-fill and trigger discovery
+                if (urlToDiscover) {
+                    var discoverInput = document.getElementById('discover-url-input');
+                    if (discoverInput) {
+                        discoverInput.value = urlToDiscover;
+                        // Wait a bit for the form to be fully visible, then trigger discovery
+                        setTimeout(function() {
+                            discoverFeed();
+                        }, 200);
+                    }
+                }
+            }, 100);
+        }
+
+        // Feed discovery - allow Enter key to trigger discovery
+        var discoverInput = document.getElementById('discover-url-input');
+        if (discoverInput) {
+            discoverInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    discoverFeed();
+                }
+            });
+        }
+    });
+
+    // Website form handling
+    function showAddWebsiteForm() {
+        var form = document.getElementById('add-website-form');
+        form.classList.remove('hidden');
+        form.querySelector('input[name="name"]').focus();
+        loadCategoryOptions();
+    }
+
+    function loadCategoryOptions() {
+        var select = document.getElementById('website-category-select');
+        select.innerHTML = '<option value="">Loading...</option>';
+        fetch('/settings/categories/options')
+            .then(function(response) { return response.text(); })
+            .then(function(html) { select.innerHTML = html; })
+            .catch(function() { select.innerHTML = '<option value="">Error loading categories</option>'; });
+    }
+
+    function hideAddWebsiteForm() {
+        var form = document.getElementById('add-website-form');
+        form.classList.add('hidden');
+        form.reset();
+        setButtonLoading(document.getElementById('add-feed-btn'), false);
+        setButtonLoading(document.getElementById('discover-feed-btn'), false);
+        document.getElementById('discover-error').classList.add('hidden');
+    }
+
+    // Feed discovery function
+    async function discoverFeed() {
+        var urlInput = document.getElementById('discover-url-input');
+        var discoverBtn = document.getElementById('discover-feed-btn');
+        var errorDiv = document.getElementById('discover-error');
+        var url = urlInput.value.trim();
+
+        errorDiv.classList.add('hidden');
+
+        if (!url) {
+            errorDiv.textContent = 'Please enter a URL to discover';
+            errorDiv.classList.remove('hidden');
+            return;
+        }
+
+        if (!url.match(/^https?:\/\//i)) {
+            url = 'https://' + url;
+            urlInput.value = url;
+        }
+
+        setButtonLoading(discoverBtn, true);
+
+        try {
+            var response = await fetch('/api/discover-feed', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({url: url})
+            });
+
+            if (!response.ok) {
+                var errorData = await response.json();
+                throw new Error(errorData.detail || 'Failed to discover feed');
+            }
+
+            var data = await response.json();
+
+            document.getElementById('website-name-input').value = data.name || '';
+            document.getElementById('website-url-input').value = data.url || '';
+            document.getElementById('website-rss-url-input').value = data.rss_url || '';
+
+            ['website-name-input', 'website-url-input', 'website-rss-url-input'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el && el.value) {
+                    el.classList.add('ring-2', 'ring-emerald-500');
+                    setTimeout(function() {
+                        el.classList.remove('ring-2', 'ring-emerald-500');
+                    }, 1500);
+                }
+            });
+
+        } catch (error) {
+            errorDiv.textContent = error.message;
+            errorDiv.classList.remove('hidden');
+        } finally {
+            setButtonLoading(discoverBtn, false);
+        }
+    }
+
+    async function handleWebsiteFormResponse(event) {
+        if (event.detail.successful) {
+            hideAddWebsiteForm();
+            htmx.trigger('#websites-list', 'refresh');
+            htmx.trigger('#categories-list', 'refresh');
+        } else {
+            // Prevent HTMX from swapping error response into the list
+            event.detail.shouldSwap = false;
+            // Extract error message from response and show in modal
+            var xhr = event.detail.xhr;
+            if (xhr && xhr.responseText) {
+                // Parse the error message from the HTML response
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(xhr.responseText, 'text/html');
+                var errorText = doc.body.textContent.trim() || '{{ t("settings.feeds.update_failed") }}';
+                await Modal.error(errorText, '{{ t("common.error") }}');
+            } else {
+                await Modal.error('{{ t("settings.feeds.update_failed") }}', '{{ t("common.error") }}');
+            }
+        }
+    }
+
+    // Refetch handler for websites
+    async function refetchWebsite(id, name, btnElement) {
+        var confirmed = await Modal.confirm(
+            '{{ t("settings.feeds.repull_confirm_message") }}',
+            '{{ t("settings.feeds.repull") }}' + ' "' + name + '"?',
+            { confirmText: '{{ t("settings.feeds.repull") }}' }
+        );
+        if (confirmed) {
+            if (btnElement) {
+                btnElement.disabled = true;
+                btnElement.innerHTML = '<div class="spinner h-4 w-4"></div>';
+            }
+
+            var restoreButton = function() {
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>';
+                }
+            };
+
+            fetch('/settings/websites/' + id + '/refetch', {
+                method: 'POST'
+            }).then(async function(response) {
+                restoreButton();
+                if (response.ok) {
+                    var html = await response.text();
+                    document.getElementById('fetch-result-container').innerHTML = html;
+                } else {
+                    await Modal.error('{{ t("settings.feeds.repull_failed") }}', '{{ t("common.error") }}');
+                }
+            }).catch(async function() {
+                restoreButton();
+                await Modal.error('{{ t("settings.feeds.repull_failed") }}', '{{ t("common.error") }}');
+            });
+        }
+    }
+
+    // Unread all handler for websites
+    async function unreadAllWebsite(id, name, btnElement) {
+        var confirmed = await Modal.confirm(
+            '{{ t("settings.feeds.unread_all_confirm_message") }}',
+            '{{ t("settings.feeds.unread_all") }}' + ' "' + name + '"?',
+            { confirmText: '{{ t("settings.feeds.unread_all") }}' }
+        );
+        if (confirmed) {
+            if (btnElement) {
+                btnElement.disabled = true;
+                btnElement.innerHTML = '<div class="spinner h-4 w-4"></div>';
+            }
+
+            var restoreButton = function() {
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76"/></svg>';
+                }
+            };
+
+            fetch('/settings/websites/' + id + '/unread-all', {
+                method: 'POST'
+            }).then(async function(response) {
+                restoreButton();
+                if (response.ok) {
+                    var html = await response.text();
+                    document.getElementById('fetch-result-container').innerHTML = html;
+                } else {
+                    await Modal.error('{{ t("settings.feeds.unread_all_failed") }}', '{{ t("common.error") }}');
+                }
+            }).catch(async function() {
+                restoreButton();
+                await Modal.error('{{ t("settings.feeds.unread_all_failed") }}', '{{ t("common.error") }}');
+            });
+        }
+    }
+
+    // Edit/Delete handlers for websites
+    function editWebsite(id, name, url, rssUrl, categoryId, fetchInterval) {
+        showEditWebsiteModal(id, name, url, rssUrl, categoryId, fetchInterval);
+    }
+
+    function showEditWebsiteModal(id, name, url, rssUrl, categoryId, fetchInterval) {
+        var modal = document.getElementById('edit-website-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'edit-website-modal';
+            modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm';
+            modal.innerHTML =
+                '<div class="bg-white dark:bg-zinc-800 rounded-xl p-6 w-full max-w-sm mx-4 shadow-2xl animate-scale-in">' +
+                    '<h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">{{ t("settings.feeds.edit_title") }}</h3>' +
+                    '<input type="hidden" id="edit-website-id">' +
+                    '<div class="space-y-4 mb-4">' +
+                        '<div class="input-group">' +
+                            '<label class="input-label">{{ t("settings.feeds.website_name") }}</label>' +
+                            '<input type="text" id="edit-website-name" class="input" placeholder="{{ t("settings.feeds.website_name_placeholder") }}">' +
+                        '</div>' +
+                        '<div class="input-group">' +
+                            '<label class="input-label">{{ t("settings.feeds.category") }}</label>' +
+                            '<select id="edit-website-category" class="input"></select>' +
+                        '</div>' +
+                        '<div class="input-group">' +
+                            '<label class="input-label">{{ t("settings.feeds.website_url") }}</label>' +
+                            '<input type="url" id="edit-website-url" class="input" placeholder="{{ t("settings.feeds.website_url_placeholder") }}">' +
+                        '</div>' +
+                        '<div class="input-group">' +
+                            '<label class="input-label">{{ t("settings.feeds.rss_url") }}</label>' +
+                            '<input type="url" id="edit-website-rss-url" class="input" placeholder="{{ t("settings.feeds.rss_url_placeholder") }}">' +
+                        '</div>' +
+                        '<div class="input-group">' +
+                            '<label class="input-label">{{ t("settings.feeds.fetch_interval") }}</label>' +
+                            '<input type="number" id="edit-website-interval" class="input" min="5">' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="flex justify-end gap-2">' +
+                        '<button type="button" onclick="hideEditWebsiteModal()" class="btn btn-secondary">{{ t("common.cancel") }}</button>' +
+                        '<button type="button" id="edit-website-save-btn" onclick="saveEditWebsite()" class="btn btn-primary inline-flex items-center space-x-2">' +
+                            '<span class="btn-text">{{ t("common.save") }}</span>' +
+                            '<span class="btn-spinner hidden"><div class="spinner h-4 w-4"></div></span>' +
+                        '</button>' +
+                    '</div>' +
+                '</div>';
+            document.body.appendChild(modal);
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) hideEditWebsiteModal();
+            });
+        }
+
+        document.getElementById('edit-website-id').value = id;
+        document.getElementById('edit-website-name').value = name;
+        document.getElementById('edit-website-url').value = url;
+        document.getElementById('edit-website-rss-url').value = rssUrl;
+        document.getElementById('edit-website-interval').value = fetchInterval;
+
+        var select = document.getElementById('edit-website-category');
+        select.innerHTML = '<option value="">Loading...</option>';
+        fetch('/settings/categories/options')
+            .then(function(response) { return response.text(); })
+            .then(function(html) {
+                select.innerHTML = html;
+                select.value = categoryId;
+            })
+            .catch(function() {
+                select.innerHTML = '<option value="">Error loading categories</option>';
+            });
+
+        modal.classList.remove('hidden');
+        document.getElementById('edit-website-name').focus();
+    }
+
+    function hideEditWebsiteModal() {
+        var modal = document.getElementById('edit-website-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            setButtonLoading(document.getElementById('edit-website-save-btn'), false);
+        }
+    }
+
+    async function saveEditWebsite() {
+        var id = document.getElementById('edit-website-id').value;
+        var name = document.getElementById('edit-website-name').value;
+        var url = document.getElementById('edit-website-url').value;
+        var rssUrl = document.getElementById('edit-website-rss-url').value;
+        var categoryId = document.getElementById('edit-website-category').value;
+        var interval = document.getElementById('edit-website-interval').value;
+        var saveBtn = document.getElementById('edit-website-save-btn');
+
+        if (!name.trim()) {
+            await Modal.error('{{ t("settings.feeds.name_required") }}', '{{ t("validation.error_title") }}');
+            return;
+        }
+        if (!url.trim()) {
+            await Modal.error('{{ t("settings.feeds.url_required") }}', '{{ t("validation.error_title") }}');
+            return;
+        }
+        if (!rssUrl.trim()) {
+            await Modal.error('{{ t("settings.feeds.rss_required") }}', '{{ t("validation.error_title") }}');
+            return;
+        }
+        if (!categoryId) {
+            await Modal.error('{{ t("settings.feeds.category_required") }}', '{{ t("validation.error_title") }}');
+            return;
+        }
+
+        setButtonLoading(saveBtn, true);
+
+        try {
+            var response = await fetch('/api/websites/' + id, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    name: name,
+                    url: url,
+                    rss_url: rssUrl,
+                    category_id: categoryId,
+                    fetch_interval_minutes: parseInt(interval, 10)
+                })
+            });
+
+            if (response.ok) {
+                hideEditWebsiteModal();
+                htmx.trigger('#websites-list', 'refresh');
+                htmx.trigger('#categories-list', 'refresh');
+            } else {
+                setButtonLoading(saveBtn, false);
+                var data = await response.json();
+                await Modal.error(data.detail || '{{ t("settings.feeds.update_failed") }}', '{{ t("common.error") }}');
+            }
+        } catch (error) {
+            setButtonLoading(saveBtn, false);
+            await Modal.error('{{ t("settings.feeds.update_failed") }}', '{{ t("common.error") }}');
+        }
+    }
+
+    async function deleteWebsite(id, name, btnElement) {
+        var confirmed = await Modal.confirm(
+            '{{ t("settings.feeds.delete_confirm_message") }}',
+            '{{ t("common.delete") }}' + ' "' + name + '"?',
+            { confirmText: '{{ t("common.delete") }}', danger: true }
+        );
+        if (confirmed) {
+            var item = btnElement ? btnElement.closest('.settings-item') : document.querySelector('[data-website-id="' + id + '"]');
+            if (item && btnElement) {
+                btnElement.disabled = true;
+                btnElement.innerHTML = '<div class="spinner h-4 w-4"></div>';
+            }
+
+            var restoreButton = function() {
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>';
+                }
+            };
+
+            fetch('/api/websites/' + id, {
+                method: 'DELETE'
+            }).then(async function(response) {
+                if (response.ok) {
+                    if (item) {
+                        animateItemOut(item, function() {
+                            htmx.trigger('#websites-list', 'refresh');
+                            htmx.trigger('#categories-list', 'refresh');
+                        });
+                    } else {
+                        htmx.trigger('#websites-list', 'refresh');
+                        htmx.trigger('#categories-list', 'refresh');
+                    }
+                } else {
+                    restoreButton();
+                    await Modal.error('{{ t("settings.feeds.delete_failed") }}', '{{ t("common.error") }}');
+                }
+            }).catch(async function() {
+                restoreButton();
+                await Modal.error('{{ t("settings.feeds.delete_failed") }}', '{{ t("common.error") }}');
+            });
+        }
+    }
+
+    // Fetch All loading overlay handlers
+    function showFetchAllOverlay() {
+        var overlay = document.getElementById('fetch-all-overlay');
+        if (overlay) {
+            overlay.classList.remove('hidden');
+        }
+    }
+
+    function hideFetchAllOverlay() {
+        var overlay = document.getElementById('fetch-all-overlay');
+        if (overlay) {
+            overlay.classList.add('hidden');
+        }
+    }
+
+    // HTMX event listeners for website form and fetch-all
+    document.addEventListener('htmx:beforeRequest', function(event) {
+        if (event.detail.elt.id === 'add-website-form') {
+            setButtonLoading(document.getElementById('add-feed-btn'), true);
+        }
+        if (event.detail.elt.id === 'fetch-all-btn') {
+            showFetchAllOverlay();
+        }
+    });
+
+    document.addEventListener('htmx:afterRequest', function(event) {
+        if (event.detail.elt.id === 'add-website-form') {
+            setButtonLoading(document.getElementById('add-feed-btn'), false);
+        }
+        if (event.detail.elt.id === 'fetch-all-btn') {
+            hideFetchAllOverlay();
+        }
+    });
+</script>

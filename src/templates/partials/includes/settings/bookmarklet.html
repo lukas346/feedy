@@ -1,0 +1,40 @@
+<!-- Bookmarklet Section -->
+<section class="card p-6">
+    <div class="section-header mb-6">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 dark:from-indigo-500/10 dark:to-purple-500/10 flex items-center justify-center">
+                <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                </svg>
+            </div>
+            <div>
+                <h2 class="section-title">{{ t('settings.bookmarklet.title') }}</h2>
+                <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ t('settings.bookmarklet.subtitle') }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-200 dark:border-zinc-700">
+        <h3 class="font-medium text-zinc-900 dark:text-zinc-100 mb-2">{{ t('settings.bookmarklet.add_to_browser') }}</h3>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">{{ t('settings.bookmarklet.drag_hint') }}</p>
+        <div class="flex items-center gap-4">
+            <a
+                id="add-feed-bookmarklet"
+                href="javascript:(function(){window.location='{{ BASE_URL if BASE_URL else request.url.scheme ~ '://' ~ request.url.netloc }}/settings?url='+encodeURIComponent(window.location.href);})()"
+                class="btn btn-primary cursor-grab active:cursor-grabbing"
+                onclick="event.preventDefault(); alert('{{ t('settings.bookmarklet.drag_to_bar') }}')"
+            >
+                {{ t('settings.bookmarklet.button_text') }}
+            </a>
+            <span class="text-sm text-zinc-500 dark:text-zinc-400">{{ t('settings.bookmarklet.drag_arrow') }}</span>
+        </div>
+        <div class="mt-4 p-3 bg-zinc-100 dark:bg-zinc-700/50 rounded-lg">
+            <h4 class="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">{{ t('settings.bookmarklet.how_to_use') }}</h4>
+            <ol class="text-sm text-zinc-600 dark:text-zinc-400 list-decimal list-inside space-y-1">
+                <li>{{ t('settings.bookmarklet.step_1') }}</li>
+                <li>{{ t('settings.bookmarklet.step_2') }}</li>
+                <li>{{ t('settings.bookmarklet.step_3') }}</li>
+            </ol>
+        </div>
+    </div>
+</section>

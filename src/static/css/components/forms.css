@@ -1,0 +1,37 @@
+/* Input and form styles */
+
+.input {
+  @apply w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700
+         bg-white dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100
+         placeholder-zinc-400 dark:placeholder-zinc-500
+         focus:outline-none focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500
+         transition-all duration-200;
+}
+
+.input-group {
+  @apply space-y-2;
+}
+
+/* Select input styles */
+select.input {
+  @apply appearance-none cursor-pointer pr-10
+         bg-no-repeat bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center];
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2371717a'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.dark select.input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23a1a1aa'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  color-scheme: dark;
+}
+
+select.input option {
+  @apply py-2 px-3 bg-white text-zinc-900;
+}
+
+.dark select.input option {
+  @apply bg-zinc-800 text-zinc-100;
+}
+
+.input-label {
+  @apply block text-sm font-medium text-zinc-700 dark:text-zinc-300;
+}

@@ -1,0 +1,32 @@
+/* Page title */
+.page-title {
+  @apply text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100
+         tracking-tight;
+}
+
+/* Gradient text */
+.gradient-text {
+  @apply bg-gradient-to-r from-rose-600 to-orange-500
+         dark:from-rose-400 dark:to-orange-400
+         bg-clip-text text-transparent;
+}
+
+/* Glassmorphism effect */
+.glass {
+  @apply bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl;
+}
+
+/* Feed discovery section */
+.discover-section {
+  @apply p-4 rounded-lg border
+         bg-rose-50 border-rose-200
+         dark:bg-rose-900/20 dark:border-rose-800;
+}
+
+.discover-section-label {
+  @apply text-rose-700 dark:text-rose-300;
+}
+
+.discover-section-hint {
+  @apply text-rose-600 dark:text-rose-400;
+}

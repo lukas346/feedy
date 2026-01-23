@@ -1,0 +1,341 @@
+/* Monochrome theme overrides - pure black and white only */
+
+/* Buttons */
+.monochrome .btn {
+  @apply rounded-none shadow-none;
+}
+
+.monochrome .btn-primary {
+  @apply bg-black text-white shadow-none from-black to-black
+         hover:from-black hover:to-black hover:bg-black;
+}
+
+.monochrome .btn-secondary {
+  @apply bg-white text-black border border-black hover:bg-white;
+}
+
+.monochrome .btn-ghost {
+  @apply bg-white text-black hover:bg-white border border-black;
+}
+
+.monochrome .btn-danger {
+  @apply bg-black text-white shadow-none from-black to-black
+         hover:from-black hover:to-black;
+}
+
+/* Cards */
+.monochrome .card {
+  @apply bg-white border border-black shadow-none rounded-none;
+}
+
+.monochrome .card-hover {
+  @apply hover:shadow-none hover:translate-y-0;
+}
+
+/* Badges */
+.monochrome .badge {
+  @apply rounded-none;
+}
+
+.monochrome .badge-primary {
+  @apply bg-black text-white;
+}
+
+.monochrome .badge-success {
+  @apply bg-white text-black border border-black;
+}
+
+.monochrome .badge-warning {
+  @apply bg-white text-black border border-black;
+}
+
+.monochrome .badge-neutral {
+  @apply bg-white text-black border border-black;
+}
+
+/* Forms */
+.monochrome .input {
+  @apply bg-white border-black rounded-none focus:ring-black focus:border-black;
+}
+
+.monochrome select.input {
+  @apply rounded-none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000000'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+}
+
+/* Indicators */
+.monochrome .indicator-dot-active {
+  @apply bg-black ring-0;
+}
+
+.monochrome .indicator-dot-inactive {
+  @apply bg-white border border-black;
+}
+
+/* Theme buttons */
+.monochrome .theme-btn {
+  @apply rounded-none;
+}
+
+.monochrome .theme-btn-active {
+  @apply border-black bg-white text-black shadow-none;
+}
+
+.monochrome .theme-btn-inactive {
+  @apply border-black;
+}
+
+.monochrome .theme-switcher {
+  @apply bg-white border border-black rounded-none;
+}
+
+.monochrome .theme-icon-btn {
+  @apply rounded-none text-black;
+}
+
+.monochrome .theme-icon-btn.active {
+  @apply bg-black text-white shadow-none;
+}
+
+/* Gradient text */
+.monochrome .gradient-text {
+  @apply text-black bg-none;
+}
+
+/* Logo */
+.monochrome .logo-icon {
+  @apply bg-black rounded-none shadow-none;
+}
+
+.monochrome .logo-text-accent {
+  @apply text-black;
+}
+
+/* Glass */
+.monochrome .glass {
+  @apply bg-white backdrop-blur-none;
+}
+
+/* Navigation */
+.monochrome .nav-link {
+  @apply rounded-none hover:bg-white;
+}
+
+.monochrome .nav-link-active {
+  @apply text-black bg-white border border-black;
+}
+
+/* Settings items */
+.monochrome .settings-item {
+  @apply rounded-none bg-white;
+}
+
+.monochrome .settings-item:hover {
+  @apply bg-white border-transparent;
+}
+
+.monochrome .settings-item-active {
+  @apply border-black bg-white;
+}
+
+/* Settings item separators */
+.monochrome .space-y-2 > .settings-item:not(:last-child) {
+  border-bottom-width: 1px;
+  border-bottom-color: black;
+}
+
+/* Sections */
+.monochrome .section {
+  @apply rounded-none;
+}
+
+.monochrome .section-header {
+  @apply border-black;
+}
+
+/* Loading - hide placeholders entirely for e-ink (avoids screen refresh) */
+.monochrome .skeleton {
+  @apply hidden;
+}
+
+.monochrome .animate-pulse {
+  @apply hidden;
+}
+
+/* Reserve full viewport height to prevent page expansion on content load */
+.monochrome main {
+  min-height: 100vh;
+}
+
+.monochrome .spinner {
+  @apply animate-none border-black border-t-white;
+}
+
+.monochrome .loading-overlay {
+  @apply bg-white/90 backdrop-blur-none;
+}
+
+.monochrome .loading-overlay-content {
+  @apply bg-white border-2 border-black shadow-none rounded-none;
+}
+
+.monochrome .loading-overlay-spinner {
+  @apply border-black border-t-white animate-none;
+}
+
+.monochrome .loading-overlay-text {
+  @apply text-black;
+}
+
+.monochrome .loading-overlay-subtext {
+  @apply text-black;
+}
+
+/* Disable all animations */
+.monochrome .animate-spin,
+.monochrome .animate-pulse,
+.monochrome .animate-shimmer,
+.monochrome .animate-fade-in,
+.monochrome .animate-slide-up,
+.monochrome .animate-scale-in,
+.monochrome .skeleton {
+  animation: none !important;
+}
+
+/* Navigation and footer borders */
+.monochrome nav {
+  @apply bg-white border-black;
+}
+
+.monochrome footer {
+  @apply border-black;
+}
+
+/* Dividers */
+.monochrome .divide-y > * + * {
+  @apply border-black;
+}
+
+.monochrome .divide-y {
+  @apply divide-black;
+}
+
+.monochrome .border-t {
+  @apply border-black;
+}
+
+.monochrome .border-b {
+  @apply border-black;
+}
+
+/* Disable hover effects in list view */
+.monochrome .divide-y > a:hover {
+  background-color: white !important;
+}
+
+.monochrome .group:hover .group-hover\:text-blue-600 {
+  color: black !important;
+}
+
+.monochrome .group:hover .group-hover\:text-blue-400 {
+  color: black !important;
+}
+
+.monochrome .group:hover .group-hover\:translate-x-0\.5 {
+  transform: none !important;
+}
+
+/* Feed discovery section */
+.monochrome .discover-section {
+  @apply bg-white border-black rounded-none;
+}
+
+.monochrome .discover-section-label {
+  @apply text-black;
+}
+
+.monochrome .discover-section-hint {
+  @apply text-black;
+}
+
+/* Fetch result notification */
+.monochrome #fetch-result {
+  @apply bg-white border-black text-black rounded-none;
+}
+
+/* Pagination */
+.monochrome .pagination-btn {
+  @apply bg-white border border-black rounded-none text-black;
+}
+
+.monochrome .pagination-btn:hover {
+  @apply bg-white;
+}
+
+.monochrome .pagination-btn-active {
+  @apply bg-black text-white rounded-none;
+}
+
+/* Search bar */
+.monochrome #archive-search {
+  @apply bg-white border-black rounded-none focus:ring-0 focus:border-black;
+}
+
+/* Article content images */
+.monochrome .article-content img:hover {
+  transform: none;
+}
+
+/* Article reader page - e-ink friendly typography with Literata */
+.monochrome .article-content {
+  font-family: 'Literata', Georgia, 'Times New Roman', serif;
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  letter-spacing: 0.01em;
+  word-spacing: 0.03em;
+}
+
+.monochrome .article-content p {
+  margin-bottom: 1.4em;
+}
+
+.monochrome .article-content h1 {
+  font-family: 'Literata', Georgia, 'Times New Roman', serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-top: 1.75em;
+  margin-bottom: 0.6em;
+}
+
+.monochrome .article-content h2 {
+  font-family: 'Literata', Georgia, 'Times New Roman', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.monochrome .article-content h3 {
+  font-family: 'Literata', Georgia, 'Times New Roman', serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 1.25em;
+  margin-bottom: 0.4em;
+}
+
+.monochrome .article-content blockquote {
+  font-size: 1rem;
+  line-height: 1.7;
+  border-left: 3px solid black;
+  padding-left: 1.25em;
+  margin: 1.4em 0;
+}
+
+.monochrome .article-content code {
+  font-size: 0.9375rem;
+}
+
+.monochrome .article-content pre {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}

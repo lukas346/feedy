@@ -1,0 +1,914 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }} - {{ t('common.rss_reader') }}{% endblock %}
+
+{% block head %}
+<style>
+    /* Reader-friendly typography */
+    .article-content {
+        max-width: 85ch;
+        line-height: 1.8;
+        font-size: 1.0625rem;
+    }
+
+    .article-content h1 {
+        font-size: 2em;
+        font-weight: 700;
+        margin-top: 2em;
+        margin-bottom: 0.75em;
+        letter-spacing: -0.025em;
+    }
+
+    .article-content h2 {
+        font-size: 1.5em;
+        font-weight: 600;
+        margin-top: 1.75em;
+        margin-bottom: 0.75em;
+        letter-spacing: -0.02em;
+    }
+
+    .article-content h3 {
+        font-size: 1.25em;
+        font-weight: 600;
+        margin-top: 1.5em;
+        margin-bottom: 0.5em;
+    }
+
+    .article-content p {
+        margin-bottom: 1.5em;
+    }
+
+    .article-content ul, .article-content ol {
+        margin-bottom: 1.5em;
+        padding-left: 1.75em;
+    }
+
+    .article-content ul {
+        list-style-type: disc;
+    }
+
+    .article-content ol {
+        list-style-type: decimal;
+    }
+
+    .article-content li {
+        margin-bottom: 0.5em;
+    }
+
+    .article-content blockquote,
+    .article-content .mdQuote,
+    .article-content .quote,
+    .article-content .pullquote,
+    .article-content .pull-quote {
+        border-left: 4px solid;
+        border-color: rgb(59 130 246 / 0.5);
+        padding-left: 1.5em;
+        margin: 1.5em 0;
+        font-style: italic;
+        opacity: 0.9;
+    }
+
+    .dark .article-content blockquote,
+    .dark .article-content .mdQuote,
+    .dark .article-content .quote,
+    .dark .article-content .pullquote,
+    .dark .article-content .pull-quote {
+        border-color: rgb(96 165 250 / 0.5);
+    }
+
+    .article-content pre {
+        background: linear-gradient(145deg, rgb(250 250 252), rgb(244 244 246));
+        color: rgb(30 30 34);
+        padding: 1.5em;
+        border-radius: 0.75em;
+        overflow-x: auto;
+        margin-bottom: 1.5em;
+        font-size: 0.875em;
+        line-height: 1.7;
+        border: 1px solid rgb(228 228 231);
+        box-shadow:
+            0 4px 6px -1px rgb(0 0 0 / 0.05),
+            0 2px 4px -2px rgb(0 0 0 / 0.05),
+            inset 0 1px 0 rgb(255 255 255 / 0.8);
+    }
+
+    /* Dark mode pre blocks */
+    .dark .article-content pre {
+        background: linear-gradient(145deg, rgb(30 30 34), rgb(20 20 23));
+        color: rgb(228 228 231);
+        border: 1px solid rgb(63 63 70 / 0.5);
+        box-shadow:
+            0 4px 6px -1px rgb(0 0 0 / 0.1),
+            0 2px 4px -2px rgb(0 0 0 / 0.1),
+            inset 0 1px 0 rgb(255 255 255 / 0.05);
+    }
+
+    /* Custom scrollbar for code blocks */
+    .article-content pre::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .article-content pre::-webkit-scrollbar-track {
+        background: rgb(228 228 231 / 0.5);
+        border-radius: 4px;
+    }
+
+    .article-content pre::-webkit-scrollbar-thumb {
+        background: rgb(161 161 170);
+        border-radius: 4px;
+    }
+
+    .article-content pre::-webkit-scrollbar-thumb:hover {
+        background: rgb(113 113 122);
+    }
+
+    .dark .article-content pre::-webkit-scrollbar-track {
+        background: rgb(39 39 42 / 0.3);
+    }
+
+    .dark .article-content pre::-webkit-scrollbar-thumb {
+        background: rgb(113 113 122);
+    }
+
+    .dark .article-content pre::-webkit-scrollbar-thumb:hover {
+        background: rgb(161 161 170);
+    }
+
+    .article-content code {
+        font-family: ui-monospace, 'SF Mono', Menlo, Monaco, 'Cascadia Code', 'Fira Code', monospace;
+        font-size: 0.875em;
+        font-feature-settings: 'liga' 1, 'calt' 1;
+    }
+
+    .article-content :not(pre) > code {
+        background: linear-gradient(145deg, rgb(244 244 245), rgb(238 238 240));
+        padding: 0.2em 0.5em;
+        border-radius: 0.375em;
+        border: 1px solid rgb(228 228 231);
+        color: rgb(113 63 153);
+        font-weight: 500;
+    }
+
+    .dark .article-content :not(pre) > code {
+        background: linear-gradient(145deg, rgb(45 45 50), rgb(35 35 40));
+        border-color: rgb(63 63 70);
+        color: rgb(232 178 255);
+    }
+
+    .article-content a {
+        color: rgb(59 130 246);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        text-decoration-thickness: 1px;
+        transition: all 0.2s;
+    }
+
+    .article-content a:hover {
+        color: rgb(37 99 235);
+        text-decoration-thickness: 2px;
+    }
+
+    .dark .article-content a {
+        color: rgb(96 165 250);
+    }
+
+    .dark .article-content a:hover {
+        color: rgb(147 197 253);
+    }
+
+    .article-content img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        border-radius: 0;
+        margin: 1.5em 0;
+        box-shadow: none;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .article-content img:hover {
+        transform: scale(1.02);
+    }
+
+    /* Video embed styles */
+    .article-content .video-wrapper {
+        position: relative;
+        width: 100%;
+        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        margin: 1.5em 0;
+        border-radius: 1em;
+        overflow: hidden;
+        background-color: rgb(24 24 27);
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
+
+    .article-content .video-wrapper iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+        border-radius: 1em;
+    }
+
+    /* Standalone video/audio elements */
+    .article-content video,
+    .article-content audio {
+        display: block;
+        max-width: 100%;
+        margin: 1.5em auto;
+        border-radius: 1em;
+    }
+
+    .article-content video {
+        background-color: rgb(24 24 27);
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
+
+    /* Monochrome theme video overrides */
+    .monochrome .article-content .video-wrapper {
+        border-radius: 0;
+        box-shadow: none;
+        border: 1px solid black;
+        background-color: rgb(244 244 245);
+    }
+
+    .monochrome .article-content .video-wrapper iframe {
+        border-radius: 0;
+    }
+
+    .monochrome .article-content video {
+        border-radius: 0;
+        box-shadow: none;
+        border: 1px solid black;
+        background-color: rgb(244 244 245);
+    }
+
+    /* Image lightbox */
+    .lightbox {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        z-index: 1000;
+        cursor: pointer;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .lightbox.active {
+        display: flex;
+    }
+
+    .lightbox img {
+        max-width: 90%;
+        max-height: 90%;
+        border-radius: 0.5em;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        cursor: default;
+    }
+
+    .lightbox-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        color: white;
+        font-size: 2rem;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+
+    .lightbox-close:hover {
+        opacity: 1;
+    }
+
+    /* Table styles */
+    .article-content .table-wrapper {
+        overflow-x: auto;
+        margin: 1.5em 0;
+        border-radius: 0.75em;
+        border: 1px solid rgb(228 228 231);
+    }
+
+    .dark .article-content .table-wrapper {
+        border-color: rgb(63 63 70);
+    }
+
+    .article-content table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.95em;
+        line-height: 1.5;
+    }
+
+    .article-content thead {
+        background-color: rgb(244 244 245);
+    }
+
+    .dark .article-content thead {
+        background-color: rgb(39 39 42);
+    }
+
+    .article-content th {
+        padding: 0.875em 1em;
+        text-align: left;
+        font-weight: 600;
+        color: rgb(24 24 27);
+        border-bottom: 2px solid rgb(228 228 231);
+    }
+
+    .dark .article-content th {
+        color: rgb(244 244 245);
+        border-bottom-color: rgb(63 63 70);
+    }
+
+    .article-content td {
+        padding: 0.875em 1em;
+        border-bottom: 1px solid rgb(228 228 231);
+        color: rgb(63 63 70);
+    }
+
+    .dark .article-content td {
+        border-bottom-color: rgb(63 63 70);
+        color: rgb(161 161 170);
+    }
+
+    .article-content tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .article-content tbody tr:hover {
+        background-color: rgb(250 250 250);
+    }
+
+    .dark .article-content tbody tr:hover {
+        background-color: rgb(39 39 42 / 0.5);
+    }
+
+    /* Monochrome table overrides */
+    .monochrome .article-content .table-wrapper {
+        border-radius: 0;
+        border-color: black;
+    }
+
+    .monochrome .article-content thead {
+        background-color: white;
+    }
+
+    .monochrome .article-content th {
+        color: black;
+        border-bottom-color: black;
+    }
+
+    .monochrome .article-content td {
+        color: black;
+        border-bottom-color: black;
+    }
+
+    .monochrome .article-content tbody tr:hover {
+        background-color: white;
+    }
+
+    .article-content hr {
+        border: none;
+        height: 1px;
+        background: linear-gradient(to right, transparent, rgb(228 228 231), transparent);
+        margin: 2.5em 0;
+    }
+
+    .dark .article-content hr {
+        background: linear-gradient(to right, transparent, rgb(63 63 70), transparent);
+    }
+
+    /* Monochrome overrides */
+    .monochrome .article-content blockquote,
+    .monochrome .article-content .mdQuote,
+    .monochrome .article-content .quote,
+    .monochrome .article-content .pullquote,
+    .monochrome .article-content .pull-quote {
+        border-color: black;
+    }
+
+    .monochrome .article-content a {
+        color: black;
+    }
+
+    .monochrome .article-content pre {
+        background: white !important;
+        color: black !important;
+        border: 1px solid black !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .monochrome .article-content :not(pre) > code {
+        background: white !important;
+        color: black !important;
+        border: 1px solid black !important;
+        border-radius: 0 !important;
+    }
+
+    /* Syntax highlighting (Pygments) */
+    .article-content .highlight {
+        background: linear-gradient(145deg, rgb(250 250 252), rgb(244 244 246));
+        padding: 1.5em;
+        border-radius: 0.75em;
+        overflow-x: auto;
+        margin-bottom: 1.5em;
+        border: 1px solid rgb(228 228 231);
+        box-shadow:
+            0 4px 6px -1px rgb(0 0 0 / 0.05),
+            0 2px 4px -2px rgb(0 0 0 / 0.05),
+            inset 0 1px 0 rgb(255 255 255 / 0.8);
+    }
+
+    .dark .article-content .highlight {
+        background: linear-gradient(145deg, rgb(30 30 34), rgb(20 20 23));
+        border: 1px solid rgb(63 63 70 / 0.5);
+        box-shadow:
+            0 4px 6px -1px rgb(0 0 0 / 0.1),
+            0 2px 4px -2px rgb(0 0 0 / 0.1),
+            inset 0 1px 0 rgb(255 255 255 / 0.05);
+    }
+
+    .article-content .highlight pre {
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        line-height: 1.7;
+    }
+
+    .article-content .highlight::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .article-content .highlight::-webkit-scrollbar-track {
+        background: rgb(228 228 231 / 0.5);
+        border-radius: 4px;
+    }
+
+    .article-content .highlight::-webkit-scrollbar-thumb {
+        background: rgb(161 161 170);
+        border-radius: 4px;
+    }
+
+    .article-content .highlight::-webkit-scrollbar-thumb:hover {
+        background: rgb(113 113 122);
+    }
+
+    .dark .article-content .highlight::-webkit-scrollbar-track {
+        background: rgb(39 39 42 / 0.3);
+    }
+
+    .dark .article-content .highlight::-webkit-scrollbar-thumb {
+        background: rgb(113 113 122);
+    }
+
+    .dark .article-content .highlight::-webkit-scrollbar-thumb:hover {
+        background: rgb(161 161 170);
+    }
+
+    /* Pygments theme - Light (GitHub-inspired) */
+    .highlight .c { color: #6a737d } /* Comment */
+    .highlight .k { color: #d73a49 } /* Keyword */
+    .highlight .n { color: #24292e } /* Name */
+    .highlight .o { color: #d73a49 } /* Operator */
+    .highlight .p { color: #24292e } /* Punctuation */
+    .highlight .s { color: #032f62 } /* Literal.String */
+    .highlight .na { color: #6f42c1 } /* Name.Attribute */
+    .highlight .nc { color: #6f42c1 } /* Name.Class */
+    .highlight .nf { color: #6f42c1 } /* Name.Function */
+    .highlight .m { color: #005cc5 } /* Literal.Number */
+    .highlight .ge { font-style: italic } /* Generic.Emph */
+    .highlight .gs { font-weight: bold } /* Generic.Strong */
+
+    /* Dark theme syntax highlighting - Monokai-inspired */
+    .dark .highlight .hll { background-color: #49483e }
+    .dark .highlight .c { color: #75715e } /* Comment */
+    .dark .highlight .k { color: #66d9ef } /* Keyword */
+    .dark .highlight .n { color: #f8f8f2 } /* Name */
+    .dark .highlight .o { color: #f92672 } /* Operator */
+    .dark .highlight .p { color: #f8f8f2 } /* Punctuation */
+    .dark .highlight .cm { color: #75715e } /* Comment.Multiline */
+    .dark .highlight .cp { color: #75715e } /* Comment.Preproc */
+    .dark .highlight .c1 { color: #75715e } /* Comment.Single */
+    .dark .highlight .cs { color: #75715e } /* Comment.Special */
+    .dark .highlight .gd { color: #f92672 } /* Generic.Deleted */
+    .dark .highlight .gi { color: #a6e22e } /* Generic.Inserted */
+    .dark .highlight .gu { color: #75715e } /* Generic.Subheading */
+    .dark .highlight .kc { color: #66d9ef } /* Keyword.Constant */
+    .dark .highlight .kd { color: #66d9ef } /* Keyword.Declaration */
+    .dark .highlight .kn { color: #f92672 } /* Keyword.Namespace */
+    .dark .highlight .kp { color: #66d9ef } /* Keyword.Pseudo */
+    .dark .highlight .kr { color: #66d9ef } /* Keyword.Reserved */
+    .dark .highlight .kt { color: #66d9ef } /* Keyword.Type */
+    .dark .highlight .ld { color: #e6db74 } /* Literal.Date */
+    .dark .highlight .m { color: #ae81ff } /* Literal.Number */
+    .dark .highlight .s { color: #e6db74 } /* Literal.String */
+    .dark .highlight .na { color: #a6e22e } /* Name.Attribute */
+    .dark .highlight .nb { color: #f8f8f2 } /* Name.Builtin */
+    .dark .highlight .nc { color: #a6e22e } /* Name.Class */
+    .dark .highlight .no { color: #66d9ef } /* Name.Constant */
+    .dark .highlight .nd { color: #a6e22e } /* Name.Decorator */
+    .dark .highlight .ni { color: #f8f8f2 } /* Name.Entity */
+    .dark .highlight .ne { color: #a6e22e } /* Name.Exception */
+    .dark .highlight .nf { color: #a6e22e } /* Name.Function */
+    .dark .highlight .nl { color: #f8f8f2 } /* Name.Label */
+    .dark .highlight .nn { color: #f8f8f2 } /* Name.Namespace */
+    .dark .highlight .nx { color: #a6e22e } /* Name.Other */
+    .dark .highlight .py { color: #f8f8f2 } /* Name.Property */
+    .dark .highlight .nt { color: #f92672 } /* Name.Tag */
+    .dark .highlight .nv { color: #f8f8f2 } /* Name.Variable */
+    .dark .highlight .ow { color: #f92672 } /* Operator.Word */
+    .dark .highlight .w { color: #f8f8f2 } /* Text.Whitespace */
+    .dark .highlight .mb { color: #ae81ff } /* Literal.Number.Bin */
+    .dark .highlight .mf { color: #ae81ff } /* Literal.Number.Float */
+    .dark .highlight .mh { color: #ae81ff } /* Literal.Number.Hex */
+    .dark .highlight .mi { color: #ae81ff } /* Literal.Number.Integer */
+    .dark .highlight .mo { color: #ae81ff } /* Literal.Number.Oct */
+    .dark .highlight .sa { color: #e6db74 } /* Literal.String.Affix */
+    .dark .highlight .sb { color: #e6db74 } /* Literal.String.Backtick */
+    .dark .highlight .sc { color: #e6db74 } /* Literal.String.Char */
+    .dark .highlight .dl { color: #e6db74 } /* Literal.String.Delimiter */
+    .dark .highlight .sd { color: #e6db74 } /* Literal.String.Doc */
+    .dark .highlight .s2 { color: #e6db74 } /* Literal.String.Double */
+    .dark .highlight .se { color: #ae81ff } /* Literal.String.Escape */
+    .dark .highlight .sh { color: #e6db74 } /* Literal.String.Heredoc */
+    .dark .highlight .si { color: #e6db74 } /* Literal.String.Interpol */
+    .dark .highlight .sx { color: #e6db74 } /* Literal.String.Other */
+    .dark .highlight .sr { color: #e6db74 } /* Literal.String.Regex */
+    .dark .highlight .s1 { color: #e6db74 } /* Literal.String.Single */
+    .dark .highlight .ss { color: #e6db74 } /* Literal.String.Symbol */
+    .dark .highlight .bp { color: #f8f8f2 } /* Name.Builtin.Pseudo */
+    .dark .highlight .fm { color: #a6e22e } /* Name.Function.Magic */
+    .dark .highlight .vc { color: #f8f8f2 } /* Name.Variable.Class */
+    .dark .highlight .vg { color: #f8f8f2 } /* Name.Variable.Global */
+    .dark .highlight .vi { color: #f8f8f2 } /* Name.Variable.Instance */
+    .dark .highlight .vm { color: #f8f8f2 } /* Name.Variable.Magic */
+    .dark .highlight .il { color: #ae81ff } /* Literal.Number.Integer.Long */
+
+    /* Monochrome theme - no colors */
+    .monochrome .article-content .highlight {
+        background: white !important;
+        border: 1px solid black !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .monochrome .article-content .highlight pre {
+        background: transparent !important;
+        border: none !important;
+    }
+
+    .monochrome .highlight * {
+        color: black !important;
+    }
+
+    /* Scroll to top button */
+    .scroll-to-top-btn {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        background-color: rgb(59 130 246);
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s, visibility 0.3s, transform 0.2s;
+        box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+        z-index: 50;
+    }
+
+    .scroll-to-top-btn:hover {
+        background-color: rgb(37 99 235);
+        transform: translateY(-2px);
+    }
+
+    .scroll-to-top-btn.visible {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .dark .scroll-to-top-btn {
+        background-color: rgb(96 165 250);
+        color: rgb(24 24 27);
+    }
+
+    .dark .scroll-to-top-btn:hover {
+        background-color: rgb(147 197 253);
+    }
+
+    /* Monochrome theme */
+    .monochrome .scroll-to-top-btn {
+        background-color: black;
+        color: white;
+        border-radius: 0;
+        box-shadow: none;
+        border: 1px solid black;
+        transition: none;
+    }
+
+    .monochrome .scroll-to-top-btn:hover {
+        transform: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<article class="max-w-5xl mx-auto animate-fade-in">
+    <!-- Back navigation -->
+    <div class="mb-8">
+        <a href="/articles?website_id={{ article.website_id }}"
+           class="inline-flex items-center space-x-1 text-sm text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            <span>{{ t('reader.back_to', name=website.name) }}</span>
+        </a>
+    </div>
+
+    <!-- Article header -->
+    <header class="mb-10">
+        <h1 class="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 leading-tight tracking-tight text-balance mb-5">
+            {{ article.title }}
+        </h1>
+
+        <!-- Metadata -->
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-zinc-500 dark:text-zinc-400 mb-6">
+            <span class="inline-flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <span>
+                    {% if article.published_at %}
+                    {{ article.published_at.strftime('%B %d, %Y') }}
+                    {% else %}
+                    {{ article.fetched_at.strftime('%B %d, %Y') }}
+                    {% endif %}
+                </span>
+            </span>
+            <span class="inline-flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                </svg>
+                <span>{{ website.name }}</span>
+            </span>
+            {% if article.reading_time_minutes %}
+            <span class="inline-flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>{{ t('reader.reading_time', minutes=article.reading_time_minutes) }}</span>
+            </span>
+            {% endif %}
+        </div>
+
+        <!-- Action buttons -->
+        <div class="flex flex-wrap items-center gap-3">
+            <!-- Read status toggle -->
+            <button id="toggle-read"
+                    hx-patch="/api/articles/{{ article.id }}/read"
+                    hx-ext="json-enc"
+                    hx-vals='{"is_read": {{ "false" if article.is_read else "true" }}}'
+                    hx-swap="none"
+                    hx-on::after-request="toggleReadStatus(this)"
+                    class="btn btn-secondary inline-flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {% if article.is_read %}
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76"/>
+                    {% else %}
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M5 13l4 4L19 7"/>
+                    {% endif %}
+                </svg>
+                <span id="read-status-text">{{ t('reader.mark_as_unread') if article.is_read else t('reader.mark_as_read') }}</span>
+            </button>
+
+            <!-- Favorite toggle -->
+            <button id="toggle-favorite"
+                    hx-patch="/api/articles/{{ article.id }}/favorite"
+                    hx-ext="json-enc"
+                    hx-vals='{"is_favorite": {{ "false" if article.favorited_at else "true" }}}'
+                    hx-swap="none"
+                    hx-on::after-request="toggleFavoriteStatus(this)"
+                    class="btn btn-secondary inline-flex items-center space-x-2 {% if article.favorited_at %}text-rose-500 dark:text-rose-400{% endif %}">
+                <svg class="w-4 h-4" fill="{% if article.favorited_at %}currentColor{% else %}none{% endif %}" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                </svg>
+                <span id="favorite-status-text">{{ t('reader.remove_from_favorites') if article.favorited_at else t('reader.add_to_favorites') }}</span>
+            </button>
+
+            <!-- Original article link -->
+            <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer"
+               class="btn btn-ghost inline-flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                </svg>
+                <span>{{ t('reader.original_article') }}</span>
+            </a>
+
+            <!-- Block domain button -->
+            <button id="block-domain-btn"
+                    onclick="blockDomain('{{ article.id }}', '{{ article_domain }}')"
+                    class="btn btn-ghost inline-flex items-center space-x-2 text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                </svg>
+                <span>{{ t('reader.block_domain', domain=article_domain) }}</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Divider -->
+    <div class="article-content border-t border-zinc-300 dark:border-zinc-600 mb-10"></div>
+
+    <!-- Article content (server-side rendered) -->
+    <div id="article-content" class="article-content text-zinc-700 dark:text-zinc-300">
+        {% if content_html %}
+        {{ content_html | safe }}
+        {% else %}
+        <p class="text-zinc-500 dark:text-zinc-400 italic">{{ t('reader.no_content') }}</p>
+        {% endif %}
+    </div>
+
+    <!-- Image lightbox -->
+    <div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
+        <span class="lightbox-close" onclick="closeLightbox(event)">&times;</span>
+        <img id="lightbox-img" src="" alt="{{ t('reader.enlarged_image') }}">
+    </div>
+
+    <!-- Scroll to top button -->
+    <button id="scroll-to-top"
+            onclick="scrollToTop()"
+            class="scroll-to-top-btn"
+            aria-label="{{ t('reader.scroll_to_top') }}">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+        </svg>
+    </button>
+
+    <!-- Bottom navigation -->
+    <div class="article-content mt-16 pt-8 border-t border-zinc-300 dark:border-zinc-600">
+        <a href="/articles?website_id={{ article.website_id }}"
+           class="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            <span>{{ t('reader.back_to_all') }}</span>
+        </a>
+    </div>
+</article>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Toggle read status button handler
+    function toggleReadStatus(button) {
+        var isRead = button.getAttribute('hx-vals').includes('"is_read": true');
+        var textEl = document.getElementById('read-status-text');
+
+        if (isRead) {
+            textEl.textContent = '{{ t("reader.mark_as_unread") }}';
+            button.setAttribute('hx-vals', '{"is_read": false}');
+        } else {
+            textEl.textContent = '{{ t("reader.mark_as_read") }}';
+            button.setAttribute('hx-vals', '{"is_read": true}');
+        }
+        // Re-process the element for HTMX
+        htmx.process(button);
+    }
+
+    // Toggle favorite status button handler
+    function toggleFavoriteStatus(button) {
+        var isFavorite = button.getAttribute('hx-vals').includes('"is_favorite": true');
+        var textEl = document.getElementById('favorite-status-text');
+        var svg = button.querySelector('svg');
+
+        if (isFavorite) {
+            textEl.textContent = '{{ t("reader.remove_from_favorites") }}';
+            button.setAttribute('hx-vals', '{"is_favorite": false}');
+            button.classList.add('text-rose-500', 'dark:text-rose-400');
+            svg.setAttribute('fill', 'currentColor');
+        } else {
+            textEl.textContent = '{{ t("reader.add_to_favorites") }}';
+            button.setAttribute('hx-vals', '{"is_favorite": true}');
+            button.classList.remove('text-rose-500', 'dark:text-rose-400');
+            svg.setAttribute('fill', 'none');
+        }
+        // Re-process the element for HTMX
+        htmx.process(button);
+    }
+
+    // Image lightbox handlers
+    function openLightbox(imgSrc) {
+        var lightbox = document.getElementById('lightbox');
+        var lightboxImg = document.getElementById('lightbox-img');
+        lightboxImg.src = imgSrc;
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox(event) {
+        // Only close if clicking the background or close button, not the image
+        if (event.target.id === 'lightbox' || event.target.classList.contains('lightbox-close')) {
+            var lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+
+    // Add click listeners to all images in article content
+    document.addEventListener('DOMContentLoaded', function() {
+        var articleContent = document.getElementById('article-content');
+        var images = articleContent.querySelectorAll('img');
+        images.forEach(function(img) {
+            // Bypass hotlinking protection by not sending referrer
+            img.setAttribute('referrerpolicy', 'no-referrer');
+            img.addEventListener('click', function() {
+                openLightbox(this.src);
+            });
+        });
+
+        // Close lightbox on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                var lightbox = document.getElementById('lightbox');
+                lightbox.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+    });
+
+    // Scroll to top handler
+    function scrollToTop() {
+        var isMonochrome = document.documentElement.classList.contains('monochrome');
+        window.scrollTo({
+            top: 0,
+            behavior: isMonochrome ? 'instant' : 'smooth'
+        });
+    }
+
+    // Show/hide scroll to top button based on scroll position
+    function handleScrollToTopVisibility() {
+        var scrollToTopBtn = document.getElementById('scroll-to-top');
+        if (window.scrollY > 300) {
+            scrollToTopBtn.classList.add('visible');
+        } else {
+            scrollToTopBtn.classList.remove('visible');
+        }
+    }
+
+    window.addEventListener('scroll', handleScrollToTopVisibility);
+
+    // Block domain handler
+    async function blockDomain(articleId, domain) {
+        var confirmed = await Modal.confirm(
+            '{{ t("reader.block_confirm_message") }}',
+            '{{ t("reader.block") }}' + ' ' + domain + '?',
+            { confirmText: '{{ t("reader.block") }}', danger: true }
+        );
+        if (!confirmed) {
+            return;
+        }
+
+        fetch('/api/blocked-domains', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({article_id: articleId})
+        }).then(async function(response) {
+            if (response.ok) {
+                // Redirect back to the website's articles list
+                window.location.href = '/articles?website_id={{ article.website_id }}';
+            } else if (response.status === 409) {
+                await Modal.alert('{{ t("reader.already_blocked_message") }}', '{{ t("reader.already_blocked_title") }}');
+            } else {
+                await Modal.error('{{ t("reader.block_failed") }}', '{{ t("common.error") }}');
+            }
+        }).catch(async function() {
+            await Modal.error('{{ t("reader.block_failed") }}', '{{ t("common.error") }}');
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% if categories %}
+<option value="">{{ t('category_options.select') }}</option>
+{% for category in categories %}
+<option value="{{ category.id }}">{{ category.name }}</option>
+{% endfor %}
+{% else %}
+<option value="">{{ t('category_options.no_categories') }}</option>
+{% endif %}

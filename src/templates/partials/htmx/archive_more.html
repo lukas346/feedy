@@ -1,0 +1,43 @@
+{% for article in articles %}
+<a href="/article/{{ article.id }}"
+   class="flex items-center gap-3 px-6 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors group lazy-loaded-item">
+    <!-- Title -->
+    <span class="flex-1 truncate text-sm font-medium text-zinc-900 dark:text-zinc-100
+                group-hover:text-blue-600 dark:group-hover:text-blue-400">
+        {{ article.title }}
+    </span>
+
+    <!-- Reading time -->
+    {% if article.reading_time_minutes %}
+    <span class="text-xs text-zinc-400 dark:text-zinc-500 flex-shrink-0">{{ article.reading_time_minutes }} min</span>
+    {% endif %}
+
+    <!-- Date -->
+    <span class="text-xs text-zinc-400 dark:text-zinc-500 flex-shrink-0">
+        {% if article.published_at %}
+        {{ article.published_at.strftime('%b %d') }}
+        {% else %}
+        {{ article.fetched_at.strftime('%b %d') }}
+        {% endif %}
+    </span>
+</a>
+{% endfor %}
+
+{% if has_more %}
+<div class="px-6 py-3 border-t border-zinc-100 dark:border-zinc-800 show-more-container"
+     id="show-more-{{ website_id }}">
+    <button type="button"
+            class="show-more-btn w-full py-2 text-sm font-medium text-blue-600 dark:text-blue-400
+                   hover:text-blue-700 dark:hover:text-blue-300 transition-colors
+                   flex items-center justify-center gap-2"
+            hx-get="/archive/more?website_id={{ website_id }}&offset={{ offset }}&limit={{ limit }}{% if search_query %}&q={{ search_query }}{% endif %}"
+            hx-target="#website-{{ website_id }}-list"
+            hx-swap="beforeend"
+            hx-on::after-request="this.parentElement.remove()">
+        <span class="show-more-text">{{ t('common.show_more', count=remaining) }}</span>
+        <svg class="w-4 h-4 show-more-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+    </button>
+</div>
+{% endif %}

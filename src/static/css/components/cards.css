@@ -1,0 +1,17 @@
+/* Card styles */
+
+.card {
+  @apply bg-white dark:bg-dark-card rounded-2xl
+         border border-zinc-200/50 dark:border-zinc-800/50
+         shadow-xl shadow-zinc-900/5 dark:shadow-zinc-900/50
+         transition-all duration-300;
+}
+
+.card-hover {
+  @apply hover:shadow-2xl hover:shadow-zinc-900/10 dark:hover:shadow-zinc-900/60
+         hover:-translate-y-0.5 hover:border-zinc-300/50 dark:hover:border-zinc-700/50;
+}
+
+.card-interactive {
+  @apply card card-hover cursor-pointer;
+}

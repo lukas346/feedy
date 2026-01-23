@@ -1,0 +1,12 @@
+{
+  "name": "reader-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/static/css/input.css -o ./src/static/css/style.css --minify",
+    "watch:css": "tailwindcss -i ./src/static/css/input.css -o ./src/static/css/style.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}

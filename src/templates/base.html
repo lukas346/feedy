@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}" class="{% block html_class %}{% endblock %}">
+<head>
+    {% include "partials/includes/common/head.html" %}
+    <title>{% block title %}Feedy{% endblock %}</title>
+    {% block head %}{% endblock %}
+</head>
+<body class="min-h-screen bg-zinc-50 dark:bg-dark-bg text-zinc-900 dark:text-zinc-100 transition-colors duration-300">
+    {% include "partials/includes/common/gradient_bg.html" %}
+    {% include "partials/includes/common/nav.html" %}
+
+    <!-- Main content -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include "partials/includes/common/footer.html" %}
+    {% include "partials/includes/common/theme_scripts.html" %}
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
