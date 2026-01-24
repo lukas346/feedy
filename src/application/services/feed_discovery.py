@@ -194,9 +194,7 @@ class FeedDiscoveryService:
 
             for link in soup.find_all("link", rel=["alternate", "feed"]):
                 link_type_attr = link.get("type")
-                link_type = (
-                    str(link_type_attr).lower() if link_type_attr else ""
-                )
+                link_type = str(link_type_attr).lower() if link_type_attr else ""
                 href_attr = link.get("href")
                 href = str(href_attr) if href_attr else None
 

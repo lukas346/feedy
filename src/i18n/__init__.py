@@ -13,7 +13,7 @@ _translations: dict[str, dict[str, Any]] = {}
 
 def load_translations() -> None:
     """Load all translation files into memory."""
-    global _translations
+    global _translations  # noqa: F824
     for lang in SUPPORTED_LANGUAGES:
         file_path = TRANSLATIONS_DIR / f"{lang}.json"
         if file_path.exists():
@@ -62,11 +62,12 @@ def get_translation(lang: str, key: str, **kwargs: str) -> str:
         return key
 
     # Interpolate variables
+    result: str = value
     if kwargs:
         for var_name, var_value in kwargs.items():
-            value = value.replace(f"{{{var_name}}}", str(var_value))
+            result = result.replace(f"{{{var_name}}}", str(var_value))
 
-    return value
+    return result
 
 
 def parse_accept_language(header: Optional[str]) -> str:

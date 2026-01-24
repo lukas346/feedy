@@ -134,13 +134,12 @@
         background: rgb(161 161 170);
     }
 
+    /* Inline code styling */
     .article-content code {
+        display: inline;
         font-family: ui-monospace, 'SF Mono', Menlo, Monaco, 'Cascadia Code', 'Fira Code', monospace;
         font-size: 0.875em;
         font-feature-settings: 'liga' 1, 'calt' 1;
-    }
-
-    .article-content :not(pre) > code {
         background: linear-gradient(145deg, rgb(244 244 245), rgb(238 238 240));
         padding: 0.2em 0.5em;
         border-radius: 0.375em;
@@ -149,10 +148,21 @@
         font-weight: 500;
     }
 
-    .dark .article-content :not(pre) > code {
+    .dark .article-content code {
         background: linear-gradient(145deg, rgb(45 45 50), rgb(35 35 40));
         border-color: rgb(63 63 70);
         color: rgb(232 178 255);
+    }
+
+    /* Reset styles for code inside pre blocks */
+    .article-content pre code {
+        display: block;
+        background: transparent;
+        padding: 0;
+        border-radius: 0;
+        border: none;
+        color: inherit;
+        font-weight: inherit;
     }
 
     .article-content a {
@@ -407,11 +417,18 @@
         box-shadow: none !important;
     }
 
-    .monochrome .article-content :not(pre) > code {
+    .monochrome .article-content code {
+        display: inline !important;
         background: white !important;
         color: black !important;
         border: 1px solid black !important;
         border-radius: 0 !important;
+    }
+
+    .monochrome .article-content pre code {
+        display: block !important;
+        background: transparent !important;
+        border: none !important;
     }
 
     /* Syntax highlighting (Pygments) */

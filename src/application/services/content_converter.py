@@ -394,7 +394,8 @@ class ContentConverter:
         # Bonus for video embeds
         video_embeds = soup.find_all("iframe")
         video_count = sum(
-            1 for iframe in video_embeds
+            1
+            for iframe in video_embeds
             if isinstance(iframe.get("src"), str)
             and VideoEmbedParser.is_trusted_video_embed(iframe.get("src", ""))
         )
@@ -552,6 +553,37 @@ class ContentConverter:
         """Check if text matches any of the removal patterns."""
         return any(pattern in text for pattern in self.REMOVE_PATTERNS)
 
+    def _convert_inline_pre_to_code(self, soup: BeautifulSoup) -> None:
+        """Convert short inline <pre> elements to <code> elements.
+
+        Trafilatura sometimes wraps inline code snippets in <pre> tags
+        instead of <code> tags. This converts short, single-line <pre>
+        elements to inline <code> elements for proper styling.
+        """
+        for pre in soup.find_all("pre"):
+            if not isinstance(pre, Tag):
+                continue
+
+            # Skip if it contains a <code> child (proper code block)
+            if pre.find("code"):
+                continue
+
+            # Get text content
+            text = pre.get_text()
+
+            # Skip if it contains newlines (multi-line code block)
+            if "\n" in text:
+                continue
+
+            # Skip if too long (likely a code block, not inline)
+            if len(text) > 100:
+                continue
+
+            # Convert <pre> to <code>
+            code_tag = soup.new_tag("code")
+            code_tag.string = text
+            pre.replace_with(code_tag)
+
     def _clean_html(self, content: str) -> str:
         """Clean up HTML content."""
         if not content:
@@ -560,18 +592,33 @@ class ContentConverter:
         try:
             soup = BeautifulSoup(content, "html.parser")
 
+            # Convert short inline <pre> elements to <code>
+            # Trafilatura sometimes wraps inline code in <pre> instead of <code>
+            self._convert_inline_pre_to_code(soup)
+
             # Remove empty elements (but keep br, hr, img, table, video elements)
             preserve_tags = {
-                "br", "hr", "img", "table", "thead", "tbody", "tr", "th", "td",
-                "iframe", "video", "audio", "source",
+                "br",
+                "hr",
+                "img",
+                "table",
+                "thead",
+                "tbody",
+                "tr",
+                "th",
+                "td",
+                "iframe",
+                "video",
+                "audio",
+                "source",
             }
             for element in soup.find_all():
                 if element.name not in preserve_tags:
                     # Check for media content before removing
                     has_media = (
-                        element.find("img") or
-                        element.find("iframe") or
-                        element.find("video")
+                        element.find("img")
+                        or element.find("iframe")
+                        or element.find("video")
                     )
                     if not element.get_text(strip=True) and not has_media:
                         element.decompose()

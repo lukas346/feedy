@@ -9,7 +9,15 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 
-from api.routers import articles, auth, blocked_domains, categories, opml, pages, websites
+from api.routers import (
+    articles,
+    auth,
+    blocked_domains,
+    categories,
+    opml,
+    pages,
+    websites,
+)
 from application.services.auth import auth_service
 from i18n import (
     SUPPORTED_LANGUAGES,

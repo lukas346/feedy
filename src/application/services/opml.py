@@ -10,6 +10,7 @@ from xml.dom import minidom
 from sqlalchemy.orm import Session
 
 from domain.models import Website
+from infrastructure.config import DEFAULT_FETCH_INTERVAL_MINUTES
 from infrastructure.repositories import CategoryRepository, WebsiteRepository
 
 
@@ -225,7 +226,7 @@ class OPMLService:
                     url=feed.url or feed.rss_url,
                     rss_url=feed.rss_url,
                     category_id=category.id,
-                    fetch_interval_minutes=60,
+                    fetch_interval_minutes=DEFAULT_FETCH_INTERVAL_MINUTES,
                 )
                 existing_rss_urls.add(feed.rss_url)
                 result.feeds_created += 1

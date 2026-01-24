@@ -5,6 +5,9 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+# Default fetch interval for new websites (24 hours)
+DEFAULT_FETCH_INTERVAL_MINUTES: int = 1440
+
 
 def get_git_commit() -> str:
     """Get the short git commit hash from file or git command."""

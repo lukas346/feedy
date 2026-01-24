@@ -17,7 +17,8 @@ class URLFilter:
         re.compile(r"/(?:tagged|categorized)/", re.I),
         # Author/profile pages
         re.compile(
-            r"/(?:author|authors|profile|profiles|user|users|contributor|contributors)/",
+            r"/(?:author|authors|profile|profiles|user|users"
+            r"|contributor|contributors)/",
             re.I,
         ),
         re.compile(r"/(?:by|written-by)/[^/]+/?$", re.I),

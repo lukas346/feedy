@@ -11,8 +11,8 @@ Handles embedding videos from popular platforms:
 
 import logging
 import re
-from typing import Optional
-from urllib.parse import parse_qs, urlparse
+from typing import Any, Optional
+from urllib.parse import ParseResult, parse_qs, urlparse
 
 from .base import BaseDomainParser
 
@@ -76,22 +76,20 @@ class VideoEmbedParser(BaseDomainParser):
 
             # Extract video ID and create embed based on platform
             embed_html: Optional[str] = None
-            title: Optional[str] = None
             description: Optional[str] = None
-
-            # Try to get title from page
-            title_tag = soup.find("title")
-            if title_tag:
-                title = title_tag.get_text(strip=True)
 
             # Try to get description from meta tags
             meta_desc = soup.find("meta", attrs={"name": "description"})
-            if meta_desc and isinstance(meta_desc.get("content"), str):
-                description = meta_desc.get("content")
-            else:
+            if meta_desc:
+                meta_content = meta_desc.get("content")
+                if isinstance(meta_content, str):
+                    description = meta_content
+            if description is None:
                 og_desc = soup.find("meta", attrs={"property": "og:description"})
-                if og_desc and isinstance(og_desc.get("content"), str):
-                    description = og_desc.get("content")
+                if og_desc:
+                    og_content = og_desc.get("content")
+                    if isinstance(og_content, str):
+                        description = og_content
 
             # Platform-specific extraction
             if "youtube.com" in domain or "youtu.be" in domain:
@@ -112,9 +110,7 @@ class VideoEmbedParser(BaseDomainParser):
             result_parts: list[str] = []
 
             # Add video embed in responsive wrapper
-            result_parts.append(
-                f'<div class="video-wrapper">{embed_html}</div>'
-            )
+            result_parts.append(f'<div class="video-wrapper">{embed_html}</div>')
 
             # Add description if available
             if description:
@@ -130,9 +126,7 @@ class VideoEmbedParser(BaseDomainParser):
             logger.debug(f"Video parser failed for {base_url}: {e}")
             return None
 
-    def _extract_youtube(
-        self, url: str, parsed_url: urlparse
-    ) -> Optional[str]:
+    def _extract_youtube(self, url: str, parsed_url: ParseResult) -> Optional[str]:
         """Extract YouTube video ID and create embed."""
         video_id: Optional[str] = None
 
@@ -176,9 +170,7 @@ class VideoEmbedParser(BaseDomainParser):
             f'gyroscope; picture-in-picture; web-share"></iframe>'
         )
 
-    def _extract_vimeo(
-        self, url: str, parsed_url: urlparse
-    ) -> Optional[str]:
+    def _extract_vimeo(self, url: str, parsed_url: ParseResult) -> Optional[str]:
         """Extract Vimeo video ID and create embed."""
         video_id: Optional[str] = None
 
@@ -199,9 +191,7 @@ class VideoEmbedParser(BaseDomainParser):
             f'allow="autoplay; fullscreen; picture-in-picture"></iframe>'
         )
 
-    def _extract_dailymotion(
-        self, url: str, parsed_url: urlparse
-    ) -> Optional[str]:
+    def _extract_dailymotion(self, url: str, parsed_url: ParseResult) -> Optional[str]:
         """Extract Dailymotion video ID and create embed."""
         video_id: Optional[str] = None
 
@@ -226,9 +216,7 @@ class VideoEmbedParser(BaseDomainParser):
             f'allow="autoplay; fullscreen; picture-in-picture"></iframe>'
         )
 
-    def _extract_twitch(
-        self, url: str, parsed_url: urlparse
-    ) -> Optional[str]:
+    def _extract_twitch(self, url: str, parsed_url: ParseResult) -> Optional[str]:
         """Extract Twitch channel/video and create embed."""
         path = parsed_url.path.strip("/")
 
@@ -238,8 +226,9 @@ class VideoEmbedParser(BaseDomainParser):
         # Twitch video: twitch.tv/videos/VIDEO_ID
         if path.startswith("videos/"):
             video_id = path.replace("videos/", "").split("/")[0]
+            embed_url = f"https://player.twitch.tv/?video={video_id}&parent=localhost"
             return (
-                f'<iframe src="https://player.twitch.tv/?video={video_id}&parent=localhost" '
+                f'<iframe src="{embed_url}" '
                 f'frameborder="0" allowfullscreen '
                 f'allow="autoplay; fullscreen"></iframe>'
             )
@@ -249,8 +238,11 @@ class VideoEmbedParser(BaseDomainParser):
             match = re.search(r"/clip/([a-zA-Z0-9-]+)", path)
             if match:
                 clip_id = match.group(1)
+                embed_url = (
+                    f"https://clips.twitch.tv/embed?clip={clip_id}&parent=localhost"
+                )
                 return (
-                    f'<iframe src="https://clips.twitch.tv/embed?clip={clip_id}&parent=localhost" '
+                    f'<iframe src="{embed_url}" '
                     f'frameborder="0" allowfullscreen '
                     f'allow="autoplay; fullscreen"></iframe>'
                 )
@@ -258,8 +250,9 @@ class VideoEmbedParser(BaseDomainParser):
         # Twitch channel (live): twitch.tv/CHANNEL
         channel = path.split("/")[0]
         if channel:
+            embed_url = f"https://player.twitch.tv/?channel={channel}&parent=localhost"
             return (
-                f'<iframe src="https://player.twitch.tv/?channel={channel}&parent=localhost" '
+                f'<iframe src="{embed_url}" '
                 f'frameborder="0" allowfullscreen '
                 f'allow="autoplay; fullscreen"></iframe>'
             )
@@ -267,7 +260,7 @@ class VideoEmbedParser(BaseDomainParser):
         return None
 
     def _extract_ted(
-        self, url: str, parsed_url: urlparse, soup
+        self, url: str, parsed_url: ParseResult, soup: Any
     ) -> Optional[str]:
         """Extract TED talk and create embed."""
         path = parsed_url.path.strip("/")

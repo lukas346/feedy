@@ -1,9 +1,10 @@
 """Repository for Article data access."""
 
 from datetime import datetime
-from typing import Any, Sequence
+from typing import Any, Sequence, cast
 
-from sqlalchemy import delete, func, or_, select
+from sqlalchemy import delete, func, literal_column, or_, select, update
+from sqlalchemy.engine import CursorResult
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.sql.selectable import ScalarSelect
@@ -169,16 +170,14 @@ class ArticleRepository:
             Number of articles marked as unread.
         """
         stmt = (
-            select(Article)
+            update(Article)
             .where(Article.website_id == website_id)
             .where(Article.is_read == True)  # noqa: E712
+            .values(is_read=False)
         )
-        articles = self.session.scalars(stmt).all()
-        count = len(articles)
-        for article in articles:
-            article.is_read = False
+        result = cast(CursorResult[Any], self.session.execute(stmt))
         self.session.commit()
-        return count
+        return result.rowcount or 0
 
     def mark_as_favorite(self, article: Article, is_favorite: bool = True) -> Article:
         """Mark an article as favorite or remove from favorites."""
@@ -287,42 +286,101 @@ class ArticleRepository:
         Get read articles grouped by website with pagination support.
 
         Args:
-            search_query: Optional search filter for title, url, category, or website name.
+            search_query: Optional search filter for title, url, category,
+                or website name.
             limit_per_website: Maximum articles to return per website.
 
         Returns:
-            List of dicts with website info, limited articles, total_count, and has_more.
+            List of dicts with website info, limited articles, total_count,
+            and has_more.
         """
         blocked_domains = self._blocked_domains_subquery()
 
-        base_stmt = (
-            select(Article)
-            .join(Article.website)
-            .join(Website.category)
-            .options(joinedload(Article.website))
-            .where(Article.is_read == True)  # noqa: E712
-            .where(~Article.domain.in_(blocked_domains))
-        )
+        # Base conditions for read articles
+        base_conditions = [
+            Article.is_read == True,  # noqa: E712
+            ~Article.domain.in_(blocked_domains),
+        ]
 
+        search_conditions: list[Any] = []
         if search_query:
             search_pattern = f"%{search_query}%"
-            base_stmt = base_stmt.where(
+            search_conditions = [
                 or_(
                     Article.title.ilike(search_pattern),
                     Article.url.ilike(search_pattern),
                     Category.name.ilike(search_pattern),
                     Website.name.ilike(search_pattern),
                 )
+            ]
+
+        # Get counts per website at database level
+        max_date_expr = func.max(
+            func.coalesce(Article.published_at, Article.fetched_at)
+        ).label("max_date")
+        count_stmt = (
+            select(
+                Article.website_id,
+                func.count(Article.id).label("total_count"),
+                max_date_expr,
             )
-
-        articles_stmt = base_stmt.order_by(
-            Article.published_at.desc().nullslast(), Article.fetched_at.desc()
+            .join(Article.website)
+            .join(Website.category)
+            .where(*base_conditions)
         )
-        articles = self.session.scalars(articles_stmt).unique().all()
+        if search_conditions:
+            count_stmt = count_stmt.where(*search_conditions)
+        count_stmt = count_stmt.group_by(Article.website_id)
+        counts_subquery = count_stmt.subquery()
 
-        # Group articles by website
+        # Use window function to rank articles within each website
+        row_num = (
+            func.row_number()
+            .over(
+                partition_by=Article.website_id,
+                order_by=[
+                    Article.published_at.desc().nullslast(),
+                    Article.fetched_at.desc(),
+                ],
+            )
+            .label("row_num")
+        )
+
+        ranked_stmt = (
+            select(Article, row_num)
+            .join(Article.website)
+            .join(Website.category)
+            .where(*base_conditions)
+        )
+        if search_conditions:
+            ranked_stmt = ranked_stmt.where(*search_conditions)
+        ranked_subquery = ranked_stmt.subquery()
+
+        # Select articles where row_num <= limit, joined with counts
+        articles_stmt = (
+            select(Article, counts_subquery.c.total_count)
+            .join(
+                ranked_subquery,
+                Article.id == ranked_subquery.c.id,
+            )
+            .join(
+                counts_subquery,
+                Article.website_id == counts_subquery.c.website_id,
+            )
+            .where(ranked_subquery.c.row_num <= limit_per_website)
+            .options(joinedload(Article.website))
+            .order_by(
+                counts_subquery.c.max_date.desc(),
+                Article.website_id,
+                literal_column("row_num"),
+            )
+        )
+
+        results = self.session.execute(articles_stmt).unique().all()
+
+        # Build result grouped by website
         websites_dict: dict[str, dict[str, Any]] = {}
-        for article in articles:
+        for article, total_count in results:
             website_id = article.website_id
             if website_id not in websites_dict:
                 websites_dict[website_id] = {
@@ -330,29 +388,12 @@ class ArticleRepository:
                     "name": article.website.name,
                     "url": article.website.url,
                     "articles": [],
-                    "total_count": 0,
+                    "total_count": total_count,
+                    "has_more": total_count > limit_per_website,
                 }
             websites_dict[website_id]["articles"].append(article)
-            websites_dict[website_id]["total_count"] += 1
 
-        # Limit articles per website and add has_more flag
-        for website_data in websites_dict.values():
-            total = website_data["total_count"]
-            website_data["articles"] = website_data["articles"][:limit_per_website]
-            website_data["has_more"] = total > limit_per_website
-
-        # Sort websites by most recent article
-        result = list(websites_dict.values())
-        result.sort(
-            key=lambda w: (
-                w["articles"][0].published_at or w["articles"][0].fetched_at
-                if w["articles"]
-                else None
-            ),
-            reverse=True,
-        )
-
-        return result
+        return list(websites_dict.values())
 
     def get_read_for_website_paginated(
         self,

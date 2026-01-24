@@ -1,12 +1,13 @@
 """Repository for Website data access."""
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Sequence
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from domain.models import Article, Category, Website
+from infrastructure.config import DEFAULT_FETCH_INTERVAL_MINUTES
 
 
 class WebsiteRepository:
@@ -34,15 +35,12 @@ class WebsiteRepository:
             .subquery()
         )
 
-        stmt = (
-            select(
-                Website,
-                func.coalesce(unread_count_subquery.c.count, 0).label("unread_count"),
-            )
-            .outerjoin(
-                unread_count_subquery,
-                Website.id == unread_count_subquery.c.website_id,
-            )
+        stmt = select(
+            Website,
+            func.coalesce(unread_count_subquery.c.count, 0).label("unread_count"),
+        ).outerjoin(
+            unread_count_subquery,
+            Website.id == unread_count_subquery.c.website_id,
         )
 
         if category_id is not None:
@@ -94,23 +92,18 @@ class WebsiteRepository:
         - It has never been fetched (last_fetched_at is None)
         - The time since last fetch exceeds fetch_interval_minutes
         """
-        now = datetime.utcnow()
-        websites: list[Website] = []
+        # SQLite: datetime(last_fetched_at, '+N minutes') <= datetime('now')
+        next_fetch_time = func.datetime(
+            Website.last_fetched_at,
+            func.printf("+%d minutes", Website.fetch_interval_minutes),
+        )
 
-        stmt = select(Website)
-        result = self.session.execute(stmt)
+        stmt = select(Website).where(
+            (Website.last_fetched_at.is_(None))
+            | (next_fetch_time <= func.datetime("now"))
+        )
 
-        for website in result.scalars().all():
-            if website.last_fetched_at is None:
-                websites.append(website)
-            else:
-                next_fetch_time = website.last_fetched_at + timedelta(
-                    minutes=website.fetch_interval_minutes
-                )
-                if now >= next_fetch_time:
-                    websites.append(website)
-
-        return websites
+        return list(self.session.scalars(stmt).all())
 
     def create(
         self,
@@ -118,7 +111,7 @@ class WebsiteRepository:
         url: str,
         rss_url: str,
         category_id: str,
-        fetch_interval_minutes: int = 60,
+        fetch_interval_minutes: int = DEFAULT_FETCH_INTERVAL_MINUTES,
     ) -> Website:
         """Create a new website."""
         website = Website(

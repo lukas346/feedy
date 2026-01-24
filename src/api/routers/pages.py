@@ -17,6 +17,7 @@ from application.services.feed_discovery import (
 )
 from application.services.validators import validate_url
 from application.workers.fetch_articles import ArticleFetcher
+from infrastructure.config import DEFAULT_FETCH_INTERVAL_MINUTES
 from infrastructure.database import get_session
 from infrastructure.repositories import (
     ArticleRepository,
@@ -375,7 +376,11 @@ def feeds_more(
 def settings_page(request: Request, i18n: I18nContext) -> HTMLResponse:
     """Render the settings page."""
     assert templates is not None
-    return templates.TemplateResponse(request, "settings.html", i18n)
+    context = {
+        **i18n,
+        "default_fetch_interval_minutes": DEFAULT_FETCH_INTERVAL_MINUTES,
+    }
+    return templates.TemplateResponse(request, "settings.html", context)
 
 
 @router.get("/settings/categories", response_class=HTMLResponse)
@@ -510,15 +515,16 @@ def create_website_form(
     url: Annotated[str, Form()],
     rss_url: Annotated[str, Form()],
     category_id: Annotated[str, Form()],
-    fetch_interval_minutes: Annotated[int, Form()] = 60,
+    fetch_interval_minutes: Annotated[int, Form()] = DEFAULT_FETCH_INTERVAL_MINUTES,
 ) -> HTMLResponse:
     """Create a website from form data (for HTMX)."""
     assert templates is not None
 
     # Validate URLs
     if not validate_url(url) or not validate_url(rss_url):
+        error_msg = i18n["t"]("common.invalid_url")
         return HTMLResponse(
-            content=f"<div class='text-red-600'>{i18n['t']('common.invalid_url')}</div>",
+            content=f"<div class='text-red-600'>{error_msg}</div>",
             status_code=400,
         )
 
@@ -527,8 +533,9 @@ def create_website_form(
     # Check for duplicate RSS URL
     existing = repo.get_by_rss_url(rss_url)
     if existing is not None:
+        error_msg = i18n["t"]("settings.feeds.duplicate_rss_url")
         return HTMLResponse(
-            content=f"<div class='text-red-600'>{i18n['t']('settings.feeds.duplicate_rss_url')}</div>",
+            content=f"<div class='text-red-600'>{error_msg}</div>",
             status_code=409,
         )
 

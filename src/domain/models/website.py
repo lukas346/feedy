@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Optional
 from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from infrastructure.config import DEFAULT_FETCH_INTERVAL_MINUTES
 from infrastructure.database import Base
 
 if TYPE_CHECKING:
@@ -27,7 +28,7 @@ class Website(Base):  # type: ignore[misc]
         String(36), ForeignKey("categories.id"), nullable=False, index=True
     )
     fetch_interval_minutes: Mapped[int] = mapped_column(
-        Integer, nullable=False, default=60
+        Integer, nullable=False, default=DEFAULT_FETCH_INTERVAL_MINUTES
     )
     last_fetched_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
     created_at: Mapped[datetime] = mapped_column(

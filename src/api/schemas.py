@@ -4,6 +4,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
+from infrastructure.config import DEFAULT_FETCH_INTERVAL_MINUTES
+
 
 class CategoryCreate(BaseModel):
     """Schema for creating a new category."""
@@ -51,7 +53,7 @@ class WebsiteCreate(BaseModel):
     url: str
     rss_url: str
     category_id: str
-    fetch_interval_minutes: int = 60
+    fetch_interval_minutes: int = DEFAULT_FETCH_INTERVAL_MINUTES
 
 
 class WebsiteResponse(BaseModel):
