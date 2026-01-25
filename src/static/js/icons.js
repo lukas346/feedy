@@ -1,3 +1,7 @@
+/**
+ * Category icons and IconPicker class for Feedy
+ */
+
 // Category icons for icon picker
 var categoryIcons = {
     'tag': '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>',
@@ -22,92 +26,160 @@ var categoryIcons = {
     'sparkles': '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>'
 };
 
-// Icon picker functions
+/**
+ * IconPicker - Reusable icon picker component
+ * @param {Object} config - Configuration options
+ * @param {string} config.gridId - ID of the icon grid container
+ * @param {string} config.inputId - ID of the hidden input for icon value
+ * @param {string} config.previewId - ID of the icon preview element
+ * @param {string} config.popoverId - ID of the popover container
+ * @param {string} config.buttonId - ID of the toggle button
+ * @param {string} [config.defaultIcon='tag'] - Default icon name
+ */
+function IconPicker(config) {
+    var gridId = config.gridId;
+    var inputId = config.inputId;
+    var previewId = config.previewId;
+    var popoverId = config.popoverId;
+    var buttonId = config.buttonId;
+    var defaultIcon = config.defaultIcon || 'tag';
+
+    function getIconHtml(iconName, extraClass) {
+        var svg = categoryIcons[iconName];
+        if (!svg) return '';
+        var classAttr = 'class="w-5 h-5' + (extraClass ? ' ' + extraClass : '') + '"';
+        return svg.replace('<svg ', '<svg ' + classAttr + ' ');
+    }
+
+    function updatePreview(iconName) {
+        var preview = document.getElementById(previewId);
+        if (preview && categoryIcons[iconName]) {
+            preview.innerHTML = getIconHtml(iconName);
+        }
+    }
+
+    function select(iconName) {
+        var input = document.getElementById(inputId);
+        if (input) input.value = iconName;
+        updatePreview(iconName);
+        var popover = document.getElementById(popoverId);
+        if (popover) popover.classList.add('hidden');
+    }
+
+    function toggle() {
+        var popover = document.getElementById(popoverId);
+        if (popover) popover.classList.toggle('hidden');
+    }
+
+    function init() {
+        var grid = document.getElementById(gridId);
+        if (!grid) return;
+
+        grid.innerHTML = '';
+        Object.keys(categoryIcons).forEach(function(iconName) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'w-9 h-9 rounded-lg flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors';
+            btn.setAttribute('data-icon', iconName);
+            btn.innerHTML = getIconHtml(iconName, 'text-zinc-600 dark:text-zinc-300');
+            btn.onclick = function() { select(iconName); };
+            grid.appendChild(btn);
+        });
+
+        updatePreview(defaultIcon);
+    }
+
+    function setValue(iconName) {
+        var input = document.getElementById(inputId);
+        if (input) input.value = iconName;
+        updatePreview(iconName);
+    }
+
+    function reset() {
+        setValue(defaultIcon);
+        var popover = document.getElementById(popoverId);
+        if (popover) popover.classList.add('hidden');
+    }
+
+    // Set up click-outside handler
+    function setupClickOutside() {
+        document.addEventListener('click', function(e) {
+            var popover = document.getElementById(popoverId);
+            var btn = document.getElementById(buttonId);
+            if (popover && btn && !popover.contains(e.target) && !btn.contains(e.target)) {
+                popover.classList.add('hidden');
+            }
+        });
+    }
+
+    return {
+        init: init,
+        toggle: toggle,
+        select: select,
+        setValue: setValue,
+        reset: reset,
+        setupClickOutside: setupClickOutside
+    };
+}
+
+// Global icon pickers for backward compatibility
+var addIconPicker = null;
+var editIconPicker = null;
+
+// Legacy function wrappers for backward compatibility
 function initIconPicker() {
-    var grid = document.getElementById('icon-grid');
-    if (!grid) return;
-    grid.innerHTML = '';
-    Object.keys(categoryIcons).forEach(function(iconName) {
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'w-9 h-9 rounded-lg flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors';
-        btn.setAttribute('data-icon', iconName);
-        var iconHtml = categoryIcons[iconName].replace('<svg ', '<svg class="w-5 h-5 text-zinc-600 dark:text-zinc-300" ');
-        btn.innerHTML = iconHtml;
-        btn.onclick = function() { selectIcon(iconName); };
-        grid.appendChild(btn);
-    });
-    updateIconPreview('tag');
+    if (!addIconPicker) {
+        addIconPicker = IconPicker({
+            gridId: 'icon-grid',
+            inputId: 'category-icon-input',
+            previewId: 'selected-icon-preview',
+            popoverId: 'icon-picker-popover',
+            buttonId: 'icon-picker-btn',
+            defaultIcon: 'tag'
+        });
+        addIconPicker.setupClickOutside();
+    }
+    addIconPicker.init();
 }
 
 function toggleIconPicker() {
-    var popover = document.getElementById('icon-picker-popover');
-    popover.classList.toggle('hidden');
+    if (addIconPicker) addIconPicker.toggle();
 }
 
 function selectIcon(iconName) {
-    document.getElementById('category-icon-input').value = iconName;
-    updateIconPreview(iconName);
-    document.getElementById('icon-picker-popover').classList.add('hidden');
+    if (addIconPicker) addIconPicker.select(iconName);
 }
 
 function updateIconPreview(iconName) {
-    var preview = document.getElementById('selected-icon-preview');
-    if (preview && categoryIcons[iconName]) {
-        var iconHtml = categoryIcons[iconName].replace('<svg ', '<svg class="w-5 h-5" ');
-        preview.innerHTML = iconHtml;
-    }
+    if (addIconPicker) addIconPicker.setValue(iconName);
 }
 
-// Edit icon picker functions
 function initEditIconPicker() {
-    var grid = document.getElementById('edit-icon-grid');
-    if (!grid) return;
-    grid.innerHTML = '';
-    Object.keys(categoryIcons).forEach(function(iconName) {
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'w-9 h-9 rounded-lg flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors';
-        var iconHtml = categoryIcons[iconName].replace('<svg ', '<svg class="w-5 h-5 text-zinc-600 dark:text-zinc-300" ');
-        btn.innerHTML = iconHtml;
-        btn.onclick = function() { selectEditIcon(iconName); };
-        grid.appendChild(btn);
-    });
+    if (!editIconPicker) {
+        editIconPicker = IconPicker({
+            gridId: 'edit-icon-grid',
+            inputId: 'edit-category-icon',
+            previewId: 'edit-selected-icon-preview',
+            popoverId: 'edit-icon-picker-popover',
+            buttonId: 'edit-icon-picker-btn',
+            defaultIcon: 'tag'
+        });
+        editIconPicker.setupClickOutside();
+    }
+    editIconPicker.init();
 }
 
 function toggleEditIconPicker() {
-    var popover = document.getElementById('edit-icon-picker-popover');
-    popover.classList.toggle('hidden');
+    if (editIconPicker) editIconPicker.toggle();
 }
 
 function selectEditIcon(iconName) {
-    document.getElementById('edit-category-icon').value = iconName;
-    updateEditIconPreview(iconName);
-    document.getElementById('edit-icon-picker-popover').classList.add('hidden');
+    if (editIconPicker) editIconPicker.select(iconName);
 }
 
 function updateEditIconPreview(iconName) {
-    var preview = document.getElementById('edit-selected-icon-preview');
-    if (preview && categoryIcons[iconName]) {
-        var iconHtml = categoryIcons[iconName].replace('<svg ', '<svg class="w-5 h-5" ');
-        preview.innerHTML = iconHtml;
-    }
+    if (editIconPicker) editIconPicker.setValue(iconName);
 }
 
-// Close popovers when clicking outside
-document.addEventListener('click', function(e) {
-    var popover = document.getElementById('icon-picker-popover');
-    var btn = document.getElementById('icon-picker-btn');
-    if (popover && btn && !popover.contains(e.target) && !btn.contains(e.target)) {
-        popover.classList.add('hidden');
-    }
-
-    var editPopover = document.getElementById('edit-icon-picker-popover');
-    var editBtn = document.getElementById('edit-icon-picker-btn');
-    if (editPopover && editBtn && !editPopover.contains(e.target) && !editBtn.contains(e.target)) {
-        editPopover.classList.add('hidden');
-    }
-});
-
-// Initialize icon picker on page load
+// Initialize add icon picker on page load
 document.addEventListener('DOMContentLoaded', initIconPicker);

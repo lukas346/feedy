@@ -1,0 +1,36 @@
+{# Edit Website Modal - included in page, shown/hidden via JS #}
+<div id="edit-website-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden">
+    <div class="bg-white dark:bg-zinc-800 rounded-xl p-6 w-full max-w-sm mx-4 shadow-2xl animate-scale-in">
+        <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">{{ t("settings.feeds.edit_title") }}</h3>
+        <input type="hidden" id="edit-website-id">
+        <div class="space-y-4 mb-4">
+            <div class="input-group">
+                <label class="input-label">{{ t("settings.feeds.website_name") }}</label>
+                <input type="text" id="edit-website-name" class="input" placeholder="{{ t("settings.feeds.website_name_placeholder") }}">
+            </div>
+            <div class="input-group">
+                <label class="input-label">{{ t("settings.feeds.category") }}</label>
+                <select id="edit-website-category" class="input"></select>
+            </div>
+            <div class="input-group">
+                <label class="input-label">{{ t("settings.feeds.website_url") }}</label>
+                <input type="url" id="edit-website-url" class="input" placeholder="{{ t("settings.feeds.website_url_placeholder") }}">
+            </div>
+            <div class="input-group">
+                <label class="input-label">{{ t("settings.feeds.rss_url") }}</label>
+                <input type="url" id="edit-website-rss-url" class="input" placeholder="{{ t("settings.feeds.rss_url_placeholder") }}">
+            </div>
+            <div class="input-group">
+                <label class="input-label">{{ t("settings.feeds.fetch_interval") }}</label>
+                <input type="number" id="edit-website-interval" class="input" min="5">
+            </div>
+        </div>
+        <div class="flex justify-end gap-2">
+            <button type="button" onclick="hideEditWebsiteModal()" class="btn btn-secondary">{{ t("common.cancel") }}</button>
+            <button type="button" id="edit-website-save-btn" onclick="saveEditWebsite()" class="btn btn-primary inline-flex items-center space-x-2">
+                <span class="btn-text">{{ t("common.save") }}</span>
+                <span class="btn-spinner hidden"><div class="spinner h-4 w-4"></div></span>
+            </button>
+        </div>
+    </div>
+</div>

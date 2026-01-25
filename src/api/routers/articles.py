@@ -11,6 +11,10 @@ from api.schemas import (
     MarkFavoriteRequest,
     MarkReadRequest,
 )
+
+# Note: mark_article_read and mark_article_favorite use ArticleListResponse
+# (without content_html) to avoid sending large HTML content that may cause
+# browser/HTMX to make spurious image requests from the JSON response.
 from domain.models import Article
 from infrastructure.database import get_session
 from infrastructure.repositories import ArticleRepository
@@ -67,7 +71,7 @@ def get_article(
     return article
 
 
-@router.patch("/{article_id}/read", response_model=ArticleResponse)
+@router.patch("/{article_id}/read", response_model=ArticleListResponse)
 def mark_article_read(
     article_id: str,
     request: MarkReadRequest,
@@ -80,7 +84,7 @@ def mark_article_read(
         request: Request body containing is_read boolean
 
     Returns:
-        The updated article
+        The updated article (without content_html)
 
     Raises:
         HTTPException: 404 if article not found
@@ -93,7 +97,7 @@ def mark_article_read(
     return repo.mark_as_read(article, request.is_read)
 
 
-@router.patch("/{article_id}/favorite", response_model=ArticleResponse)
+@router.patch("/{article_id}/favorite", response_model=ArticleListResponse)
 def mark_article_favorite(
     article_id: str,
     request: MarkFavoriteRequest,
@@ -106,7 +110,7 @@ def mark_article_favorite(
         request: Request body containing is_favorite boolean
 
     Returns:
-        The updated article
+        The updated article (without content_html)
 
     Raises:
         HTTPException: 404 if article not found

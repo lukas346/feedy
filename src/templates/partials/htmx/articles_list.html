@@ -1,60 +1,86 @@
+{% from 'partials/includes/components/article_row.html' import article_row %}
+{% from 'partials/includes/components/show_more.html' import show_more %}
+{% from 'partials/includes/components/empty_state.html' import empty_state %}
+
 {% if articles %}
-<div class="divide-y divide-zinc-300 dark:divide-zinc-600">
+<div class="divide-y divide-zinc-300 dark:divide-zinc-600" id="articles-items-list">
     {% for article in articles %}
-    <a href="/article/{{ article.id }}"
-       class="block p-5 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all duration-200 group animate-fade-in"
-       style="animation-delay: {{ loop.index0 * 30 }}ms">
-        <div class="flex items-start space-x-4">
-            <!-- Unread indicator -->
-            <div class="mt-2 indicator-dot flex-shrink-0 {% if not article.is_read %}indicator-dot-active{% else %}indicator-dot-inactive{% endif %}"></div>
-
-            <!-- Article content -->
-            <div class="flex-1 min-w-0">
-                <h3 class="text-base font-medium text-zinc-900 dark:text-zinc-100
-                          group-hover:text-blue-600 dark:group-hover:text-blue-400
-                          transition-colors line-clamp-2
-                          {% if not article.is_read %}font-semibold{% endif %}">
-                    {{ article.title }}
-                </h3>
-                <div class="flex items-center space-x-3 mt-2">
-                    <span class="text-sm text-zinc-500 dark:text-zinc-400">
-                        {% if article.published_at %}
-                        {{ article.published_at.strftime('%b %d, %Y') }}
-                        {% else %}
-                        {{ article.fetched_at.strftime('%b %d, %Y') }}
-                        {% endif %}
-                    </span>
-                    {% if article.reading_time_minutes %}
-                    <span class="text-sm text-zinc-400 dark:text-zinc-500">·</span>
-                    <span class="text-sm text-zinc-500 dark:text-zinc-400">{{ t('reader.reading_time', minutes=article.reading_time_minutes) }}</span>
-                    {% endif %}
-                    {% if not article.is_read %}
-                    <span class="badge badge-primary">{{ t('articles.new') }}</span>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Arrow -->
-            <svg class="w-5 h-5 text-zinc-300 dark:text-zinc-600 group-hover:text-blue-500 dark:group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
-        </div>
-    </a>
+    {{ article_row(article, show_favicon=false, show_source=false, show_read_btn=true, id_prefix='article-item', mark_as_read_text=t('reader.mark_as_read'), mark_as_unread_text=t('reader.mark_as_unread')) }}
     {% endfor %}
 </div>
 
+<script>
+(function() {
+    if (window._articlesListenersAdded) return;
+    window._articlesListenersAdded = true;
+
+    document.body.addEventListener('htmx:configRequest', function(evt) {
+        var btn = evt.detail.elt;
+        if (btn && btn.classList && btn.classList.contains('mark-read-btn')) {
+            var isRead = btn.dataset.isRead === 'true';
+            evt.detail.parameters['is_read'] = !isRead;
+        }
+    });
+
+    document.body.addEventListener('htmx:afterSettle', function(evt) {
+        var btn = evt.detail.elt;
+        if (!btn || !btn.classList || !btn.classList.contains('mark-read-btn')) return;
+
+        var rowPrefix = btn.dataset.rowPrefix || 'article-item';
+        var row = btn.closest('[id^="' + rowPrefix + '-"]');
+
+        var wasRead = btn.dataset.isRead === 'true';
+        var isNowRead = !wasRead;
+
+        btn.dataset.isRead = isNowRead ? 'true' : 'false';
+
+        if (isNowRead) {
+            btn.classList.remove('text-zinc-300', 'dark:text-zinc-600');
+            btn.classList.add('text-green-500', 'dark:text-green-400', 'bg-zinc-100', 'dark:bg-zinc-700');
+            btn.title = btn.dataset.unreadText;
+        } else {
+            btn.classList.remove('text-green-500', 'dark:text-green-400', 'bg-zinc-100', 'dark:bg-zinc-700');
+            btn.classList.add('text-zinc-300', 'dark:text-zinc-600');
+            btn.title = btn.dataset.readText;
+        }
+
+        if (row) {
+            if (isNowRead) {
+                row.classList.add('is-read');
+                row.style.opacity = '0.6';
+            } else {
+                row.classList.remove('is-read');
+                row.style.opacity = '1';
+            }
+        }
+    });
+
+    document.body.addEventListener('htmx:afterSwap', function(evt) {
+        if (evt.detail.target.id === 'articles-items-list') {
+            evt.detail.target.querySelectorAll('.mark-read-btn').forEach(function(btn) {
+                if (btn.dataset.isRead === 'true') {
+                    var item = btn.closest('[id^="article-item-"]');
+                    if (item) {
+                        item.classList.add('is-read');
+                        item.style.opacity = '0.6';
+                    }
+                }
+            });
+        }
+    });
+})();
+</script>
+
 {% if has_more %}
-<!-- Infinite scroll trigger -->
-<div hx-get="/articles/list?website_id={{ website_id }}&limit={{ limit }}&offset={{ next_offset }}"
-     hx-trigger="intersect once"
-     hx-swap="outerHTML"
-     class="flex justify-center py-8 border-t border-zinc-100 dark:border-zinc-800">
-    <div class="spinner h-8 w-8"></div>
-</div>
+{{ show_more(
+    endpoint='/articles/more?website_id=' ~ website_id ~ '&offset=' ~ next_offset ~ '&limit=' ~ limit,
+    target_id='articles-items-list',
+    remaining=remaining,
+    text=t('common.show_more', count=remaining)
+) }}
 {% endif %}
 
 {% else %}
-<!-- Empty state -->
 <div class="p-12 text-center">
     <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
         <svg class="w-8 h-8 text-zinc-400 dark:text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,7 +88,7 @@
         </svg>
     </div>
     <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-1">{{ t('articles.no_articles_title') }}</h3>
-    <p class="text-zinc-500 dark:text-zinc-400 text-sm max-w-xs mx-auto">
+    <p class="text-secondary max-w-xs mx-auto">
         {{ t('articles.no_articles_description') }}
     </p>
 </div>

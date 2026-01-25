@@ -8,11 +8,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;0,7..72,700;1,7..72,400;1,7..72,500&display=swap" rel="stylesheet">
 
 <!-- Tailwind CSS -->
-<link rel="stylesheet" href="/static/css/style.css">
+<link rel="stylesheet" href="/static/css/style.css?v={{ GIT_COMMIT }}">
 
 <!-- HTMX -->
-<script src="/static/js/htmx.min.js" defer></script>
-<script src="/static/js/htmx-json-enc.js" defer></script>
+<script src="/static/js/htmx.min.js?v={{ GIT_COMMIT }}" defer></script>
+<script src="/static/js/htmx-json-enc.js?v={{ GIT_COMMIT }}" defer></script>
+
+<!-- Shared utilities -->
+<script src="/static/js/templates.js?v={{ GIT_COMMIT }}" defer></script>
+<script src="/static/js/utils.js?v={{ GIT_COMMIT }}" defer></script>
+<script src="/static/js/crud.js?v={{ GIT_COMMIT }}" defer></script>
 
 <!-- Theme initialization script (runs before render to prevent flash) -->
 <script>

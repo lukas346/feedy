@@ -1,32 +1,19 @@
+{% from 'partials/includes/components/section_header.html' import section_header %}
+
 <!-- Categories Section -->
 <section class="card p-6">
-    <div class="section-header mb-6">
-        <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 dark:from-blue-500/10 dark:to-cyan-500/10 flex items-center justify-center">
-                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-                </svg>
-            </div>
-            <div>
-                <h2 class="section-title">{{ t('settings.categories.title') }}</h2>
-                <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ t('settings.categories.subtitle') }}</p>
-            </div>
-        </div>
-        <button
-            onclick="showAddCategoryForm()"
-            class="btn btn-primary inline-flex items-center space-x-2"
-        >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-            </svg>
-            <span>{{ t('settings.categories.add') }}</span>
-        </button>
-    </div>
+    {{ section_header(
+        title=t('settings.categories.title'),
+        subtitle=t('settings.categories.subtitle'),
+        icon='tag',
+        action_text=t('settings.categories.add'),
+        action_onclick='showAddCategoryForm()'
+    ) }}
 
     <!-- Add Category Form (hidden by default) -->
     <form
         id="add-category-form"
-        class="hidden mb-6 p-5 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-200 dark:border-zinc-700 animate-scale-in"
+        class="hidden mb-6 p-5 form-section animate-scale-in"
         hx-post="/settings/categories"
         hx-target="#categories-list"
         hx-swap="innerHTML"
@@ -127,45 +114,7 @@
 
     function showEditCategoryModal(id, name, icon) {
         var modal = document.getElementById('edit-category-modal');
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'edit-category-modal';
-            modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/50';
-            modal.innerHTML = '<div class="bg-white dark:bg-zinc-800 rounded-xl p-6 w-full max-w-md mx-4 shadow-2xl">' +
-                '<h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">{{ t("settings.categories.edit_title") }}</h3>' +
-                '<div class="flex gap-4 mb-4">' +
-                    '<div class="input-group">' +
-                        '<label class="input-label">{{ t("settings.categories.icon") }}</label>' +
-                        '<input type="hidden" id="edit-category-icon" value="tag">' +
-                        '<div class="relative">' +
-                            '<button type="button" id="edit-icon-picker-btn" onclick="toggleEditIconPicker()" class="w-12 h-12 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 flex items-center justify-center hover:border-blue-500 dark:hover:border-blue-400 transition-colors">' +
-                                '<span id="edit-selected-icon-preview" class="w-5 h-5 text-zinc-600 dark:text-zinc-300"></span>' +
-                            '</button>' +
-                            '<div id="edit-icon-picker-popover" class="hidden absolute left-0 top-12 z-50 p-2 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-xl" style="width: 200px;">' +
-                                '<div class="grid grid-cols-4 gap-1" id="edit-icon-grid"></div>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>' +
-                    '<div class="flex-1 input-group">' +
-                        '<label class="input-label">{{ t("settings.categories.name") }}</label>' +
-                        '<input type="text" id="edit-category-name" class="input" placeholder="{{ t("settings.categories.name_placeholder") }}">' +
-                    '</div>' +
-                '</div>' +
-                '<input type="hidden" id="edit-category-id">' +
-                '<div class="flex justify-end gap-2">' +
-                    '<button type="button" onclick="hideEditCategoryModal()" class="btn btn-secondary">{{ t("common.cancel") }}</button>' +
-                    '<button type="button" id="edit-category-save-btn" onclick="saveEditCategory()" class="btn btn-primary inline-flex items-center space-x-2">' +
-                        '<span class="btn-text">{{ t("common.save") }}</span>' +
-                        '<span class="btn-spinner hidden"><div class="spinner h-4 w-4"></div></span>' +
-                    '</button>' +
-                '</div>' +
-            '</div>';
-            document.body.appendChild(modal);
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) hideEditCategoryModal();
-            });
-            initEditIconPicker();
-        }
+        if (!modal) return;
 
         document.getElementById('edit-category-id').value = id;
         document.getElementById('edit-category-name').value = name;
@@ -174,6 +123,17 @@
         modal.classList.remove('hidden');
         document.getElementById('edit-category-name').focus();
     }
+
+    // Initialize edit category modal on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        var modal = document.getElementById('edit-category-modal');
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) hideEditCategoryModal();
+            });
+            initEditIconPicker();
+        }
+    });
 
     function hideEditCategoryModal() {
         var modal = document.getElementById('edit-category-modal');
@@ -219,51 +179,25 @@
     }
 
     async function deleteCategory(id, name, btnElement) {
-        var confirmed = await Modal.confirm(
-            '{{ t("settings.categories.delete_confirm_message") }}',
-            '{{ t("common.delete") }}' + ' "' + name + '"?',
-            { confirmText: '{{ t("common.delete") }}', danger: true }
-        );
-        if (confirmed) {
-            var item = btnElement ? btnElement.closest('.settings-item') : document.querySelector('[data-category-id="' + id + '"]');
-            if (item && btnElement) {
-                btnElement.disabled = true;
-                btnElement.innerHTML = '<div class="spinner h-4 w-4"></div>';
+        await CRUD.delete({
+            endpoint: '/api/categories/' + id,
+            name: name,
+            element: btnElement,
+            listIds: ['categories-list', 'websites-list'],
+            messages: {
+                confirm: '{{ t("settings.categories.delete_confirm_message") }}',
+                title: '{{ t("common.delete") }}',
+                error: '{{ t("settings.categories.delete_failed") }}',
+                errorTitle: '{{ t("common.error") }}'
+            },
+            originalIcon: '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>',
+            onSuccess: function() {
+                var form = document.getElementById('add-website-form');
+                if (form && !form.classList.contains('hidden')) {
+                    loadCategoryOptions();
+                }
             }
-
-            var restoreButton = function() {
-                if (btnElement) {
-                    btnElement.disabled = false;
-                    btnElement.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>';
-                }
-            };
-
-            fetch('/api/categories/' + id, {
-                method: 'DELETE'
-            }).then(async function(response) {
-                if (response.ok) {
-                    if (item) {
-                        animateItemOut(item, function() {
-                            htmx.trigger('#categories-list', 'refresh');
-                            htmx.trigger('#websites-list', 'refresh');
-                        });
-                    } else {
-                        htmx.trigger('#categories-list', 'refresh');
-                        htmx.trigger('#websites-list', 'refresh');
-                    }
-                    var form = document.getElementById('add-website-form');
-                    if (form && !form.classList.contains('hidden')) {
-                        loadCategoryOptions();
-                    }
-                } else {
-                    restoreButton();
-                    await Modal.error('{{ t("settings.categories.delete_failed") }}', '{{ t("common.error") }}');
-                }
-            }).catch(async function() {
-                restoreButton();
-                await Modal.error('{{ t("settings.categories.delete_failed") }}', '{{ t("common.error") }}');
-            });
-        }
+        });
     }
 
     // HTMX event listener for category form loading state

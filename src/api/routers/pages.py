@@ -160,11 +160,15 @@ def articles_list(
     limit: int = 20,
     offset: int = 0,
 ) -> HTMLResponse:
-    """Render the articles list partial for HTMX infinite scroll."""
+    """Render the articles list partial for HTMX."""
     assert templates is not None
 
     repo = ArticleRepository(session)
-    articles, has_more = repo.get_for_website(website_id, limit=limit, offset=offset)
+    articles, total_count, has_more = repo.get_for_website(
+        website_id, limit=limit, offset=offset
+    )
+
+    remaining = max(0, total_count - offset - len(articles))
 
     return templates.TemplateResponse(
         request,
@@ -176,6 +180,41 @@ def articles_list(
             "limit": limit,
             "next_offset": offset + limit,
             "has_more": has_more,
+            "remaining": remaining,
+        },
+    )
+
+
+@router.get("/articles/more", response_class=HTMLResponse)
+def articles_more(
+    request: Request,
+    website_id: str,
+    session: Annotated[Session, Depends(get_session)],
+    i18n: I18nContext,
+    offset: int = 20,
+    limit: int = 20,
+) -> HTMLResponse:
+    """Load more articles for a website."""
+    assert templates is not None
+
+    repo = ArticleRepository(session)
+    articles, total_count, has_more = repo.get_for_website(
+        website_id, limit=limit, offset=offset
+    )
+
+    remaining = max(0, total_count - offset - len(articles))
+
+    return templates.TemplateResponse(
+        request,
+        "partials/htmx/articles_more.html",
+        {
+            **i18n,
+            "articles": articles,
+            "website_id": website_id,
+            "offset": offset + len(articles),
+            "limit": limit,
+            "has_more": has_more,
+            "remaining": remaining,
         },
     )
 
@@ -369,6 +408,51 @@ def feeds_more(
             "has_more": has_more,
             "remaining": remaining,
         },
+    )
+
+
+@router.get("/subscriptions", response_class=HTMLResponse)
+def subscriptions_page(request: Request, i18n: I18nContext) -> HTMLResponse:
+    """Render the subscriptions page listing all feeds."""
+    assert templates is not None
+    return templates.TemplateResponse(request, "subscriptions.html", i18n)
+
+
+@router.get("/subscriptions/list", response_class=HTMLResponse)
+def subscriptions_list(
+    request: Request,
+    session: Annotated[Session, Depends(get_session)],
+    i18n: I18nContext,
+) -> HTMLResponse:
+    """Render the subscriptions list partial for HTMX."""
+    assert templates is not None
+
+    repo = WebsiteRepository(session)
+    websites_query = repo.get_all_with_category_names()
+
+    # Group websites by category
+    categories_dict: dict[str, dict[str, object]] = {}
+    for website, category_name, category_icon in websites_query:
+        cat_name = category_name or "Uncategorized"
+        cat_icon = category_icon or "tag"
+        if cat_name not in categories_dict:
+            categories_dict[cat_name] = {
+                "name": cat_name,
+                "icon": cat_icon,
+                "websites": [],
+            }
+        websites_list: list[object] = categories_dict[cat_name][
+            "websites"
+        ]  # type: ignore[assignment]
+        websites_list.append(website)
+
+    # Convert to list sorted by category name
+    categories = list(categories_dict.values())
+
+    return templates.TemplateResponse(
+        request,
+        "partials/htmx/subscriptions_list.html",
+        {**i18n, "categories": categories},
     )
 
 

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from 'partials/includes/components/loading_skeleton.html' import subscriptions_skeleton %}
+
+{% block title %}{{ t('subscriptions.title') }} - {{ t('common.rss_reader') }}{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div>
+            <h1 class="page-title">{{ t('subscriptions.title') }}</h1>
+            <p class="mt-1 text-subtitle">{{ t('subscriptions.subtitle') }}</p>
+        </div>
+    </div>
+
+    <!-- Subscriptions list container -->
+    <div id="subscriptions-list" hx-get="/subscriptions/list" hx-trigger="load" hx-swap="innerHTML">
+        {{ subscriptions_skeleton(website_count=8) }}
+    </div>
+</div>
+{% endblock %}

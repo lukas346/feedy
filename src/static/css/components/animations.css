@@ -1,0 +1,28 @@
+/* Lazy-loaded item animation */
+.lazy-loaded-item {
+    animation: lazySlideIn 0.2s ease-out forwards;
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+@keyframes lazySlideIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.monochrome .lazy-loaded-item {
+    animation: none;
+    opacity: 1;
+    transform: none;
+}
+
+/* Read state for lazy-loaded items - needs !important to override animation */
+.lazy-loaded-item.is-read {
+    animation: lazySlideIn 0.2s ease-out forwards;
+}
+
+.lazy-loaded-item.is-read {
+    opacity: 0.6 !important;
+}

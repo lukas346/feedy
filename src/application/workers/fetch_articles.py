@@ -252,13 +252,15 @@ class ArticleFetcher:
         if parsed.content:
             try:
                 rss_content = self.content_converter.to_html(
-                    parsed.content, base_url=parsed.url
+                    parsed.content, base_url=parsed.url, title=parsed.title
                 )
             except Exception as e:
                 logger.debug(f"RSS content extraction failed: {e}")
 
         try:
-            fetched_content = self.content_converter.fetch_and_convert_sync(parsed.url)
+            fetched_content = self.content_converter.fetch_and_convert_sync(
+                parsed.url, title=parsed.title
+            )
         except Exception as e:
             logger.warning(f"Failed to fetch content for {parsed.url}: {e}")
 

@@ -9,7 +9,7 @@
             </div>
             <div>
                 <h2 class="section-title">{{ t('settings.feeds.title') }}</h2>
-                <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ t('settings.feeds.subtitle') }}</p>
+                <p class="text-secondary">{{ t('settings.feeds.subtitle') }}</p>
             </div>
         </div>
         <div class="flex items-center space-x-2">
@@ -47,7 +47,7 @@
     <!-- Add Website Form (hidden by default) -->
     <form
         id="add-website-form"
-        class="hidden mb-6 p-5 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-200 dark:border-zinc-700 animate-scale-in"
+        class="hidden mb-6 p-5 form-section animate-scale-in"
         hx-post="/settings/websites"
         hx-target="#websites-list"
         hx-swap="innerHTML"
@@ -310,76 +310,41 @@
 
     // Refetch handler for websites
     async function refetchWebsite(id, name, btnElement) {
-        var confirmed = await Modal.confirm(
-            '{{ t("settings.feeds.repull_confirm_message") }}',
-            '{{ t("settings.feeds.repull") }}' + ' "' + name + '"?',
-            { confirmText: '{{ t("settings.feeds.repull") }}' }
-        );
-        if (confirmed) {
-            if (btnElement) {
-                btnElement.disabled = true;
-                btnElement.innerHTML = '<div class="spinner h-4 w-4"></div>';
-            }
-
-            var restoreButton = function() {
-                if (btnElement) {
-                    btnElement.disabled = false;
-                    btnElement.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>';
-                }
-            };
-
-            fetch('/settings/websites/' + id + '/refetch', {
-                method: 'POST'
-            }).then(async function(response) {
-                restoreButton();
-                if (response.ok) {
-                    var html = await response.text();
-                    document.getElementById('fetch-result-container').innerHTML = html;
-                } else {
-                    await Modal.error('{{ t("settings.feeds.repull_failed") }}', '{{ t("common.error") }}');
-                }
-            }).catch(async function() {
-                restoreButton();
-                await Modal.error('{{ t("settings.feeds.repull_failed") }}', '{{ t("common.error") }}');
-            });
-        }
+        await CRUD.action({
+            endpoint: '/settings/websites/' + id + '/refetch',
+            method: 'POST',
+            name: name,
+            messages: {
+                confirm: '{{ t("settings.feeds.repull_confirm_message") }}',
+                title: '{{ t("settings.feeds.repull") }}',
+                error: '{{ t("settings.feeds.repull_failed") }}',
+                errorTitle: '{{ t("common.error") }}'
+            },
+            showOverlay: true,
+            overlayText: {
+                text: '{{ t("settings.repulling_overlay") }}',
+                subtext: '{{ t("settings.repulling_overlay_sub") }}'
+            },
+            resultContainer: 'fetch-result-container'
+        });
     }
 
     // Unread all handler for websites
     async function unreadAllWebsite(id, name, btnElement) {
-        var confirmed = await Modal.confirm(
-            '{{ t("settings.feeds.unread_all_confirm_message") }}',
-            '{{ t("settings.feeds.unread_all") }}' + ' "' + name + '"?',
-            { confirmText: '{{ t("settings.feeds.unread_all") }}' }
-        );
-        if (confirmed) {
-            if (btnElement) {
-                btnElement.disabled = true;
-                btnElement.innerHTML = '<div class="spinner h-4 w-4"></div>';
-            }
-
-            var restoreButton = function() {
-                if (btnElement) {
-                    btnElement.disabled = false;
-                    btnElement.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76"/></svg>';
-                }
-            };
-
-            fetch('/settings/websites/' + id + '/unread-all', {
-                method: 'POST'
-            }).then(async function(response) {
-                restoreButton();
-                if (response.ok) {
-                    var html = await response.text();
-                    document.getElementById('fetch-result-container').innerHTML = html;
-                } else {
-                    await Modal.error('{{ t("settings.feeds.unread_all_failed") }}', '{{ t("common.error") }}');
-                }
-            }).catch(async function() {
-                restoreButton();
-                await Modal.error('{{ t("settings.feeds.unread_all_failed") }}', '{{ t("common.error") }}');
-            });
-        }
+        await CRUD.action({
+            endpoint: '/settings/websites/' + id + '/unread-all',
+            method: 'POST',
+            name: name,
+            element: btnElement,
+            messages: {
+                confirm: '{{ t("settings.feeds.unread_all_confirm_message") }}',
+                title: '{{ t("settings.feeds.unread_all") }}',
+                error: '{{ t("settings.feeds.unread_all_failed") }}',
+                errorTitle: '{{ t("common.error") }}'
+            },
+            originalIcon: '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76"/></svg>',
+            resultContainer: 'fetch-result-container'
+        });
     }
 
     // Edit/Delete handlers for websites
@@ -389,49 +354,7 @@
 
     function showEditWebsiteModal(id, name, url, rssUrl, categoryId, fetchInterval) {
         var modal = document.getElementById('edit-website-modal');
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'edit-website-modal';
-            modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm';
-            modal.innerHTML =
-                '<div class="bg-white dark:bg-zinc-800 rounded-xl p-6 w-full max-w-sm mx-4 shadow-2xl animate-scale-in">' +
-                    '<h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">{{ t("settings.feeds.edit_title") }}</h3>' +
-                    '<input type="hidden" id="edit-website-id">' +
-                    '<div class="space-y-4 mb-4">' +
-                        '<div class="input-group">' +
-                            '<label class="input-label">{{ t("settings.feeds.website_name") }}</label>' +
-                            '<input type="text" id="edit-website-name" class="input" placeholder="{{ t("settings.feeds.website_name_placeholder") }}">' +
-                        '</div>' +
-                        '<div class="input-group">' +
-                            '<label class="input-label">{{ t("settings.feeds.category") }}</label>' +
-                            '<select id="edit-website-category" class="input"></select>' +
-                        '</div>' +
-                        '<div class="input-group">' +
-                            '<label class="input-label">{{ t("settings.feeds.website_url") }}</label>' +
-                            '<input type="url" id="edit-website-url" class="input" placeholder="{{ t("settings.feeds.website_url_placeholder") }}">' +
-                        '</div>' +
-                        '<div class="input-group">' +
-                            '<label class="input-label">{{ t("settings.feeds.rss_url") }}</label>' +
-                            '<input type="url" id="edit-website-rss-url" class="input" placeholder="{{ t("settings.feeds.rss_url_placeholder") }}">' +
-                        '</div>' +
-                        '<div class="input-group">' +
-                            '<label class="input-label">{{ t("settings.feeds.fetch_interval") }}</label>' +
-                            '<input type="number" id="edit-website-interval" class="input" min="5">' +
-                        '</div>' +
-                    '</div>' +
-                    '<div class="flex justify-end gap-2">' +
-                        '<button type="button" onclick="hideEditWebsiteModal()" class="btn btn-secondary">{{ t("common.cancel") }}</button>' +
-                        '<button type="button" id="edit-website-save-btn" onclick="saveEditWebsite()" class="btn btn-primary inline-flex items-center space-x-2">' +
-                            '<span class="btn-text">{{ t("common.save") }}</span>' +
-                            '<span class="btn-spinner hidden"><div class="spinner h-4 w-4"></div></span>' +
-                        '</button>' +
-                    '</div>' +
-                '</div>';
-            document.body.appendChild(modal);
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) hideEditWebsiteModal();
-            });
-        }
+        if (!modal) return;
 
         document.getElementById('edit-website-id').value = id;
         document.getElementById('edit-website-name').value = name;
@@ -440,7 +363,7 @@
         document.getElementById('edit-website-interval').value = fetchInterval;
 
         var select = document.getElementById('edit-website-category');
-        select.innerHTML = '<option value="">Loading...</option>';
+        select.innerHTML = '<option value="">{{ t("common.loading") }}</option>';
         fetch('/settings/categories/options')
             .then(function(response) { return response.text(); })
             .then(function(html) {
@@ -448,12 +371,22 @@
                 select.value = categoryId;
             })
             .catch(function() {
-                select.innerHTML = '<option value="">Error loading categories</option>';
+                select.innerHTML = '<option value="">{{ t("common.error") }}</option>';
             });
 
         modal.classList.remove('hidden');
         document.getElementById('edit-website-name').focus();
     }
+
+    // Initialize edit website modal on page load
+    (function() {
+        var modal = document.getElementById('edit-website-modal');
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) hideEditWebsiteModal();
+            });
+        }
+    })();
 
     function hideEditWebsiteModal() {
         var modal = document.getElementById('edit-website-modal');
@@ -520,62 +453,31 @@
     }
 
     async function deleteWebsite(id, name, btnElement) {
-        var confirmed = await Modal.confirm(
-            '{{ t("settings.feeds.delete_confirm_message") }}',
-            '{{ t("common.delete") }}' + ' "' + name + '"?',
-            { confirmText: '{{ t("common.delete") }}', danger: true }
-        );
-        if (confirmed) {
-            var item = btnElement ? btnElement.closest('.settings-item') : document.querySelector('[data-website-id="' + id + '"]');
-            if (item && btnElement) {
-                btnElement.disabled = true;
-                btnElement.innerHTML = '<div class="spinner h-4 w-4"></div>';
-            }
-
-            var restoreButton = function() {
-                if (btnElement) {
-                    btnElement.disabled = false;
-                    btnElement.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>';
-                }
-            };
-
-            fetch('/api/websites/' + id, {
-                method: 'DELETE'
-            }).then(async function(response) {
-                if (response.ok) {
-                    if (item) {
-                        animateItemOut(item, function() {
-                            htmx.trigger('#websites-list', 'refresh');
-                            htmx.trigger('#categories-list', 'refresh');
-                        });
-                    } else {
-                        htmx.trigger('#websites-list', 'refresh');
-                        htmx.trigger('#categories-list', 'refresh');
-                    }
-                } else {
-                    restoreButton();
-                    await Modal.error('{{ t("settings.feeds.delete_failed") }}', '{{ t("common.error") }}');
-                }
-            }).catch(async function() {
-                restoreButton();
-                await Modal.error('{{ t("settings.feeds.delete_failed") }}', '{{ t("common.error") }}');
-            });
-        }
+        await CRUD.delete({
+            endpoint: '/api/websites/' + id,
+            name: name,
+            element: btnElement,
+            listIds: ['websites-list', 'categories-list'],
+            messages: {
+                confirm: '{{ t("settings.feeds.delete_confirm_message") }}',
+                title: '{{ t("common.delete") }}',
+                error: '{{ t("settings.feeds.delete_failed") }}',
+                errorTitle: '{{ t("common.error") }}'
+            },
+            originalIcon: '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>'
+        });
     }
 
     // Fetch All loading overlay handlers
     function showFetchAllOverlay() {
-        var overlay = document.getElementById('fetch-all-overlay');
-        if (overlay) {
-            overlay.classList.remove('hidden');
-        }
+        showLoadingOverlay(
+            '{{ t("settings.fetching_overlay") }}',
+            '{{ t("settings.fetching_overlay_sub") }}'
+        );
     }
 
     function hideFetchAllOverlay() {
-        var overlay = document.getElementById('fetch-all-overlay');
-        if (overlay) {
-            overlay.classList.add('hidden');
-        }
+        hideLoadingOverlay();
     }
 
     // HTMX event listeners for website form and fetch-all

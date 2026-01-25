@@ -1,0 +1,16 @@
+{% from 'partials/includes/components/article_row.html' import article_row %}
+{% from 'partials/includes/components/show_more.html' import show_more %}
+
+{% for article in articles %}
+{{ article_row(article, show_favicon=false, show_source=false, show_read_btn=true, id_prefix='article-item', extra_classes='lazy-loaded-item', mark_as_read_text=t('reader.mark_as_read'), mark_as_unread_text=t('reader.mark_as_unread')) }}
+{% endfor %}
+
+{% if has_more %}
+{{ show_more(
+    endpoint='/articles/more?website_id=' ~ website_id ~ '&offset=' ~ offset ~ '&limit=' ~ limit,
+    target_id='articles-items-list',
+    remaining=remaining,
+    container_id='show-more-' ~ website_id,
+    text=t('common.show_more', count=remaining)
+) }}
+{% endif %}

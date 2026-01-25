@@ -57,31 +57,39 @@ class ArticleRepository:
 
     def get_for_website(
         self, website_id: str, limit: int = 20, offset: int = 0
-    ) -> tuple[list[Article], bool]:
+    ) -> tuple[list[Article], int, bool]:
         """
         Get articles for a website, excluding blocked domains.
 
         Returns:
-            Tuple of (articles, has_more)
+            Tuple of (articles, total_count, has_more)
         """
         blocked_domains = self._blocked_domains_subquery()
 
+        base_conditions = [
+            Article.website_id == website_id,
+            ~Article.domain.in_(blocked_domains),
+        ]
+
+        # Get total count
+        count_stmt = select(func.count()).select_from(Article).where(*base_conditions)
+        total_count: int = self.session.execute(count_stmt).scalar() or 0
+
+        # Get paginated articles
         stmt = (
             select(Article)
-            .where(Article.website_id == website_id)
-            .where(~Article.domain.in_(blocked_domains))
+            .where(*base_conditions)
             .order_by(
                 Article.published_at.desc().nullslast(), Article.fetched_at.desc()
             )
             .offset(offset)
-            .limit(limit + 1)
+            .limit(limit)
         )
-        articles_result = list(self.session.scalars(stmt).all())
+        articles = list(self.session.scalars(stmt).all())
 
-        has_more = len(articles_result) > limit
-        articles = articles_result[:limit]
+        has_more = total_count > offset + len(articles)
 
-        return articles, has_more
+        return articles, total_count, has_more
 
     def get_unread_for_websites(
         self, website_ids: list[str], limit: int = 50

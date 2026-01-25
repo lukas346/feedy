@@ -1,0 +1,89 @@
+{#
+Empty State Component
+Parameters:
+  - icon: str - Icon name or 'custom' to use icon_svg slot
+  - icon_svg: str - Custom SVG path (only d attribute value)
+  - title: str - Title text
+  - description: str - Description text
+  - action_url: str - Optional action button URL
+  - action_text: str - Optional action button text
+  - action_icon: str - Optional action button icon name (default: 'plus')
+  - gradient_from: str - Gradient start color class (default: 'blue-500/20')
+  - gradient_to: str - Gradient end color class (default: 'violet-500/20')
+  - icon_color: str - Icon color class (default: 'blue-600')
+  - animate: bool - Apply fade-in animation (default: true)
+  - size: str - Size variant: 'sm', 'md', 'lg' (default: 'lg')
+#}
+{% macro empty_state(icon='document', icon_svg='', title='', description='', action_url='', action_text='', action_icon='plus', gradient_from='blue-500/20', gradient_to='violet-500/20', icon_color='blue-600', animate=true, size='lg') %}
+{% set sizes = {
+    'sm': {'container': 'w-12 h-12', 'icon': 'w-6 h-6', 'title': 'text-lg', 'wrapper': 'p-8'},
+    'md': {'container': 'w-16 h-16', 'icon': 'w-8 h-8', 'title': 'text-lg', 'wrapper': 'p-10'},
+    'lg': {'container': 'w-20 h-20', 'icon': 'w-10 h-10', 'title': 'text-xl', 'wrapper': 'p-12'}
+} %}
+{% set s = sizes[size] %}
+<div class="card {{ s.wrapper }} text-center {% if animate %}animate-fade-in{% endif %}">
+    <div class="{{ s.container }} mx-auto mb-6 rounded-2xl bg-gradient-to-br from-{{ gradient_from }} to-{{ gradient_to }} flex items-center justify-center">
+        {% if icon == 'rss' %}
+        <svg class="{{ s.icon }} text-{{ icon_color }} dark:text-{{ icon_color.replace('600', '400') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 5c7.18 0 13 5.82 13 13M6 11a7 7 0 017 7m-6 0a1 1 0 11-2 0 1 1 0 012 0z"/>
+        </svg>
+        {% elif icon == 'document' %}
+        <svg class="{{ s.icon }} text-{{ icon_color }} dark:text-{{ icon_color.replace('600', '400') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        {% elif icon == 'archive' %}
+        <svg class="{{ s.icon }} text-{{ icon_color }} dark:text-{{ icon_color.replace('600', '400') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+        </svg>
+        {% elif icon == 'heart' %}
+        <svg class="{{ s.icon }} text-{{ icon_color }} dark:text-{{ icon_color.replace('600', '400') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+        </svg>
+        {% elif icon == 'search' %}
+        <svg class="{{ s.icon }} text-{{ icon_color }} dark:text-{{ icon_color.replace('600', '400') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        {% elif icon == 'newspaper' %}
+        <svg class="{{ s.icon }} text-{{ icon_color }} dark:text-{{ icon_color.replace('600', '400') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+        </svg>
+        {% elif icon_svg %}
+        <svg class="{{ s.icon }} text-{{ icon_color }} dark:text-{{ icon_color.replace('600', '400') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ icon_svg }}"/>
+        </svg>
+        {% endif %}
+    </div>
+    <h3 class="{{ s.title }} font-semibold text-zinc-900 dark:text-zinc-100 mb-2">{{ title }}</h3>
+    <p class="text-subtitle mb-6 max-w-sm mx-auto">{{ description }}</p>
+    {% if action_url and action_text %}
+    <a href="{{ action_url }}" class="btn btn-primary inline-flex items-center space-x-2">
+        {% if action_icon == 'plus' %}
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+        </svg>
+        {% elif action_icon == 'newspaper' %}
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+        </svg>
+        {% endif %}
+        <span>{{ action_text }}</span>
+    </a>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{# Small empty state for inside cards (no card wrapper) #}
+{% macro empty_state_inline(icon='document', title='', size='sm') %}
+{% set sizes = {'sm': {'container': 'w-12 h-12', 'icon': 'w-6 h-6'}, 'md': {'container': 'w-16 h-16', 'icon': 'w-8 h-8'}} %}
+{% set s = sizes[size] %}
+<div class="text-center py-8">
+    <div class="{{ s.container }} mx-auto mb-3 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+        {% if icon == 'document' %}
+        <svg class="{{ s.icon }} text-zinc-400 dark:text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        {% endif %}
+    </div>
+    <p class="text-secondary">{{ title }}</p>
+</div>
+{% endmacro %}

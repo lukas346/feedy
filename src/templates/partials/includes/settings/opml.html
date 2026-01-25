@@ -9,16 +9,16 @@
             </div>
             <div>
                 <h2 class="section-title">{{ t('settings.opml.title') }}</h2>
-                <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ t('settings.opml.subtitle') }}</p>
+                <p class="text-secondary">{{ t('settings.opml.subtitle') }}</p>
             </div>
         </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Export -->
-        <div class="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-200 dark:border-zinc-700">
+        <div class="p-4 form-section">
             <h3 class="font-medium text-zinc-900 dark:text-zinc-100 mb-2">{{ t('settings.opml.export') }}</h3>
-            <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">{{ t('settings.opml.export_hint') }}</p>
+            <p class="text-secondary mb-4">{{ t('settings.opml.export_hint') }}</p>
             <a
                 href="/api/opml/export"
                 class="btn btn-secondary inline-flex items-center space-x-2"
@@ -32,9 +32,9 @@
         </div>
 
         <!-- Import -->
-        <div class="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-200 dark:border-zinc-700">
+        <div class="p-4 form-section">
             <h3 class="font-medium text-zinc-900 dark:text-zinc-100 mb-2">{{ t('settings.opml.import') }}</h3>
-            <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">{{ t('settings.opml.import_hint') }}</p>
+            <p class="text-secondary mb-4">{{ t('settings.opml.import_hint') }}</p>
             <div class="flex items-center gap-2">
                 <input
                     type="file"

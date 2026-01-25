@@ -153,20 +153,6 @@
   @apply border-black;
 }
 
-/* Loading - hide placeholders entirely for e-ink (avoids screen refresh) */
-.monochrome .skeleton {
-  @apply hidden;
-}
-
-.monochrome .animate-pulse {
-  @apply hidden;
-}
-
-/* Reserve full viewport height to prevent page expansion on content load */
-.monochrome main {
-  min-height: 100vh;
-}
-
 .monochrome .spinner {
   @apply animate-none border-black border-t-white;
 }
@@ -197,8 +183,7 @@
 .monochrome .animate-shimmer,
 .monochrome .animate-fade-in,
 .monochrome .animate-slide-up,
-.monochrome .animate-scale-in,
-.monochrome .skeleton {
+.monochrome .animate-scale-in {
   animation: none !important;
 }
 

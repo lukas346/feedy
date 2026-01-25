@@ -88,7 +88,12 @@ class ContentConverter:
         "sponsor",
     ]
 
-    def to_html(self, html_content: str, base_url: Optional[str] = None) -> str:
+    def to_html(
+        self,
+        html_content: str,
+        base_url: Optional[str] = None,
+        title: Optional[str] = None,
+    ) -> str:
         """
         Extract clean HTML content using multiple strategies.
 
@@ -98,6 +103,7 @@ class ContentConverter:
         Args:
             html_content: Raw HTML string to process
             base_url: Base URL for converting relative URLs to absolute
+            title: Article title for duplicate title removal
 
         Returns:
             Clean HTML string
@@ -126,7 +132,7 @@ class ContentConverter:
         results: list[ExtractionResult] = []
 
         # Strategy 1: Trafilatura (best for news)
-        result = self._extract_with_trafilatura(html_content)
+        result = self._extract_with_trafilatura(html_content, title)
         if result:
             has_images = "<img" in result.lower()
             has_code = "<pre" in result.lower() or "<code" in result.lower()
@@ -136,7 +142,7 @@ class ContentConverter:
             )
 
         # Strategy 2: Readability (Mozilla algorithm)
-        result = self._extract_with_readability(html_content)
+        result = self._extract_with_readability(html_content, title)
         if result:
             has_images = "<img" in result.lower()
             has_code = "<pre" in result.lower() or "<code" in result.lower()
@@ -146,7 +152,7 @@ class ContentConverter:
             )
 
         # Strategy 3: Direct HTML extraction fallback
-        result = self._extract_with_cleaning(html_content)
+        result = self._extract_with_cleaning(html_content, title)
         if result:
             has_images = "<img" in result.lower()
             has_code = "<pre" in result.lower() or "<code" in result.lower()
@@ -404,7 +410,9 @@ class ContentConverter:
 
         return max(score, 0)
 
-    def _extract_with_trafilatura(self, html_content: str) -> Optional[str]:
+    def _extract_with_trafilatura(
+        self, html_content: str, title: Optional[str] = None
+    ) -> Optional[str]:
         """Extract content using trafilatura library."""
         try:
             result = trafilatura.extract(
@@ -417,23 +425,27 @@ class ContentConverter:
                 favor_recall=True,
             )
             if result:
-                return self._clean_html(result)
+                return self._clean_html(result, title)
         except Exception as e:
             logger.debug(f"Trafilatura extraction failed: {e}")
         return None
 
-    def _extract_with_readability(self, html_content: str) -> Optional[str]:
+    def _extract_with_readability(
+        self, html_content: str, title: Optional[str] = None
+    ) -> Optional[str]:
         """Extract content using Mozilla's Readability algorithm."""
         try:
             doc = Document(html_content)
             summary_html = doc.summary()
             if summary_html:
-                return self._clean_html(summary_html)
+                return self._clean_html(summary_html, title)
         except Exception as e:
             logger.debug(f"Readability extraction failed: {e}")
         return None
 
-    def _extract_with_cleaning(self, html_content: str) -> Optional[str]:
+    def _extract_with_cleaning(
+        self, html_content: str, title: Optional[str] = None
+    ) -> Optional[str]:
         """Extract content by cleaning HTML directly."""
         try:
             soup = BeautifulSoup(html_content, "html.parser")
@@ -451,7 +463,7 @@ class ContentConverter:
 
             result = str(soup)
             if result:
-                return self._clean_html(result)
+                return self._clean_html(result, title)
         except Exception as e:
             logger.debug(f"Direct extraction failed: {e}")
         return None
@@ -553,6 +565,50 @@ class ContentConverter:
         """Check if text matches any of the removal patterns."""
         return any(pattern in text for pattern in self.REMOVE_PATTERNS)
 
+    def _normalize_title(self, text: str) -> str:
+        """Normalize title text for comparison."""
+        # Lowercase, strip, collapse whitespace
+        return " ".join(text.lower().split())
+
+    def _titles_match(self, heading_text: str, article_title: str) -> bool:
+        """Check if heading text matches the article title."""
+        h = self._normalize_title(heading_text)
+        t = self._normalize_title(article_title)
+
+        if not h or not t:
+            return False
+
+        # Exact match
+        if h == t:
+            return True
+
+        # One contains the other (handles truncation or extra punctuation)
+        if h in t or t in h:
+            return True
+
+        return False
+
+    def _remove_leading_title(
+        self, soup: BeautifulSoup, title: Optional[str] = None
+    ) -> None:
+        """Remove the first h1/h2 if it matches the article title.
+
+        Article titles are displayed separately in the reader header,
+        so having an h1/h2 at the start of extracted content creates
+        a duplicate title.
+        """
+        if not title:
+            return
+
+        # Find the first h1 or h2 element in the document
+        first_heading = soup.find(["h1", "h2"])
+        if not first_heading or not isinstance(first_heading, Tag):
+            return
+
+        heading_text = first_heading.get_text(strip=True)
+        if self._titles_match(heading_text, title):
+            first_heading.decompose()
+
     def _convert_inline_pre_to_code(self, soup: BeautifulSoup) -> None:
         """Convert short inline <pre> elements to <code> elements.
 
@@ -584,13 +640,17 @@ class ContentConverter:
             code_tag.string = text
             pre.replace_with(code_tag)
 
-    def _clean_html(self, content: str) -> str:
+    def _clean_html(self, content: str, title: Optional[str] = None) -> str:
         """Clean up HTML content."""
         if not content:
             return ""
 
         try:
             soup = BeautifulSoup(content, "html.parser")
+
+            # Remove leading h1/h2 if it matches the article title
+            # (title is already displayed in article header)
+            self._remove_leading_title(soup, title)
 
             # Convert short inline <pre> elements to <code>
             # Trafilatura sometimes wraps inline code in <pre> instead of <code>
@@ -676,7 +736,9 @@ class ContentConverter:
 
         return None
 
-    def _fetch_with_trafilatura(self, url: str) -> Optional[str]:
+    def _fetch_with_trafilatura(
+        self, url: str, title: Optional[str] = None
+    ) -> Optional[str]:
         """Fetch and extract content using trafilatura's built-in fetcher."""
         try:
             downloaded = trafilatura.fetch_url(url)
@@ -691,7 +753,7 @@ class ContentConverter:
                     favor_recall=True,
                 )
                 if result:
-                    return self._clean_html(result)
+                    return self._clean_html(result, title)
         except Exception as e:
             logger.debug(f"Trafilatura fetch failed for {url}: {e}")
         return None
@@ -722,12 +784,18 @@ class ContentConverter:
         self,
         url: str,
         timeout: float = 30.0,
+        title: Optional[str] = None,
     ) -> Optional[str]:
         """
         Synchronous version of fetch_and_convert.
 
         Tries multiple extraction strategies and returns the best result.
         Prioritizes extraction methods that preserve images and code.
+
+        Args:
+            url: URL to fetch content from
+            timeout: Request timeout in seconds
+            title: Article title for duplicate title removal
         """
         results: list[ExtractionResult] = []
         html_content: Optional[str] = None
@@ -771,7 +839,7 @@ class ContentConverter:
                         return str(domain_result)
 
         # Strategy 1: Trafilatura fetch
-        result = self._fetch_with_trafilatura(url)
+        result = self._fetch_with_trafilatura(url, title)
         if result:
             has_images = "<img" in result.lower()
             has_code = "<pre" in result.lower() or "<code" in result.lower()
@@ -786,7 +854,7 @@ class ContentConverter:
             html_content = self._preprocess_html(html_content, url)
 
             # Try readability
-            readability_result = self._extract_with_readability(html_content)
+            readability_result = self._extract_with_readability(html_content, title)
             if readability_result:
                 has_images = "<img" in readability_result.lower()
                 has_code = (
@@ -801,7 +869,7 @@ class ContentConverter:
                 )
 
             # Try direct cleaning
-            direct_result = self._extract_with_cleaning(html_content)
+            direct_result = self._extract_with_cleaning(html_content, title)
             if direct_result:
                 has_images = "<img" in direct_result.lower()
                 has_code = (

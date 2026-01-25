@@ -1,52 +1,12 @@
-{# Icon macro for category icons #}
-{% macro category_icon(icon_name) %}
-{% if icon_name == 'folder' %}
-<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
-{% elif icon_name == 'globe' %}
-<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-{% elif icon_name == 'code' %}
-<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
-{% elif icon_name == 'book' %}
-<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-{% elif icon_name == 'music' %}
-<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
-{% elif icon_name == 'film' %}
-<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
-{% elif icon_name == 'puzzle' %}
-<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/></svg>
-{% elif icon_name == 'briefcase' %}
-<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-{% elif icon_name == 'beaker' %}
-<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
-{% elif icon_name == 'heart' %}
-<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-{% elif icon_name == 'star' %}
-<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-{% elif icon_name == 'lightning' %}
-<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-{% elif icon_name == 'chat' %}
-<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-{% elif icon_name == 'camera' %}
-<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-{% elif icon_name == 'academic' %}
-<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/></svg>
-{% elif icon_name == 'fire' %}
-<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"/></svg>
-{% elif icon_name == 'rss' %}
-<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 5c7.18 0 13 5.82 13 13M6 11a7 7 0 017 7m-6 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
-{% elif icon_name == 'newspaper' %}
-<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
-{% elif icon_name == 'sparkles' %}
-<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
-{% else %}
-<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
-{% endif %}
-{% endmacro %}
+{% from 'partials/includes/components/icons.html' import category_icon %}
+{% from 'partials/includes/components/article_row.html' import article_row %}
+{% from 'partials/includes/components/show_more.html' import show_more %}
+{% from 'partials/includes/components/empty_state.html' import empty_state, empty_state_inline %}
 
 {% if categories %}
     <div class="space-y-6">
     {% for category in categories %}
-    <div class="card animate-slide-up" style="animation-delay: {{ loop.index0 * 50 }}ms">
+    <div class="card animate-slide-up">
         <!-- Category header -->
         <div class="flex items-center justify-between p-6 border-b border-zinc-100 dark:border-zinc-800">
             <div class="flex items-center space-x-3">
@@ -55,7 +15,7 @@
                 </div>
                 <div>
                     <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{{ category.name }}</h2>
-                    <p class="text-sm text-zinc-500 dark:text-zinc-400">
+                    <p class="text-secondary">
                         {{ category.total_count }} {{ t('common.articles') if category.total_count != 1 else t('common.article') }}
                     </p>
                 </div>
@@ -64,113 +24,94 @@
 
         <!-- Articles -->
         {% if category.articles %}
-            <!-- List view - compact -->
             <div class="divide-y divide-zinc-300 dark:divide-zinc-600" id="category-{{ category.id }}-list">
                 {% for article in category.articles %}
-                <a href="/article/{{ article.id }}"
-                   class="flex items-center gap-3 px-6 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors group">
-                    <!-- Website icon -->
-                    <img src="https://www.google.com/s2/favicons?domain={{ article.website.url }}&sz=64"
-                         alt="" class="w-6 h-6 flex-shrink-0 rounded">
-                    <!-- Title -->
-                    <span class="flex-1 truncate text-sm font-medium text-zinc-900 dark:text-zinc-100
-                                group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                        {{ article.title }}
-                    </span>
-
-                    <!-- Source -->
-                    <span class="hidden sm:block text-xs text-zinc-400 dark:text-zinc-500 truncate max-w-[120px]">
-                        {{ article.website.name }}
-                    </span>
-
-                    <!-- Reading time -->
-                    {% if article.reading_time_minutes %}
-                    <span class="text-xs text-zinc-400 dark:text-zinc-500 flex-shrink-0">{{ article.reading_time_minutes }} min</span>
-                    {% endif %}
-
-                    <!-- Date -->
-                    <span class="text-xs text-zinc-400 dark:text-zinc-500 flex-shrink-0">
-                        {% if article.published_at %}
-                        {{ article.published_at.strftime('%b %d') }}
-                        {% else %}
-                        {{ article.fetched_at.strftime('%b %d') }}
-                        {% endif %}
-                    </span>
-                </a>
+                {{ article_row(article, show_favicon=true, show_source=true, id_prefix='feed-article', apply_read_opacity=false, mark_as_read_text=t('reader.mark_as_read'), mark_as_unread_text=t('reader.mark_as_unread')) }}
                 {% endfor %}
 
                 {% if category.has_more %}
-                <div class="px-6 py-3 border-t border-zinc-100 dark:border-zinc-800 show-more-container"
-                     id="show-more-{{ category.id }}">
-                    <button type="button"
-                            class="show-more-btn w-full py-2 text-sm font-medium text-blue-600 dark:text-blue-400
-                                   hover:text-blue-700 dark:hover:text-blue-300 transition-colors
-                                   flex items-center justify-center gap-2"
-                            hx-get="/feeds/more?category_id={{ category.id }}&offset=10&limit=10"
-                            hx-target="#category-{{ category.id }}-list"
-                            hx-swap="beforeend"
-                            hx-on::after-request="this.parentElement.remove()">
-                        <span class="show-more-text">{{ t('common.show_more', count=category.total_count - 10) }}</span>
-                        <svg class="w-4 h-4 show-more-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </button>
-                </div>
+                {{ show_more(
+                    endpoint='/feeds/more?category_id=' ~ category.id ~ '&offset=10&limit=10',
+                    target_id='category-' ~ category.id ~ '-list',
+                    remaining=category.total_count - 10,
+                    container_id='show-more-' ~ category.id,
+                    text=t('common.show_more', count=category.total_count - 10)
+                ) }}
                 {% endif %}
             </div>
         {% else %}
-        <div class="text-center py-8">
-            <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                <svg class="w-6 h-6 text-zinc-400 dark:text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-            </div>
-            <p class="text-zinc-500 dark:text-zinc-400 text-sm">{{ t('feeds.no_articles_in_category') }}</p>
-        </div>
+        {{ empty_state_inline(icon='document', title=t('feeds.no_articles_in_category')) }}
         {% endif %}
     </div>
     {% endfor %}
     </div>
 {% else %}
-    <!-- Empty state -->
-    <div class="card p-12 text-center animate-fade-in">
-        <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-500/20 to-violet-500/20 flex items-center justify-center">
-            <svg class="w-10 h-10 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 5c7.18 0 13 5.82 13 13M6 11a7 7 0 017 7m-6 0a1 1 0 11-2 0 1 1 0 012 0z"/>
-            </svg>
-        </div>
-        <h3 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">{{ t('feeds.no_feeds_title') }}</h3>
-        <p class="text-zinc-500 dark:text-zinc-400 mb-6 max-w-sm mx-auto">
-            {{ t('feeds.no_feeds_description') }}
-        </p>
-        <a href="/settings#add-feed" class="btn btn-primary inline-flex items-center space-x-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-            </svg>
-            <span>{{ t('feeds.add_first_feed') }}</span>
-        </a>
-    </div>
+    {{ empty_state(
+        icon='rss',
+        title=t('feeds.no_feeds_title'),
+        description=t('feeds.no_feeds_description'),
+        action_url='/settings#add-feed',
+        action_text=t('feeds.add_first_feed')
+    ) }}
 {% endif %}
 
-<style>
-/* Animation for lazy-loaded items */
-.lazy-loaded-item {
-    animation: lazySlideIn 0.2s ease-out forwards;
-    opacity: 0;
-    transform: translateY(-10px);
-}
+<script>
+(function() {
+    if (window._feedsListenersAdded) return;
+    window._feedsListenersAdded = true;
 
-@keyframes lazySlideIn {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+    document.body.addEventListener('htmx:configRequest', function(evt) {
+        var btn = evt.detail.elt;
+        if (btn && btn.classList && btn.classList.contains('mark-read-btn')) {
+            var isRead = btn.dataset.isRead === 'true';
+            evt.detail.parameters['is_read'] = !isRead;
+        }
+    });
 
-/* Disable animations for monochrome theme */
-.monochrome .lazy-loaded-item {
-    animation: none;
-    opacity: 1;
-    transform: none;
-}
-</style>
+    document.body.addEventListener('htmx:afterSettle', function(evt) {
+        var btn = evt.detail.elt;
+        if (!btn || !btn.classList || !btn.classList.contains('mark-read-btn')) return;
+
+        var rowPrefix = btn.dataset.rowPrefix || 'feed-article';
+        var row = btn.closest('[id^="' + rowPrefix + '-"]');
+
+        var wasRead = btn.dataset.isRead === 'true';
+        var isNowRead = !wasRead;
+        btn.dataset.isRead = isNowRead ? 'true' : 'false';
+
+        if (isNowRead) {
+            btn.classList.remove('text-zinc-300', 'dark:text-zinc-600');
+            btn.classList.add('text-green-500', 'dark:text-green-400', 'bg-zinc-100', 'dark:bg-zinc-700');
+            btn.title = btn.dataset.unreadText;
+        } else {
+            btn.classList.remove('text-green-500', 'dark:text-green-400', 'bg-zinc-100', 'dark:bg-zinc-700');
+            btn.classList.add('text-zinc-300', 'dark:text-zinc-600');
+            btn.title = btn.dataset.readText;
+        }
+
+        if (row) {
+            if (isNowRead) {
+                row.classList.add('is-read');
+                row.style.opacity = '0.6';
+            } else {
+                row.classList.remove('is-read');
+                row.style.opacity = '1';
+            }
+        }
+    });
+
+    document.body.addEventListener('htmx:afterSwap', function(evt) {
+        if (evt.detail.target.id && evt.detail.target.id.startsWith('category-')) {
+            evt.detail.target.querySelectorAll('.mark-read-btn').forEach(function(btn) {
+                if (btn.dataset.isRead === 'true') {
+                    var item = btn.closest('[id^="feed-article-"]');
+                    if (item) {
+                        item.classList.add('is-read');
+                        item.style.opacity = '0.6';
+                    }
+                }
+            });
+        }
+    });
+})();
+</script>

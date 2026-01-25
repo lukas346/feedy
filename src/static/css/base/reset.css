@@ -38,3 +38,8 @@ body {
 html {
   scroll-behavior: smooth;
 }
+
+/* Reserve full viewport height to prevent page expansion on content load */
+main {
+  min-height: 100vh;
+}

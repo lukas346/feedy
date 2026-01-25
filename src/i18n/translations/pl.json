@@ -16,9 +16,10 @@
     "invalid_url": "Nieprawidłowy URL"
   },
   "nav": {
-    "feeds": "Kanały",
+    "feeds": "Feedy",
     "archive": "Archiwum",
     "favorites": "Ulubione",
+    "subscriptions": "Subskrypcje",
     "settings": "Ustawienia",
     "logout": "Wyloguj"
   },
@@ -50,7 +51,7 @@
     "password_changed": "Hasło zostało zmienione"
   },
   "feeds": {
-    "title": "Twoje kanały",
+    "title": "Twój Feedy",
     "subtitle": "Bądź na bieżąco z ulubionymi źródłami",
     "add_feed": "Dodaj kanał",
     "back_to_feeds": "Powrót do kanałów",
@@ -100,6 +101,13 @@
     "previous": "Poprzednia",
     "next": "Następna"
   },
+  "subscriptions": {
+    "title": "Subskrypcje",
+    "subtitle": "Wszystkie Twoje kanały RSS",
+    "no_feeds_title": "Brak kanałów",
+    "no_feeds_description": "Dodaj pierwszy kanał RSS w ustawieniach, aby zacząć czytać.",
+    "add_feed": "Dodaj kanał"
+  },
   "archive": {
     "title": "Archiwum",
     "subtitle": "Wcześniej przeczytane artykuły",
@@ -116,6 +124,8 @@
     "subtitle": "Zarządzaj kanałami, kategoriami i preferencjami",
     "fetching_overlay": "Pobieranie wszystkich kanałów...",
     "fetching_overlay_sub": "To może chwilę potrwać",
+    "repulling_overlay": "Ponowne pobieranie kanału...",
+    "repulling_overlay_sub": "Pobieranie nowych artykułów",
     "categories": {
       "title": "Kategorie",
       "subtitle": "Organizuj kanały w grupy",

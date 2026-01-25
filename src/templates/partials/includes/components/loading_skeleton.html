@@ -1,0 +1,71 @@
+{#
+Loading Skeleton Components
+#}
+
+{# Article list skeleton - for feeds/articles pages #}
+{% macro article_list_skeleton(count=10, show_favicon=false, in_card=true) %}
+{% if in_card %}<div class="card animate-pulse">{% endif %}
+    <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
+        {% for i in range(count) %}
+        <div class="flex items-center gap-3 px-6 py-3">
+            {% if show_favicon %}
+            <div class="w-6 h-6 skeleton rounded"></div>
+            {% endif %}
+            <div class="flex-1 h-5 skeleton"></div>
+            <div class="w-20 h-4 skeleton hidden sm:block"></div>
+            <div class="w-16 h-4 skeleton"></div>
+        </div>
+        {% endfor %}
+    </div>
+{% if in_card %}</div>{% endif %}
+{% endmacro %}
+
+{# Category card skeleton - for feeds page with category headers #}
+{% macro category_card_skeleton(article_count=3) %}
+<div class="card p-6 animate-pulse">
+    <div class="h-6 w-32 skeleton mb-4"></div>
+    <div class="space-y-3">
+        {% for i in range(article_count) %}
+        <div class="h-12 skeleton"></div>
+        {% endfor %}
+    </div>
+</div>
+{% endmacro %}
+
+{# Feed list skeleton - multiple category cards #}
+{% macro feeds_skeleton() %}
+<div class="space-y-6">
+    {{ category_card_skeleton(3) }}
+    {{ category_card_skeleton(2) }}
+</div>
+{% endmacro %}
+
+{# Subscriptions skeleton #}
+{% macro subscriptions_skeleton(website_count=5) %}
+<div class="card animate-pulse">
+    <div class="p-4 border-b border-zinc-100 dark:border-zinc-800">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 skeleton rounded-lg"></div>
+            <div class="h-5 w-24 skeleton"></div>
+        </div>
+    </div>
+    <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
+        {% for i in range(website_count) %}
+        <div class="flex items-center gap-3 px-4 py-3">
+            <div class="w-6 h-6 skeleton rounded"></div>
+            <div class="flex-1">
+                <div class="h-4 w-32 skeleton mb-1"></div>
+                <div class="h-3 w-48 skeleton"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endmacro %}
+
+{# Simple centered spinner #}
+{% macro spinner_centered() %}
+<div class="flex justify-center py-8">
+    <div class="spinner h-8 w-8"></div>
+</div>
+{% endmacro %}

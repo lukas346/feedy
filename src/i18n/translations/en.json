@@ -16,9 +16,10 @@
     "invalid_url": "Invalid URL"
   },
   "nav": {
-    "feeds": "Feeds",
+    "feeds": "Feedy",
     "archive": "Archive",
     "favorites": "Favorites",
+    "subscriptions": "Subscriptions",
     "settings": "Settings",
     "logout": "Logout"
   },
@@ -50,7 +51,7 @@
     "password_changed": "Password changed successfully"
   },
   "feeds": {
-    "title": "Your Feeds",
+    "title": "Your Feedy",
     "subtitle": "Stay updated with your favorite sources",
     "add_feed": "Add Feed",
     "back_to_feeds": "Back to feeds",
@@ -100,6 +101,13 @@
     "previous": "Previous",
     "next": "Next"
   },
+  "subscriptions": {
+    "title": "Subscriptions",
+    "subtitle": "All your RSS feeds",
+    "no_feeds_title": "No feeds yet",
+    "no_feeds_description": "Add your first RSS feed in settings to start reading.",
+    "add_feed": "Add Feed"
+  },
   "archive": {
     "title": "Archive",
     "subtitle": "Previously read articles",
@@ -116,6 +124,8 @@
     "subtitle": "Manage your feeds, categories, and preferences",
     "fetching_overlay": "Fetching all feeds...",
     "fetching_overlay_sub": "This may take a moment",
+    "repulling_overlay": "Repulling feed...",
+    "repulling_overlay_sub": "Fetching fresh articles",
     "categories": {
       "title": "Categories",
       "subtitle": "Organize your feeds into groups",

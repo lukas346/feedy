@@ -3,12 +3,12 @@
 {% block title %}{{ t('settings.title') }} - {{ t('common.rss_reader') }}{% endblock %}
 
 {% block content %}
-<!-- Full-page loading overlay for Fetch All -->
-<div id="fetch-all-overlay" class="loading-overlay hidden">
+<!-- Full-page loading overlay (reusable) -->
+<div id="loading-overlay" class="loading-overlay hidden">
     <div class="loading-overlay-content">
         <div class="loading-overlay-spinner"></div>
-        <div class="loading-overlay-text">{{ t('settings.fetching_overlay') }}</div>
-        <div class="loading-overlay-subtext">{{ t('settings.fetching_overlay_sub') }}</div>
+        <div id="loading-overlay-text" class="loading-overlay-text"></div>
+        <div id="loading-overlay-subtext" class="loading-overlay-subtext"></div>
     </div>
 </div>
 
@@ -16,7 +16,7 @@
     <!-- Header -->
     <div>
         <h1 class="page-title">{{ t('settings.title') }}</h1>
-        <p class="mt-1 text-zinc-500 dark:text-zinc-400">{{ t('settings.subtitle') }}</p>
+        <p class="mt-1 text-subtitle">{{ t('settings.subtitle') }}</p>
     </div>
 
     {% include 'partials/includes/settings/bookmarklet.html' %}
@@ -27,59 +27,13 @@
     {% include 'partials/includes/settings/opml.html' %}
     {% include 'partials/includes/settings/security.html' %}
 </div>
+
+{# Modals - included once, shown/hidden via JS #}
+{% include 'partials/includes/components/modals/edit_category_modal.html' %}
+{% include 'partials/includes/components/modals/edit_website_modal.html' %}
+{% include 'partials/includes/components/modals/change_password_modal.html' %}
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/icons.js"></script>
-<script>
-    // Shared utility functions used by section partials
-
-    // Button loading state helper
-    function setButtonLoading(btn, loading) {
-        if (!btn) return;
-        var textEl = btn.querySelector('.btn-text');
-        var spinnerEl = btn.querySelector('.btn-spinner');
-        if (loading) {
-            btn.disabled = true;
-            if (textEl) textEl.classList.add('hidden');
-            if (spinnerEl) spinnerEl.classList.remove('hidden');
-        } else {
-            btn.disabled = false;
-            if (textEl) textEl.classList.remove('hidden');
-            if (spinnerEl) spinnerEl.classList.add('hidden');
-        }
-    }
-
-    // Item animation helper for smooth removal
-    function animateItemOut(element, callback) {
-        element.style.transition = 'all 0.3s ease-out';
-        element.style.opacity = '0';
-        element.style.transform = 'translateX(-10px)';
-        setTimeout(function() {
-            element.style.height = element.offsetHeight + 'px';
-            element.style.overflow = 'hidden';
-            setTimeout(function() {
-                element.style.height = '0';
-                element.style.marginBottom = '0';
-                element.style.padding = '0';
-                setTimeout(function() {
-                    if (callback) callback();
-                }, 200);
-            }, 50);
-        }, 200);
-    }
-
-    // Success flash animation helper
-    function showSuccessFlash(element) {
-        var flash = document.createElement('div');
-        flash.className = 'absolute inset-0 bg-emerald-500/10 rounded-xl pointer-events-none';
-        flash.style.transition = 'opacity 0.5s ease-out';
-        element.style.position = 'relative';
-        element.appendChild(flash);
-        setTimeout(function() {
-            flash.style.opacity = '0';
-            setTimeout(function() { flash.remove(); }, 500);
-        }, 100);
-    }
-</script>
+<script src="/static/js/icons.js?v={{ GIT_COMMIT }}"></script>
 {% endblock %}

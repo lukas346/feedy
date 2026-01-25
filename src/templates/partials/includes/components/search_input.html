@@ -1,0 +1,47 @@
+{#
+Search Input Component
+Parameters:
+  - input_id: str - Input element ID
+  - endpoint: str - HTMX endpoint URL
+  - target_id: str - Target element ID for hx-target
+  - placeholder: str - Placeholder text
+  - spinner_id: str - Spinner element ID (default: 'search-spinner')
+#}
+{% macro search_input(input_id, endpoint, target_id, placeholder, spinner_id='search-spinner') %}
+<div class="search-card card p-2 transition-all duration-300 ease-out
+            hover:shadow-2xl hover:shadow-zinc-900/10 dark:hover:shadow-zinc-900/50
+            focus-within:shadow-2xl focus-within:shadow-rose-500/10 dark:focus-within:shadow-rose-500/20
+            focus-within:scale-[1.01]">
+    <div class="relative group">
+        <input type="text"
+               id="{{ input_id }}"
+               name="q"
+               placeholder="{{ placeholder }}"
+               class="w-full pl-11 pr-4 py-3 text-sm rounded-xl
+                      bg-zinc-50 dark:bg-zinc-800/50
+                      border border-transparent
+                      text-zinc-900 dark:text-zinc-100
+                      placeholder-zinc-400 dark:placeholder-zinc-500
+                      focus:outline-none focus:bg-white dark:focus:bg-zinc-800
+                      focus:border-rose-500/50 focus:ring-2 focus:ring-rose-500/20
+                      transition-all duration-300 ease-out"
+               hx-get="{{ endpoint }}"
+               hx-trigger="input changed delay:600ms, search"
+               hx-target="#{{ target_id }}"
+               hx-swap="innerHTML transition:true"
+               hx-include="this"
+               hx-indicator="#{{ spinner_id }}">
+        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+            <svg id="{{ input_id }}-icon" class="w-5 h-5 text-zinc-400 dark:text-zinc-500
+                        group-focus-within:text-rose-500 group-focus-within:scale-110
+                        transition-all duration-300 ease-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <svg id="{{ spinner_id }}" class="htmx-indicator w-5 h-5 text-rose-500 animate-spin absolute inset-0" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        </div>
+    </div>
+</div>
+{% endmacro %}

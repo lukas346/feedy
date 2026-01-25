@@ -1,7 +1,11 @@
+{% from 'partials/includes/components/article_row.html' import archive_row %}
+{% from 'partials/includes/components/show_more.html' import show_more %}
+{% from 'partials/includes/components/empty_state.html' import empty_state, empty_state_inline %}
+
 {% if websites %}
 <div class="space-y-6">
     {% for website in websites %}
-    <div class="card animate-slide-up" style="animation-delay: {{ loop.index0 * 50 }}ms">
+    <div class="card animate-slide-up">
         <!-- Website header -->
         <div class="flex items-center justify-between p-6 border-b border-zinc-100 dark:border-zinc-800">
             <div class="flex items-center space-x-3">
@@ -9,7 +13,7 @@
                      alt="" class="w-10 h-10 rounded-xl">
                 <div>
                     <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{{ website.name }}</h2>
-                    <p class="text-sm text-zinc-500 dark:text-zinc-400">
+                    <p class="text-secondary">
                         {{ website.total_count }} {{ t('common.articles') if website.total_count != 1 else t('common.article') }}
                     </p>
                 </div>
@@ -18,119 +22,46 @@
 
         <!-- Articles -->
         {% if website.articles %}
-            <!-- List view -->
             <div class="divide-y divide-zinc-300 dark:divide-zinc-600" id="website-{{ website.id }}-list">
                 {% for article in website.articles %}
-                <a href="/article/{{ article.id }}"
-                   class="flex items-center gap-3 px-6 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors group">
-                    <!-- Title -->
-                    <span class="flex-1 truncate text-sm font-medium text-zinc-900 dark:text-zinc-100
-                                group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                        {{ article.title }}
-                    </span>
-
-                    <!-- Reading time -->
-                    {% if article.reading_time_minutes %}
-                    <span class="text-xs text-zinc-400 dark:text-zinc-500 flex-shrink-0">{{ article.reading_time_minutes }} min</span>
-                    {% endif %}
-
-                    <!-- Date -->
-                    <span class="text-xs text-zinc-400 dark:text-zinc-500 flex-shrink-0">
-                        {% if article.published_at %}
-                        {{ article.published_at.strftime('%b %d') }}
-                        {% else %}
-                        {{ article.fetched_at.strftime('%b %d') }}
-                        {% endif %}
-                    </span>
-                </a>
+                {{ archive_row(article) }}
                 {% endfor %}
 
                 {% if website.has_more %}
-                <div class="px-6 py-3 border-t border-zinc-100 dark:border-zinc-800 show-more-container"
-                     id="show-more-{{ website.id }}">
-                    <button type="button"
-                            class="show-more-btn w-full py-2 text-sm font-medium text-blue-600 dark:text-blue-400
-                                   hover:text-blue-700 dark:hover:text-blue-300 transition-colors
-                                   flex items-center justify-center gap-2"
-                            hx-get="/archive/more?website_id={{ website.id }}&offset=15&limit=15{% if search_query %}&q={{ search_query }}{% endif %}"
-                            hx-target="#website-{{ website.id }}-list"
-                            hx-swap="beforeend"
-                            hx-on::after-request="this.parentElement.remove()">
-                        <span class="show-more-text">{{ t('common.show_more', count=website.total_count - 15) }}</span>
-                        <svg class="w-4 h-4 show-more-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </button>
-                </div>
+                {{ show_more(
+                    endpoint='/archive/more?website_id=' ~ website.id ~ '&offset=15&limit=15' ~ ('&q=' ~ search_query if search_query else ''),
+                    target_id='website-' ~ website.id ~ '-list',
+                    remaining=website.total_count - 15,
+                    container_id='show-more-' ~ website.id,
+                    text=t('common.show_more', count=website.total_count - 15)
+                ) }}
                 {% endif %}
             </div>
         {% else %}
-        <div class="text-center py-8">
-            <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                <svg class="w-6 h-6 text-zinc-400 dark:text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-            </div>
-            <p class="text-zinc-500 dark:text-zinc-400 text-sm">{{ t('archive.no_articles_from_source') }}</p>
-        </div>
+        {{ empty_state_inline(icon='document', title=t('archive.no_articles_from_source')) }}
         {% endif %}
     </div>
     {% endfor %}
 </div>
 {% else %}
-<!-- Empty state -->
-<div class="card p-12 text-center animate-fade-in">
-    {% if search_query %}
-    <!-- No search results -->
-    <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-zinc-500/20 to-zinc-600/20 flex items-center justify-center">
-        <svg class="w-10 h-10 text-zinc-500 dark:text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-        </svg>
-    </div>
-    <h3 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">{{ t('archive.no_results_title') }}</h3>
-    <p class="text-zinc-500 dark:text-zinc-400 mb-6 max-w-sm mx-auto">
-        {{ t('archive.no_results_description', query=search_query) }}
-    </p>
-    {% else %}
-    <!-- No archived articles -->
-    <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-500/20 to-violet-500/20 flex items-center justify-center">
-        <svg class="w-10 h-10 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
-        </svg>
-    </div>
-    <h3 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">{{ t('archive.no_articles_title') }}</h3>
-    <p class="text-zinc-500 dark:text-zinc-400 mb-6 max-w-sm mx-auto">
-        {{ t('archive.no_articles_description') }}
-    </p>
-    <a href="/" class="btn btn-primary inline-flex items-center space-x-2">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-        </svg>
-        <span>{{ t('archive.go_to_feeds') }}</span>
-    </a>
-    {% endif %}
-</div>
+{% if search_query %}
+{{ empty_state(
+    icon='search',
+    title=t('archive.no_results_title'),
+    description=t('archive.no_results_description', query=search_query),
+    gradient_from='zinc-500/20',
+    gradient_to='zinc-600/20',
+    icon_color='zinc-500'
+) }}
+{% else %}
+{{ empty_state(
+    icon='archive',
+    title=t('archive.no_articles_title'),
+    description=t('archive.no_articles_description'),
+    action_url='/',
+    action_text=t('archive.go_to_feeds'),
+    action_icon='newspaper'
+) }}
+{% endif %}
 {% endif %}
 
-<style>
-/* Animation for lazy-loaded items */
-.lazy-loaded-item {
-    animation: lazySlideIn 0.2s ease-out forwards;
-    opacity: 0;
-    transform: translateY(-10px);
-}
-
-@keyframes lazySlideIn {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Disable animations for monochrome theme */
-.monochrome .lazy-loaded-item {
-    animation: none;
-    opacity: 1;
-    transform: none;
-}
-</style>

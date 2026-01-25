@@ -1,0 +1,27 @@
+{#
+Show More Button Component
+Parameters:
+  - endpoint: str - HTMX endpoint URL
+  - target_id: str - Target element ID for hx-target
+  - remaining: int - Number of remaining items
+  - container_id: str - Optional ID for the container div
+  - text: str - Button text (should include count placeholder or be pre-formatted)
+#}
+{% macro show_more(endpoint, target_id, remaining, container_id='', text='') %}
+<div class="px-6 py-3 border-t border-zinc-100 dark:border-zinc-800 show-more-container"
+     {% if container_id %}id="{{ container_id }}"{% endif %}>
+    <button type="button"
+            class="show-more-btn w-full py-2 text-sm font-medium text-blue-600 dark:text-blue-400
+                   hover:text-blue-700 dark:hover:text-blue-300 transition-colors
+                   flex items-center justify-center gap-2"
+            hx-get="{{ endpoint }}"
+            hx-target="#{{ target_id }}"
+            hx-swap="beforeend"
+            hx-on::after-request="this.parentElement.remove()">
+        <span class="show-more-text">{{ text if text else 'Show more (' ~ remaining ~ ')' }}</span>
+        <svg class="w-4 h-4 show-more-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+    </button>
+</div>
+{% endmacro %}

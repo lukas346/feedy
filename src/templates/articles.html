@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from 'partials/includes/components/loading_skeleton.html' import article_list_skeleton %}
 
 {% block title %}{{ website.name }} - {{ t('common.rss_reader') }}{% endblock %}
 
@@ -6,21 +7,12 @@
 <div class="space-y-8">
     <!-- Header -->
     <div>
-        <a href="/" class="inline-flex items-center space-x-1 text-sm text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors mb-4">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
-            <span>{{ t('feeds.back_to_feeds') }}</span>
-        </a>
         <div class="flex items-center space-x-4">
-            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-violet-500/20 dark:from-blue-500/10 dark:to-violet-500/10 flex items-center justify-center">
-                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-                </svg>
-            </div>
+            <img src="https://www.google.com/s2/favicons?domain={{ website.url }}&sz=128"
+                 alt="" class="w-12 h-12 rounded-xl">
             <div>
                 <h1 class="page-title">{{ website.name }}</h1>
-                <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+                <p class="text-secondary mt-1">
                     {% if website.last_fetched_at %}
                     {{ t('feeds.last_updated', date=website.last_fetched_at.strftime('%b %d, %Y at %H:%M')) }}
                     {% else %}
@@ -37,20 +29,7 @@
              hx-get="/articles/list?website_id={{ website.id }}&limit=20&offset=0"
              hx-trigger="load"
              hx-swap="innerHTML">
-            <!-- Loading skeleton -->
-            <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
-                {% for _ in range(5) %}
-                <div class="p-5 animate-pulse">
-                    <div class="flex items-center space-x-4">
-                        <div class="indicator-dot skeleton"></div>
-                        <div class="flex-1 space-y-2">
-                            <div class="h-5 w-3/4 skeleton"></div>
-                            <div class="h-3 w-24 skeleton"></div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
+            {{ article_list_skeleton(count=5, in_card=false) }}
         </div>
     </div>
 </div>

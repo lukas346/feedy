@@ -8,7 +8,9 @@
 @import 'components/sections.css';
 @import 'components/loading.css';
 @import 'components/misc.css';
+@import 'components/animations.css';
 @import 'themes/monochrome.css';
+@import 'pages/reader.css';
 @import 'utilities/utilities.css';
 
 @tailwind base;

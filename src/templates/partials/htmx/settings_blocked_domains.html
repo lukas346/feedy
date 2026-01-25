@@ -1,13 +1,13 @@
 {% if blocked_domains %}
 <div class="space-y-2">
     {% for blocked in blocked_domains %}
-    <div class="settings-item animate-fade-in" style="animation-delay: {{ loop.index0 * 50 }}ms" data-domain-id="{{ blocked.id }}">
+    <div class="settings-item animate-fade-in" data-domain-id="{{ blocked.id }}">
         <div class="flex items-center space-x-2">
             <svg class="w-4 h-4 text-red-500 dark:text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
             </svg>
             <span class="font-medium text-zinc-900 dark:text-zinc-100">{{ blocked.domain }}</span>
-            <span class="text-xs text-zinc-400 dark:text-zinc-500">{{ blocked.created_at.strftime('%b %d') }}</span>
+            <span class="text-metadata">{{ blocked.created_at.strftime('%b %d') }}</span>
         </div>
         <div class="flex items-center gap-1">
             <button
@@ -30,7 +30,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
     </div>
-    <p class="text-zinc-500 dark:text-zinc-400">{{ t('settings.blocked_domains.no_blocked') }}</p>
-    <p class="text-sm text-zinc-400 dark:text-zinc-500 mt-1">{{ t('settings.blocked_domains.no_blocked_hint') }}</p>
+    <p class="text-subtitle">{{ t('settings.blocked_domains.no_blocked') }}</p>
+    <p class="text-secondary mt-1">{{ t('settings.blocked_domains.no_blocked_hint') }}</p>
 </div>
 {% endif %}
