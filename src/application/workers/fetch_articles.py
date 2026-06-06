@@ -68,7 +68,9 @@ class ArticleFetcher:
 
             for website in websites:
                 try:
-                    new_count = self._fetch_website_articles(db_session, website)
+                    new_count = self._fetch_website_with_transaction(
+                        db_session, website, own_session
+                    )
                     total_new_articles += new_count
                     logger.info(f"Fetched {new_count} new articles from {website.name}")
                 except Exception as e:
@@ -103,7 +105,9 @@ class ArticleFetcher:
 
             for website in websites:
                 try:
-                    new_count = self._fetch_website_articles(db_session, website)
+                    new_count = self._fetch_website_with_transaction(
+                        db_session, website, own_session
+                    )
                     total_new_articles += new_count
                     logger.info(f"Fetched {new_count} new articles from {website.name}")
                 except Exception as e:
@@ -150,12 +154,34 @@ class ArticleFetcher:
 
             # Fetch fresh articles
             new_count = self._fetch_website_articles(db_session, website)
+            if own_session:
+                db_session.commit()
             logger.info(f"Refetched {new_count} articles from {website.name}")
 
             return new_count
+        except Exception:
+            if own_session:
+                db_session.rollback()
+            raise
         finally:
             if own_session:
                 db_session.close()
+
+    def _fetch_website_with_transaction(
+        self, session: Session, website: Website, own_session: bool
+    ) -> int:
+        """Fetch one website and commit when this worker owns the session."""
+        if own_session:
+            try:
+                new_count = self._fetch_website_articles(session, website)
+                session.commit()
+                return new_count
+            except Exception:
+                session.rollback()
+                raise
+
+        with session.begin_nested():
+            return self._fetch_website_articles(session, website)
 
     def _fetch_website_articles(self, session: Session, website: Website) -> int:
         """

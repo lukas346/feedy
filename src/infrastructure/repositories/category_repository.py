@@ -50,7 +50,7 @@ class CategoryRepository:
         """Create a new category."""
         category = Category(name=name, slug=slug, icon=icon)
         self.session.add(category)
-        self.session.commit()
+        self.session.flush()
         self.session.refresh(category)
         return category
 
@@ -68,11 +68,11 @@ class CategoryRepository:
             category.slug = slug
         if icon is not None:
             category.icon = icon
-        self.session.commit()
+        self.session.flush()
         self.session.refresh(category)
         return category
 
     def delete(self, category: Category) -> None:
         """Delete a category."""
         self.session.delete(category)
-        self.session.commit()
+        self.session.flush()

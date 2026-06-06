@@ -17,7 +17,6 @@
   },
   "nav": {
     "feeds": "Feedy",
-    "archive": "Archiwum",
     "favorites": "Ulubione",
     "subscriptions": "Subskrypcje",
     "settings": "Ustawienia",
@@ -51,7 +50,7 @@
     "password_changed": "Hasło zostało zmienione"
   },
   "feeds": {
-    "title": "Twój Feedy",
+    "title": "Aktualności",
     "subtitle": "Bądź na bieżąco z ulubionymi źródłami",
     "add_feed": "Dodaj kanał",
     "back_to_feeds": "Powrót do kanałów",
@@ -68,11 +67,26 @@
     "no_articles_title": "Brak artykułów",
     "no_articles_description": "Artykuły pojawią się tutaj po pobraniu kanału. Sprawdź ponownie wkrótce!"
   },
-  "reader": {
-    "back_to": "Powrót do {name}",
-    "mark_as_unread": "Oznacz jako nieprzeczytane",
-    "mark_as_read": "Oznacz jako przeczytane",
-    "add_to_favorites": "Dodaj do ulubionych",
+  "epub": {
+    "book_title": "Artykuły Feedy",
+    "select_article": "Zaznacz do EPUB",
+    "add_to_epub": "Dodaj do EPUB",
+    "remove_from_epub": "Usuń z EPUB",
+    "selected_count": "Wybrano {count} do EPUB",
+    "selection_hint": "Wybór zostaje podczas przeglądania",
+    "download": "Pobierz EPUB",
+    "clear": "Wyczyść",
+    "no_selection": "Najpierw wybierz co najmniej jeden artykuł.",
+    "export_failed": "Nie udało się wygenerować EPUB.",
+    "too_many_articles": "Możesz wyeksportować maksymalnie {count} artykułów naraz.",
+    "articles_not_found": "Niektóre wybrane artykuły już nie istnieją."
+  },
+    "reader": {
+      "back_to": "Powrót do {name}",
+      "mark_as_unread": "Oznacz jako nieprzeczytane",
+      "mark_as_read": "Oznacz jako przeczytane",
+      "mark_as_read_success": "Artykuły oznaczono jako przeczytane.",
+      "add_to_favorites": "Dodaj do ulubionych",
     "remove_from_favorites": "Usuń z ulubionych",
     "original_article": "Oryginalny artykuł",
     "block_domain": "Zablokuj {domain}",
@@ -86,7 +100,12 @@
     "already_blocked_message": "Ta domena jest już zablokowana.",
     "block_failed": "Nie udało się zablokować domeny. Spróbuj ponownie.",
     "reading_time": "{minutes} min czytania",
-    "scroll_to_top": "Przewiń do góry"
+    "scroll_to_top": "Przewiń do góry",
+    "text_size": "Rozmiar tekstu artykułu",
+    "text_size_small": "Mały tekst artykułu",
+    "text_size_medium": "Średni tekst artykułu",
+    "text_size_large": "Duży tekst artykułu",
+    "text_size_xlarge": "Bardzo duży tekst artykułu"
   },
   "favorites": {
     "title": "Ulubione",
@@ -107,17 +126,6 @@
     "no_feeds_title": "Brak kanałów",
     "no_feeds_description": "Dodaj pierwszy kanał RSS w ustawieniach, aby zacząć czytać.",
     "add_feed": "Dodaj kanał"
-  },
-  "archive": {
-    "title": "Archiwum",
-    "subtitle": "Wcześniej przeczytane artykuły",
-    "search_placeholder": "Szukaj po tytule, kategorii lub URL...",
-    "no_results_title": "Brak wyników",
-    "no_results_description": "Żadne zarchiwizowane artykuły nie pasują do \"{query}\". Spróbuj innego hasła.",
-    "no_articles_title": "Brak zarchiwizowanych artykułów",
-    "no_articles_description": "Przeczytane artykuły pojawią się tutaj. Zacznij czytać z kanałów!",
-    "go_to_feeds": "Przejdź do kanałów",
-    "no_articles_from_source": "Brak artykułów z tego źródła"
   },
   "settings": {
     "title": "Ustawienia",

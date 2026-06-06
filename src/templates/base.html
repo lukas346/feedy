@@ -14,6 +14,38 @@
         {% block content %}{% endblock %}
     </main>
 
+    <div id="epub-selection-bar"
+         class="hidden fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200 dark:border-zinc-700 bg-white/95 dark:bg-zinc-900/95 backdrop-blur"
+         data-endpoint="/api/epub/export"
+         data-error-title="{{ t('common.error') }}"
+         data-no-selection="{{ t('epub.no_selection') }}"
+         data-export-failed="{{ t('epub.export_failed') }}">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <p id="epub-selection-count"
+                       class="text-sm font-semibold text-zinc-900 dark:text-zinc-100"
+                       data-template="{{ t('epub.selected_count') }}"></p>
+                    <p class="text-metadata truncate">{{ t('epub.selection_hint') }}</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="epub-clear-btn" type="button" class="btn btn-secondary text-sm">
+                    {{ t('epub.clear') }}
+                </button>
+                <button id="epub-download-btn" type="button" class="btn btn-primary text-sm inline-flex items-center gap-2">
+                    <span class="btn-text">{{ t('epub.download') }}</span>
+                    <span class="btn-spinner hidden"><span class="spinner h-4 w-4"></span></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     {% include "partials/includes/common/footer.html" %}
     {% include "partials/includes/common/theme_scripts.html" %}
 

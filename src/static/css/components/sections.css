@@ -6,7 +6,15 @@
 
 .section-header {
   @apply flex justify-between items-center pb-4
-         border-b border-zinc-200/50 dark:border-zinc-700/50;
+         border-b-2 border-zinc-300 dark:border-zinc-700;
+}
+
+html:not(.monochrome) .section-header {
+  @apply p-4 rounded-xl bg-zinc-50/80 border-2 border-zinc-300/60;
+}
+
+html.dark:not(.monochrome) .section-header {
+  @apply bg-zinc-800/40 border-zinc-700/60;
 }
 
 .section-title {
@@ -24,4 +32,73 @@
 
 .settings-item-active {
   @apply border-rose-200 dark:border-rose-800 bg-rose-50/50 dark:bg-rose-900/20;
+}
+
+/* Settings feed list */
+.settings-feed-groups {
+  @apply space-y-4;
+}
+
+.settings-feed-group {
+  @apply rounded-2xl border border-zinc-200/80 bg-zinc-50/60 p-3
+         dark:border-zinc-700/70 dark:bg-zinc-800/25;
+}
+
+.settings-feed-category-header {
+  @apply flex items-center justify-between gap-3 px-2 pb-3;
+}
+
+.settings-feed-category-title {
+  @apply flex min-w-0 items-center gap-3;
+}
+
+.settings-feed-category-icon {
+  @apply flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl
+         border-2 border-blue-300 bg-transparent text-blue-600
+         dark:border-blue-400/70 dark:text-blue-300;
+}
+
+.settings-feed-category-icon svg {
+  @apply h-4 w-4;
+}
+
+.settings-feed-list {
+  @apply space-y-2;
+}
+
+.settings-feed-item {
+  @apply flex flex-col items-stretch justify-start gap-3 rounded-xl border border-zinc-200/80 bg-white px-4 py-3
+         cursor-default transition-colors duration-200
+         dark:border-zinc-700/70 dark:bg-zinc-900/30
+         sm:flex-row sm:items-center sm:justify-between;
+}
+
+.settings-feed-item:hover {
+  @apply border-zinc-300 bg-zinc-50/80 dark:border-zinc-600 dark:bg-zinc-800/50;
+}
+
+.settings-feed-main {
+  @apply flex w-full min-w-0 items-center justify-start gap-3 text-left sm:w-auto;
+}
+
+.settings-feed-favicon {
+  @apply h-9 w-9 flex-shrink-0 rounded-lg border border-zinc-200 bg-white p-1
+         dark:border-zinc-700 dark:bg-zinc-900;
+}
+
+.settings-feed-title {
+  @apply truncate text-left text-sm font-semibold text-zinc-900 dark:text-zinc-100;
+}
+
+.settings-feed-url {
+  @apply mt-0.5 truncate text-left text-xs text-zinc-500 dark:text-zinc-400;
+}
+
+.settings-feed-actions {
+  @apply flex flex-wrap items-center justify-start self-start gap-1 rounded-lg bg-zinc-100/80 p-1
+         dark:bg-zinc-800/70 sm:self-auto sm:flex-nowrap;
+}
+
+.settings-feed-action {
+  @apply inline-flex h-8 w-8 items-center justify-center p-0;
 }

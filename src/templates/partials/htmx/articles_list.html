@@ -5,7 +5,7 @@
 {% if articles %}
 <div class="divide-y divide-zinc-300 dark:divide-zinc-600" id="articles-items-list">
     {% for article in articles %}
-    {{ article_row(article, show_favicon=false, show_source=false, show_read_btn=true, id_prefix='article-item', mark_as_read_text=t('reader.mark_as_read'), mark_as_unread_text=t('reader.mark_as_unread')) }}
+    {{ article_row(article, show_favicon=false, show_source=false, show_read_btn=true, id_prefix='article-item', mark_as_read_text=t('reader.mark_as_read'), mark_as_unread_text=t('reader.mark_as_unread'), show_epub_select=true, epub_add_text=t('epub.add_to_epub'), epub_remove_text=t('epub.remove_from_epub')) }}
     {% endfor %}
 </div>
 
@@ -35,13 +35,15 @@
         btn.dataset.isRead = isNowRead ? 'true' : 'false';
 
         if (isNowRead) {
-            btn.classList.remove('text-zinc-300', 'dark:text-zinc-600');
-            btn.classList.add('text-green-500', 'dark:text-green-400', 'bg-zinc-100', 'dark:bg-zinc-700');
+            btn.classList.remove('border-zinc-300', 'dark:border-zinc-600', 'text-zinc-500', 'dark:text-zinc-400');
+            btn.classList.add('bg-green-50', 'dark:bg-green-900/20', 'border-green-300', 'dark:border-green-500', 'text-green-600', 'dark:text-green-400');
             btn.title = btn.dataset.unreadText;
+            btn.setAttribute('aria-label', btn.dataset.unreadText);
         } else {
-            btn.classList.remove('text-green-500', 'dark:text-green-400', 'bg-zinc-100', 'dark:bg-zinc-700');
-            btn.classList.add('text-zinc-300', 'dark:text-zinc-600');
+            btn.classList.remove('bg-green-50', 'dark:bg-green-900/20', 'border-green-300', 'dark:border-green-500', 'text-green-600', 'dark:text-green-400');
+            btn.classList.add('border-zinc-300', 'dark:border-zinc-600', 'text-zinc-500', 'dark:text-zinc-400');
             btn.title = btn.dataset.readText;
+            btn.setAttribute('aria-label', btn.dataset.readText);
         }
 
         if (row) {
@@ -92,4 +94,10 @@
         {{ t('articles.no_articles_description') }}
     </p>
 </div>
+{% endif %}
+
+{% if show_success_popup %}
+<script>
+    Modal.success({{ t('reader.mark_as_read_success')|tojson }}, {{ t('common.success')|tojson }});
+</script>
 {% endif %}

@@ -1,6 +1,6 @@
 /* Loading spinner */
 .spinner {
-  @apply animate-spin rounded-full border-2 border-zinc-200 dark:border-zinc-700
+  @apply inline-block flex-shrink-0 animate-spin rounded-full border-2 border-zinc-200 dark:border-zinc-700
          border-t-rose-500 dark:border-t-rose-400;
 }
 
@@ -11,7 +11,7 @@
 }
 
 .loading-overlay-content {
-  @apply bg-white dark:bg-zinc-800 rounded-2xl p-8 shadow-2xl
+  @apply bg-white dark:bg-zinc-800 rounded-2xl p-8
          flex flex-col items-center space-y-4
          border border-zinc-200 dark:border-zinc-700;
 }
@@ -33,17 +33,4 @@
 /* Skeleton loading - hidden to avoid visual noise */
 .skeleton {
   @apply hidden;
-}
-
-/* Indicator dot */
-.indicator-dot {
-  @apply w-2.5 h-2.5 rounded-full flex-shrink-0;
-}
-
-.indicator-dot-active {
-  @apply bg-rose-500 dark:bg-rose-400 ring-4 ring-rose-500/20 dark:ring-rose-400/20;
-}
-
-.indicator-dot-inactive {
-  @apply bg-zinc-300 dark:bg-zinc-600;
 }

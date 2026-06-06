@@ -1,4 +1,5 @@
-from typing import Generator
+from collections.abc import Generator
+from contextlib import contextmanager
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
@@ -20,13 +21,29 @@ engine = create_engine(
     echo=False,
 )
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    expire_on_commit=False,
+    bind=engine,
+)
 
 
-def get_session() -> Generator[Session, None, None]:
-    """Dependency that provides a database session."""
+@contextmanager
+def session_scope() -> Generator[Session, None, None]:
+    """Context manager that commits or rolls back a standalone session."""
     session = SessionLocal()
     try:
         yield session
+        session.commit()
+    except BaseException:
+        session.rollback()
+        raise
     finally:
         session.close()
+
+
+def get_session() -> Generator[Session, None, None]:
+    """Dependency that provides an atomic request-scoped database session."""
+    with session_scope() as session:
+        yield session

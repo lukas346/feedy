@@ -44,34 +44,39 @@
 {% endmacro %}
 
 {% if categories %}
-<div class="space-y-6">
+<div class="settings-feed-groups">
     {% for category in categories %}
-    <div class="animate-fade-in">
+    <div class="settings-feed-group category-color-card animate-fade-in">
         {# Category header #}
-        <div class="flex items-center gap-2 mb-3 pb-2 border-b border-zinc-200 dark:border-zinc-700">
-            <span class="w-4 h-4 text-blue-600 dark:text-blue-400">{{ category_icon(category.icon) }}</span>
-            <span class="font-semibold text-zinc-900 dark:text-zinc-100">{{ category.name }}</span>
+        <div class="settings-feed-category-header">
+            <div class="settings-feed-category-title">
+                <span class="settings-feed-category-icon">{{ category_icon(category.icon) }}</span>
+                <div class="min-w-0">
+                    <div class="truncate font-black tracking-wide text-zinc-900 dark:text-zinc-100">{{ category.name }}</div>
+                </div>
+            </div>
             <span class="badge badge-neutral text-xs">{{ category.websites|length }}</span>
         </div>
         {# Websites in this category #}
-        <div class="space-y-2 pl-6">
+        <div class="settings-feed-list">
             {% for website in category.websites %}
-            <div class="settings-item" data-website-id="{{ website.id }}">
-                <div class="flex items-center space-x-3 min-w-0">
+            <div class="settings-item settings-feed-item" data-website-id="{{ website.id }}">
+                <div class="settings-feed-main">
+                    <img
+                        src="https://www.google.com/s2/favicons?domain={{ website.url }}&sz=64"
+                        alt=""
+                        class="settings-feed-favicon"
+                    >
                     <div class="min-w-0">
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="font-medium text-zinc-900 dark:text-zinc-100 truncate">{{ website.name }}</span>
-                        </div>
-                        <div class="text-xs text-subtitle truncate">
-                            {{ website.rss_url }}
-                        </div>
+                        <div class="settings-feed-title">{{ website.name }}</div>
+                        <div class="settings-feed-url">{{ website.rss_url }}</div>
                     </div>
                 </div>
-                <div class="flex items-center gap-1 flex-shrink-0">
+                <div class="settings-feed-actions">
                     <a
                         href="{{ website.url }}"
                         target="_blank"
-                        class="btn btn-ghost p-2"
+                        class="settings-feed-action btn btn-ghost"
                         title="{{ t('settings.feeds.visit_website') }}"
                     >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,7 +85,7 @@
                     </a>
                     <button
                         onclick='refetchWebsite("{{ website.id }}", {{ website.name|tojson }}, this)'
-                        class="btn btn-ghost p-2 text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                        class="settings-feed-action btn btn-ghost text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                         title="{{ t('settings.feeds.force_repull') }}"
                     >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,7 +94,7 @@
                     </button>
                     <button
                         onclick='unreadAllWebsite("{{ website.id }}", {{ website.name|tojson }}, this)'
-                        class="btn btn-ghost p-2 text-violet-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20"
+                        class="settings-feed-action btn btn-ghost text-violet-500 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20"
                         title="{{ t('settings.feeds.unread_all') }}"
                     >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,7 +103,7 @@
                     </button>
                     <button
                         onclick='editWebsite("{{ website.id }}", {{ website.name|tojson }}, {{ website.url|tojson }}, {{ website.rss_url|tojson }}, "{{ website.category_id }}", {{ website.fetch_interval_minutes }})'
-                        class="btn btn-ghost p-2 text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20"
+                        class="settings-feed-action btn btn-ghost text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20"
                         title="{{ t('settings.feeds.edit_feed') }}"
                     >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -107,7 +112,7 @@
                     </button>
                     <button
                         onclick='deleteWebsite("{{ website.id }}", {{ website.name|tojson }}, this)'
-                        class="btn btn-ghost p-2 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        class="settings-feed-action btn btn-ghost text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                         title="{{ t('settings.feeds.delete_feed') }}"
                     >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

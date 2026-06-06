@@ -32,7 +32,7 @@ class Article(Base):  # type: ignore[misc]
     fetched_at: Mapped[datetime] = mapped_column(
         default=datetime.utcnow, nullable=False
     )
-    is_read: Mapped[bool] = mapped_column(default=False, nullable=False)
+    is_read: Mapped[bool] = mapped_column(default=False, nullable=False, index=True)
     favorited_at: Mapped[Optional[datetime]] = mapped_column(nullable=True, index=True)
     reading_time_minutes: Mapped[Optional[int]] = mapped_column(nullable=True)
 

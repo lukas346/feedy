@@ -9,9 +9,7 @@ Parameters:
 #}
 {% macro search_input(input_id, endpoint, target_id, placeholder, spinner_id='search-spinner') %}
 <div class="search-card card p-2 transition-all duration-300 ease-out
-            hover:shadow-2xl hover:shadow-zinc-900/10 dark:hover:shadow-zinc-900/50
-            focus-within:shadow-2xl focus-within:shadow-rose-500/10 dark:focus-within:shadow-rose-500/20
-            focus-within:scale-[1.01]">
+            focus-within:border-rose-500/40">
     <div class="relative group">
         <input type="text"
                id="{{ input_id }}"

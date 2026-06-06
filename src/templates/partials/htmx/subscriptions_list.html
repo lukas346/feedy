@@ -4,13 +4,13 @@
 {% if categories %}
 <div class="space-y-6">
     {% for category in categories %}
-    <div class="card animate-slide-up">
+    <div class="card category-color-card animate-slide-up">
         <!-- Category header -->
-        <div class="flex items-center gap-3 p-4 border-b border-zinc-100 dark:border-zinc-800">
-            <div class="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                <span class="w-5 h-5 text-blue-600 dark:text-blue-400">{{ category_icon(category.icon) }}</span>
+        <div class="category-card-header flex items-center gap-3 p-4 border-b">
+            <div class="category-icon-frame category-icon-frame-sm">
+                <span class="w-5 h-5">{{ category_icon(category.icon) }}</span>
             </div>
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{{ category.name }}
+            <h2 class="text-xl font-black tracking-wide text-zinc-900 dark:text-zinc-100">{{ category.name }}
                 <span class="font-normal text-zinc-400 dark:text-zinc-500">({{ category.websites | length }})</span>
             </h2>
         </div>
@@ -19,15 +19,14 @@
         <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
             {% for website in category.websites %}
             <a href="/articles?website_id={{ website.id }}"
-               class="flex items-center gap-3 px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors group">
+               class="category-feed-link flex items-center gap-3 px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors group">
                 <!-- Favicon -->
                 <img src="https://www.google.com/s2/favicons?domain={{ website.url }}&sz=64"
                      alt="" class="w-6 h-6 rounded">
 
                 <!-- Website info -->
                 <div class="flex-1 min-w-0">
-                    <span class="block truncate text-sm font-medium text-zinc-900 dark:text-zinc-100
-                                group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                    <span class="category-feed-link-title block truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
                         {{ website.name }}
                     </span>
                     <span class="block truncate text-xs text-subtitle">

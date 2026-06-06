@@ -122,7 +122,7 @@ class WebsiteRepository:
             fetch_interval_minutes=fetch_interval_minutes,
         )
         self.session.add(website)
-        self.session.commit()
+        self.session.flush()
         self.session.refresh(website)
         return website
 
@@ -146,16 +146,16 @@ class WebsiteRepository:
             website.category_id = category_id
         if fetch_interval_minutes is not None:
             website.fetch_interval_minutes = fetch_interval_minutes
-        self.session.commit()
+        self.session.flush()
         self.session.refresh(website)
         return website
 
     def update_last_fetched(self, website: Website) -> None:
         """Update the last_fetched_at timestamp to now."""
         website.last_fetched_at = datetime.utcnow()
-        self.session.commit()
+        self.session.flush()
 
     def delete(self, website: Website) -> None:
         """Delete a website and cascade to articles."""
         self.session.delete(website)
-        self.session.commit()
+        self.session.flush()

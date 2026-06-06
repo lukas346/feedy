@@ -4,6 +4,19 @@
          tracking-tight;
 }
 
+.feed-page-brand {
+  @apply inline-block text-black dark:text-white;
+  font-size: 3rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.monochrome .feed-page-brand {
+  @apply text-black;
+  text-shadow: none;
+}
+
 /* Gradient text */
 .gradient-text {
   @apply bg-gradient-to-r from-rose-600 to-orange-500
@@ -13,7 +26,7 @@
 
 /* Glassmorphism effect */
 .glass {
-  @apply bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl;
+  @apply bg-[#ecf0f1] dark:bg-zinc-900/80 backdrop-blur-xl;
 }
 
 /* Feed discovery section */

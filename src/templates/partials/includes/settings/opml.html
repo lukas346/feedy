@@ -1,18 +1,15 @@
+{% from 'partials/includes/components/section_header.html' import section_header %}
+
 <!-- OPML Import/Export Section -->
 <section class="card p-6">
-    <div class="section-header mb-6">
-        <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 dark:from-amber-500/10 dark:to-orange-500/10 flex items-center justify-center">
-                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
-                </svg>
-            </div>
-            <div>
-                <h2 class="section-title">{{ t('settings.opml.title') }}</h2>
-                <p class="text-secondary">{{ t('settings.opml.subtitle') }}</p>
-            </div>
-        </div>
-    </div>
+    {{ section_header(
+        title=t('settings.opml.title'),
+        subtitle=t('settings.opml.subtitle'),
+        icon='exchange',
+        gradient_from='amber-500/20',
+        gradient_to='orange-500/20',
+        icon_color='amber-600'
+    ) }}
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Export -->

@@ -8,6 +8,10 @@ from pathlib import Path
 # Default fetch interval for new websites (24 hours)
 DEFAULT_FETCH_INTERVAL_MINUTES: int = 1440
 
+# Pagination constants (universal for all "load more" sections)
+DEFAULT_PAGE_SIZE: int = 10
+DEFAULT_LOAD_MORE_SIZE: int = 10
+
 
 def get_git_commit() -> str:
     """Get the short git commit hash from file or git command."""

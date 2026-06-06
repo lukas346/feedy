@@ -28,7 +28,7 @@ class AuthRepository:
         if must_change_password is not None:
             settings.must_change_password = must_change_password
         settings.updated_at = datetime.utcnow()
-        self.session.commit()
+        self.session.flush()
         self.session.refresh(settings)
         return settings
 
@@ -43,20 +43,20 @@ class AuthRepository:
         """Create a new session."""
         session = Session(token=token, expires_at=expires_at)
         self.session.add(session)
-        self.session.commit()
+        self.session.flush()
         return session
 
     def delete_session_by_token(self, token: str) -> None:
         """Delete a session by token."""
         stmt = delete(Session).where(Session.token == token)
         self.session.execute(stmt)
-        self.session.commit()
+        self.session.flush()
 
     def delete_expired_sessions(self) -> None:
         """Delete all expired sessions."""
         stmt = delete(Session).where(Session.expires_at <= datetime.utcnow())
         self.session.execute(stmt)
-        self.session.commit()
+        self.session.flush()
 
     def get_language(self) -> str | None:
         """Get the user's language preference."""
@@ -69,4 +69,4 @@ class AuthRepository:
         if settings:
             settings.language = language
             settings.updated_at = datetime.utcnow()
-            self.session.commit()
+            self.session.flush()

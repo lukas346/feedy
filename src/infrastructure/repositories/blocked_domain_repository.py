@@ -38,11 +38,11 @@ class BlockedDomainRepository:
         """Create a new blocked domain entry."""
         blocked_domain = BlockedDomain(domain=domain)
         self.session.add(blocked_domain)
-        self.session.commit()
+        self.session.flush()
         self.session.refresh(blocked_domain)
         return blocked_domain
 
     def delete(self, blocked_domain: BlockedDomain) -> None:
         """Delete a blocked domain entry."""
         self.session.delete(blocked_domain)
-        self.session.commit()
+        self.session.flush()

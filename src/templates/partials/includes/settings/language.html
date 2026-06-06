@@ -1,18 +1,16 @@
+{% from 'partials/includes/components/section_header.html' import section_header %}
+
 <!-- Language Section -->
 <section class="card p-6">
-    <div class="section-header mb-6">
-        <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-teal-500/20 dark:from-cyan-500/10 dark:to-teal-500/10 flex items-center justify-center">
-                <svg class="w-5 h-5 text-cyan-600 dark:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
-                </svg>
-            </div>
-            <div>
-                <h2 class="section-title">{{ t('settings.language.title') }}</h2>
-                <p class="text-secondary">{{ t('settings.language.subtitle') }}</p>
-            </div>
-        </div>
-    </div>
+    {{ section_header(
+        title=t('settings.language.title'),
+        subtitle=t('settings.language.subtitle'),
+        icon='translate',
+        gradient_from='cyan-500/20',
+        gradient_to='teal-500/20',
+        icon_color='cyan-600'
+    ) }}
+
     <!-- Language selector buttons -->
     <div class="flex flex-wrap gap-2" id="language-selector">
         {% for lang_code in supported_languages %}
@@ -26,6 +24,7 @@
                    border-zinc-200 dark:border-zinc-700 hover:border-blue-400 dark:hover:border-blue-500 text-zinc-700 dark:text-zinc-300
                    {% endif %}"
             data-lang="{{ lang_code }}"
+            aria-pressed="{{ 'true' if current_lang == lang_code else 'false' }}"
         >
             {% if lang_code == 'en' %}English{% elif lang_code == 'pl' %}Polski{% else %}{{ lang_code }}{% endif %}
         </button>
@@ -40,6 +39,7 @@
                    border-zinc-200 dark:border-zinc-700 hover:border-blue-400 dark:hover:border-blue-500 text-zinc-700 dark:text-zinc-300
                    {% endif %}"
             data-lang="auto"
+            aria-pressed="{{ 'true' if not user_language_set else 'false' }}"
         >
             {{ t('settings.language.auto') }}
         </button>

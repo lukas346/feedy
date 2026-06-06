@@ -2,7 +2,7 @@
 
 import re
 import unicodedata
-from typing import Annotated, Any, Callable
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse
@@ -17,7 +17,12 @@ from application.services.feed_discovery import (
 )
 from application.services.validators import validate_url
 from application.workers.fetch_articles import ArticleFetcher
-from infrastructure.config import DEFAULT_FETCH_INTERVAL_MINUTES
+from i18n import create_t_function
+from infrastructure.config import (
+    DEFAULT_FETCH_INTERVAL_MINUTES,
+    DEFAULT_LOAD_MORE_SIZE,
+    DEFAULT_PAGE_SIZE,
+)
 from infrastructure.database import get_session
 from infrastructure.repositories import (
     ArticleRepository,
@@ -31,10 +36,6 @@ router = APIRouter(tags=["pages"])
 # Templates will be set from main.py
 templates: Jinja2Templates | None = None
 
-# i18n functions will be set from main.py
-_create_t_function: Callable[[str], Callable[..., str]] | None = None
-_supported_languages: list[str] = []
-
 
 def set_templates(t: Jinja2Templates) -> None:
     """Set the templates instance from main.py."""
@@ -42,35 +43,8 @@ def set_templates(t: Jinja2Templates) -> None:
     templates = t
 
 
-def set_i18n(
-    create_t_func: Callable[[str], Callable[..., str]],
-    supported_languages: list[str],
-) -> None:
-    """Set the i18n functions from main.py."""
-    global _create_t_function, _supported_languages
-    _create_t_function = create_t_func
-    _supported_languages = supported_languages
-
-
-def get_i18n_context(request: Request) -> dict[str, Any]:
-    """Dependency that provides i18n context for templates."""
-    lang = getattr(request.state, "lang", "en")
-    user_language_set = getattr(request.state, "user_language_set", False)
-    t_func = _create_t_function(lang) if _create_t_function else lambda key, **kw: key
-    return {
-        "t": t_func,
-        "current_lang": lang,
-        "user_language_set": user_language_set,
-        "supported_languages": _supported_languages,
-    }
-
-
-# Type alias for the i18n context dependency
-I18nContext = Annotated[dict[str, Any], Depends(get_i18n_context)]
-
-
 def _get_categories_with_articles(
-    session: Session, limit_per_category: int = 10
+    session: Session, limit_per_category: int = DEFAULT_PAGE_SIZE
 ) -> list[dict[str, Any]]:
     """Get all categories with their articles (from all websites in each category)."""
     category_repo = CategoryRepository(session)
@@ -109,17 +83,16 @@ def _get_categories_with_articles(
 
 
 @router.get("/", response_class=HTMLResponse)
-def index(request: Request, i18n: I18nContext) -> HTMLResponse:
+def index(request: Request) -> HTMLResponse:
     """Render the feeds page (home page)."""
     assert templates is not None
-    return templates.TemplateResponse(request, "feeds.html", i18n)
+    return templates.TemplateResponse(request, "feeds.html")
 
 
 @router.get("/feeds/list", response_class=HTMLResponse)
 def feeds_list(
     request: Request,
     session: Annotated[Session, Depends(get_session)],
-    i18n: I18nContext,
 ) -> HTMLResponse:
     """Render the feeds list partial for HTMX."""
     assert templates is not None
@@ -127,7 +100,34 @@ def feeds_list(
     return templates.TemplateResponse(
         request,
         "partials/htmx/feeds_list.html",
-        {**i18n, "categories": categories},
+        {"categories": categories},
+    )
+
+
+@router.post("/feeds/categories/{category_id}/read-all", response_class=HTMLResponse)
+def mark_category_articles_read(
+    request: Request,
+    category_id: str,
+    session: Annotated[Session, Depends(get_session)],
+) -> HTMLResponse:
+    """Mark all articles from a category as read and refresh the feeds list."""
+    assert templates is not None
+
+    category_repo = CategoryRepository(session)
+    category = category_repo.get_by_id(category_id)
+    if category is None:
+        raise HTTPException(status_code=404, detail="Category not found")
+
+    website_repo = WebsiteRepository(session)
+    website_ids = website_repo.get_ids_by_category(category_id)
+    article_repo = ArticleRepository(session)
+    article_repo.mark_all_as_read_for_websites(website_ids)
+
+    categories = _get_categories_with_articles(session)
+    return templates.TemplateResponse(
+        request,
+        "partials/htmx/feeds_list.html",
+        {"categories": categories, "show_success_popup": True},
     )
 
 
@@ -136,7 +136,6 @@ def articles_page(
     request: Request,
     website_id: str,
     session: Annotated[Session, Depends(get_session)],
-    i18n: I18nContext,
 ) -> HTMLResponse:
     """Render the articles page for a specific website."""
     assert templates is not None
@@ -147,7 +146,7 @@ def articles_page(
     return templates.TemplateResponse(
         request,
         "articles.html",
-        {**i18n, "website": website},
+        {"website": website},
     )
 
 
@@ -156,9 +155,9 @@ def articles_list(
     request: Request,
     website_id: str,
     session: Annotated[Session, Depends(get_session)],
-    i18n: I18nContext,
-    limit: int = 20,
+    limit: int = DEFAULT_PAGE_SIZE,
     offset: int = 0,
+    show_success_popup: bool = False,
 ) -> HTMLResponse:
     """Render the articles list partial for HTMX."""
     assert templates is not None
@@ -174,14 +173,41 @@ def articles_list(
         request,
         "partials/htmx/articles_list.html",
         {
-            **i18n,
             "articles": articles,
             "website_id": website_id,
             "limit": limit,
             "next_offset": offset + limit,
             "has_more": has_more,
             "remaining": remaining,
+            "show_success_popup": show_success_popup,
         },
+    )
+
+
+@router.post("/articles/{website_id}/read-all", response_class=HTMLResponse)
+def mark_website_articles_read(
+    request: Request,
+    website_id: str,
+    session: Annotated[Session, Depends(get_session)],
+    limit: int = DEFAULT_PAGE_SIZE,
+    offset: int = 0,
+) -> HTMLResponse:
+    """Mark all articles from a website as read and refresh the article list."""
+    website_repo = WebsiteRepository(session)
+    website = website_repo.get_by_id(website_id)
+    if website is None:
+        raise HTTPException(status_code=404, detail="Website not found")
+
+    article_repo = ArticleRepository(session)
+    article_repo.mark_all_as_read_for_website(website_id)
+
+    return articles_list(
+        request,
+        website_id,
+        session,
+        limit=limit,
+        offset=offset,
+        show_success_popup=True,
     )
 
 
@@ -190,9 +216,8 @@ def articles_more(
     request: Request,
     website_id: str,
     session: Annotated[Session, Depends(get_session)],
-    i18n: I18nContext,
-    offset: int = 20,
-    limit: int = 20,
+    offset: int = DEFAULT_PAGE_SIZE,
+    limit: int = DEFAULT_LOAD_MORE_SIZE,
 ) -> HTMLResponse:
     """Load more articles for a website."""
     assert templates is not None
@@ -208,7 +233,6 @@ def articles_more(
         request,
         "partials/htmx/articles_more.html",
         {
-            **i18n,
             "articles": articles,
             "website_id": website_id,
             "offset": offset + len(articles),
@@ -224,7 +248,6 @@ def reader_page(
     request: Request,
     article_id: str,
     session: Annotated[Session, Depends(get_session)],
-    i18n: I18nContext,
 ) -> HTMLResponse:
     """Render the article reader page."""
     assert templates is not None
@@ -249,7 +272,6 @@ def reader_page(
         request,
         "reader.html",
         {
-            **i18n,
             "article": article,
             "website": website,
             "content_html": article.content_html,
@@ -258,32 +280,24 @@ def reader_page(
     )
 
 
-@router.get("/archive", response_class=HTMLResponse)
-def archive_page(request: Request, i18n: I18nContext) -> HTMLResponse:
-    """Render the archive page showing all read articles."""
-    assert templates is not None
-    return templates.TemplateResponse(request, "archive.html", i18n)
-
-
 @router.get("/favorites", response_class=HTMLResponse)
-def favorites_page(request: Request, i18n: I18nContext) -> HTMLResponse:
+def favorites_page(request: Request) -> HTMLResponse:
     """Render the favorites page showing all favorited articles."""
     assert templates is not None
-    return templates.TemplateResponse(request, "favorites.html", i18n)
+    return templates.TemplateResponse(request, "favorites.html")
 
 
 @router.get("/favorites/list", response_class=HTMLResponse)
 def favorites_list(
     request: Request,
     session: Annotated[Session, Depends(get_session)],
-    i18n: I18nContext,
     page: int = 1,
     q: str | None = None,
 ) -> HTMLResponse:
     """Render the favorites list partial with pagination and search."""
     assert templates is not None
 
-    per_page = 30
+    per_page = DEFAULT_PAGE_SIZE
     offset = (page - 1) * per_page
     search_query = q.strip() if q else ""
     is_search = q is not None  # True if search input triggered this request
@@ -299,7 +313,6 @@ def favorites_list(
         request,
         "partials/htmx/favorites_list.html",
         {
-            **i18n,
             "articles": articles,
             "page": page,
             "total_pages": total_pages,
@@ -311,75 +324,13 @@ def favorites_list(
     )
 
 
-@router.get("/archive/list", response_class=HTMLResponse)
-def archive_list(
-    request: Request,
-    session: Annotated[Session, Depends(get_session)],
-    i18n: I18nContext,
-    q: str = "",
-) -> HTMLResponse:
-    """Render the archive list partial grouped by website."""
-    assert templates is not None
-
-    repo = ArticleRepository(session)
-    search_query = q.strip()
-    websites = repo.get_read_grouped_by_website(search_query=search_query)
-
-    return templates.TemplateResponse(
-        request,
-        "partials/htmx/archive_list.html",
-        {**i18n, "websites": websites, "search_query": search_query},
-    )
-
-
-@router.get("/archive/more", response_class=HTMLResponse)
-def archive_more(
-    request: Request,
-    website_id: str,
-    session: Annotated[Session, Depends(get_session)],
-    i18n: I18nContext,
-    offset: int = 15,
-    limit: int = 15,
-    q: str = "",
-) -> HTMLResponse:
-    """Load more articles for a website in the archive."""
-    assert templates is not None
-
-    repo = ArticleRepository(session)
-    search_query = q.strip()
-    articles, total_count, has_more = repo.get_read_for_website_paginated(
-        website_id=website_id,
-        search_query=search_query,
-        limit=limit,
-        offset=offset,
-    )
-
-    remaining = max(0, total_count - offset - len(articles))
-
-    return templates.TemplateResponse(
-        request,
-        "partials/htmx/archive_more.html",
-        {
-            **i18n,
-            "articles": articles,
-            "website_id": website_id,
-            "offset": offset + len(articles),
-            "limit": limit,
-            "has_more": has_more,
-            "remaining": remaining,
-            "search_query": search_query,
-        },
-    )
-
-
 @router.get("/feeds/more", response_class=HTMLResponse)
 def feeds_more(
     request: Request,
     category_id: str,
     session: Annotated[Session, Depends(get_session)],
-    i18n: I18nContext,
-    offset: int = 10,
-    limit: int = 10,
+    offset: int = DEFAULT_PAGE_SIZE,
+    limit: int = DEFAULT_LOAD_MORE_SIZE,
 ) -> HTMLResponse:
     """Load more articles for a category in the feeds."""
     assert templates is not None
@@ -400,7 +351,6 @@ def feeds_more(
         request,
         "partials/htmx/feeds_more.html",
         {
-            **i18n,
             "articles": articles,
             "category_id": category_id,
             "offset": offset + len(articles),
@@ -412,17 +362,16 @@ def feeds_more(
 
 
 @router.get("/subscriptions", response_class=HTMLResponse)
-def subscriptions_page(request: Request, i18n: I18nContext) -> HTMLResponse:
+def subscriptions_page(request: Request) -> HTMLResponse:
     """Render the subscriptions page listing all feeds."""
     assert templates is not None
-    return templates.TemplateResponse(request, "subscriptions.html", i18n)
+    return templates.TemplateResponse(request, "subscriptions.html")
 
 
 @router.get("/subscriptions/list", response_class=HTMLResponse)
 def subscriptions_list(
     request: Request,
     session: Annotated[Session, Depends(get_session)],
-    i18n: I18nContext,
 ) -> HTMLResponse:
     """Render the subscriptions list partial for HTMX."""
     assert templates is not None
@@ -452,26 +401,25 @@ def subscriptions_list(
     return templates.TemplateResponse(
         request,
         "partials/htmx/subscriptions_list.html",
-        {**i18n, "categories": categories},
+        {"categories": categories},
     )
 
 
 @router.get("/settings", response_class=HTMLResponse)
-def settings_page(request: Request, i18n: I18nContext) -> HTMLResponse:
+def settings_page(request: Request) -> HTMLResponse:
     """Render the settings page."""
     assert templates is not None
-    context = {
-        **i18n,
-        "default_fetch_interval_minutes": DEFAULT_FETCH_INTERVAL_MINUTES,
-    }
-    return templates.TemplateResponse(request, "settings.html", context)
+    return templates.TemplateResponse(
+        request,
+        "settings.html",
+        {"default_fetch_interval_minutes": DEFAULT_FETCH_INTERVAL_MINUTES},
+    )
 
 
 @router.get("/settings/categories", response_class=HTMLResponse)
 def settings_categories_list(
     request: Request,
     session: Annotated[Session, Depends(get_session)],
-    i18n: I18nContext,
 ) -> HTMLResponse:
     """Render the categories list partial for settings page."""
     assert templates is not None
@@ -493,7 +441,7 @@ def settings_categories_list(
     return templates.TemplateResponse(
         request,
         "partials/htmx/settings_categories.html",
-        {**i18n, "categories": categories},
+        {"categories": categories},
     )
 
 
@@ -501,7 +449,6 @@ def settings_categories_list(
 def settings_category_options(
     request: Request,
     session: Annotated[Session, Depends(get_session)],
-    i18n: I18nContext,
 ) -> HTMLResponse:
     """Render the category options for dropdown."""
     assert templates is not None
@@ -510,7 +457,7 @@ def settings_category_options(
     return templates.TemplateResponse(
         request,
         "partials/htmx/category_options.html",
-        {**i18n, "categories": categories},
+        {"categories": categories},
     )
 
 
@@ -518,7 +465,6 @@ def settings_category_options(
 def settings_websites_list(
     request: Request,
     session: Annotated[Session, Depends(get_session)],
-    i18n: I18nContext,
 ) -> HTMLResponse:
     """Render the websites list partial for settings page."""
     assert templates is not None
@@ -559,7 +505,7 @@ def settings_websites_list(
     return templates.TemplateResponse(
         request,
         "partials/htmx/settings_websites.html",
-        {**i18n, "categories": categories},
+        {"categories": categories},
     )
 
 
@@ -576,7 +522,6 @@ def _generate_slug(name: str) -> str:
 def create_category_form(
     request: Request,
     session: Annotated[Session, Depends(get_session)],
-    i18n: I18nContext,
     name: Annotated[str, Form()],
     icon: Annotated[str, Form()] = "tag",
 ) -> HTMLResponse:
@@ -587,14 +532,13 @@ def create_category_form(
     repo.create(name=name, slug=_generate_slug(name), icon=icon)
 
     # Return updated categories list
-    return settings_categories_list(request, session, i18n)
+    return settings_categories_list(request, session)
 
 
 @router.post("/settings/websites", response_class=HTMLResponse)
 def create_website_form(
     request: Request,
     session: Annotated[Session, Depends(get_session)],
-    i18n: I18nContext,
     name: Annotated[str, Form()],
     url: Annotated[str, Form()],
     rss_url: Annotated[str, Form()],
@@ -606,7 +550,8 @@ def create_website_form(
 
     # Validate URLs
     if not validate_url(url) or not validate_url(rss_url):
-        error_msg = i18n["t"]("common.invalid_url")
+        t = create_t_function(getattr(request.state, "lang", "en"))
+        error_msg = t("common.invalid_url")
         return HTMLResponse(
             content=f"<div class='text-red-600'>{error_msg}</div>",
             status_code=400,
@@ -617,7 +562,8 @@ def create_website_form(
     # Check for duplicate RSS URL
     existing = repo.get_by_rss_url(rss_url)
     if existing is not None:
-        error_msg = i18n["t"]("settings.feeds.duplicate_rss_url")
+        t = create_t_function(getattr(request.state, "lang", "en"))
+        error_msg = t("settings.feeds.duplicate_rss_url")
         return HTMLResponse(
             content=f"<div class='text-red-600'>{error_msg}</div>",
             status_code=409,
@@ -632,14 +578,13 @@ def create_website_form(
     )
 
     # Return updated websites list
-    return settings_websites_list(request, session, i18n)
+    return settings_websites_list(request, session)
 
 
 @router.post("/settings/fetch-all", response_class=HTMLResponse)
 def fetch_all_feeds(
     request: Request,
     session: Annotated[Session, Depends(get_session)],
-    i18n: I18nContext,
 ) -> HTMLResponse:
     """Trigger fetching articles from all websites."""
     assert templates is not None
@@ -650,7 +595,7 @@ def fetch_all_feeds(
     return templates.TemplateResponse(
         request,
         "partials/htmx/fetch_result.html",
-        {**i18n, "new_articles": new_articles},
+        {"new_articles": new_articles},
     )
 
 
@@ -659,7 +604,6 @@ def refetch_website(
     request: Request,
     website_id: str,
     session: Annotated[Session, Depends(get_session)],
-    i18n: I18nContext,
 ) -> HTMLResponse:
     """Force refetch all articles from a specific website."""
     assert templates is not None
@@ -673,7 +617,7 @@ def refetch_website(
     return templates.TemplateResponse(
         request,
         "partials/htmx/fetch_result.html",
-        {**i18n, "new_articles": new_articles, "refetch": True},
+        {"new_articles": new_articles, "refetch": True},
     )
 
 
@@ -682,7 +626,6 @@ def unread_all_website_articles(
     request: Request,
     website_id: str,
     session: Annotated[Session, Depends(get_session)],
-    i18n: I18nContext,
 ) -> HTMLResponse:
     """Mark all articles from a specific website as unread."""
     assert templates is not None
@@ -698,7 +641,7 @@ def unread_all_website_articles(
     return templates.TemplateResponse(
         request,
         "partials/htmx/unread_result.html",
-        {**i18n, "count": count},
+        {"count": count},
     )
 
 
@@ -706,7 +649,6 @@ def unread_all_website_articles(
 def settings_blocked_domains_list(
     request: Request,
     session: Annotated[Session, Depends(get_session)],
-    i18n: I18nContext,
 ) -> HTMLResponse:
     """Render the blocked domains list partial for settings page."""
     assert templates is not None
@@ -717,7 +659,7 @@ def settings_blocked_domains_list(
     return templates.TemplateResponse(
         request,
         "partials/htmx/settings_blocked_domains.html",
-        {**i18n, "blocked_domains": blocked_domains},
+        {"blocked_domains": blocked_domains},
     )
 
 

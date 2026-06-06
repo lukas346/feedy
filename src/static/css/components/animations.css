@@ -13,7 +13,6 @@
 }
 
 .monochrome .lazy-loaded-item {
-    animation: none;
     opacity: 1;
     transform: none;
 }

@@ -1,27 +1,18 @@
+{% from 'partials/includes/components/section_header.html' import section_header %}
+
 <!-- Security Section -->
 <section class="card p-6">
-    <div class="flex justify-between items-center">
-        <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 dark:from-violet-500/10 dark:to-purple-500/10 flex items-center justify-center">
-                <svg class="w-5 h-5 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                </svg>
-            </div>
-            <div>
-                <h2 class="section-title">{{ t('settings.security.title') }}</h2>
-                <p class="text-secondary">{{ t('settings.security.subtitle') }}</p>
-            </div>
-        </div>
-        <button
-            onclick="showChangePasswordModal()"
-            class="btn btn-primary inline-flex items-center space-x-2"
-        >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
-            </svg>
-            <span>{{ t('settings.security.change_password') }}</span>
-        </button>
-    </div>
+    {{ section_header(
+        title=t('settings.security.title'),
+        subtitle=t('settings.security.subtitle'),
+        icon='lock',
+        gradient_from='violet-500/20',
+        gradient_to='purple-500/20',
+        icon_color='violet-600',
+        action_text=t('settings.security.change_password'),
+        action_onclick='showChangePasswordModal()',
+        action_icon='key'
+    ) }}
 </section>
 
 <script>

@@ -3,15 +3,16 @@ Section Header Component (for settings pages)
 Parameters:
   - title: str - Section title
   - subtitle: str - Section subtitle
-  - icon: str - Icon name
+  - icon: str - Icon name (tag, rss, ban, globe, lock, upload, bookmark, exchange, translate, key)
   - gradient_from: str - Gradient start color (default: 'blue-500/20')
   - gradient_to: str - Gradient end color (default: 'cyan-500/20')
   - icon_color: str - Icon color (default: 'blue-600')
-  - action_text: str - Optional action button text
+  - action_text: str - Optional action button text (for single action)
   - action_onclick: str - Optional action button onclick handler
   - action_icon: str - Optional action button icon (default: 'plus')
+  - actions: list - Optional list of action buttons [{'text', 'onclick', 'icon', 'class', 'id', 'hx_post', 'hx_target', 'hx_swap'}]
 #}
-{% macro section_header(title, subtitle, icon='folder', gradient_from='blue-500/20', gradient_to='cyan-500/20', icon_color='blue-600', action_text='', action_onclick='', action_icon='plus') %}
+{% macro section_header(title, subtitle, icon='folder', gradient_from='blue-500/20', gradient_to='cyan-500/20', icon_color='blue-600', action_text='', action_onclick='', action_icon='plus', actions=none) %}
 <div class="section-header mb-6">
     <div class="flex items-center space-x-3">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-{{ gradient_from }} to-{{ gradient_to }} dark:from-{{ gradient_from.replace('/20', '/10') }} dark:to-{{ gradient_to.replace('/20', '/10') }} flex items-center justify-center">
@@ -43,6 +44,18 @@ Parameters:
             <svg class="w-5 h-5 text-{{ icon_color }} dark:text-{{ icon_color.replace('600', '400') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
             </svg>
+            {% elif icon == 'exchange' %}
+            <svg class="w-5 h-5 text-{{ icon_color }} dark:text-{{ icon_color.replace('600', '400') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+            </svg>
+            {% elif icon == 'translate' %}
+            <svg class="w-5 h-5 text-{{ icon_color }} dark:text-{{ icon_color.replace('600', '400') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+            </svg>
+            {% elif icon == 'key' %}
+            <svg class="w-5 h-5 text-{{ icon_color }} dark:text-{{ icon_color.replace('600', '400') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+            </svg>
             {% endif %}
         </div>
         <div>
@@ -50,11 +63,49 @@ Parameters:
             <p class="text-secondary">{{ subtitle }}</p>
         </div>
     </div>
-    {% if action_text %}
+    {% if actions %}
+    <div class="flex items-center space-x-2">
+        {% for action in actions %}
+        <button
+            {% if action.id %}id="{{ action.id }}"{% endif %}
+            {% if action.onclick %}onclick="{{ action.onclick }}"{% endif %}
+            {% if action.hx_post %}hx-post="{{ action.hx_post }}"{% endif %}
+            {% if action.hx_target %}hx-target="{{ action.hx_target }}"{% endif %}
+            {% if action.hx_swap %}hx-swap="{{ action.hx_swap }}"{% endif %}
+            {% if action.hx_indicator %}hx-indicator="{{ action.hx_indicator }}"{% endif %}
+            class="{{ action.class|default('btn btn-primary') }} inline-flex items-center space-x-2"
+        >
+            {% if action.icon == 'plus' %}
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            {% elif action.icon == 'refresh' %}
+            <svg id="{{ action.icon_id|default('') }}" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            {% elif action.icon == 'key' %}
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+            </svg>
+            {% endif %}
+            <span>{{ action.text }}</span>
+            {% if action.indicator_id %}
+            <div id="{{ action.indicator_id }}" class="htmx-indicator">
+                <div class="spinner h-4 w-4"></div>
+            </div>
+            {% endif %}
+        </button>
+        {% endfor %}
+    </div>
+    {% elif action_text %}
     <button onclick="{{ action_onclick }}" class="btn btn-primary inline-flex items-center space-x-2">
         {% if action_icon == 'plus' %}
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+        </svg>
+        {% elif action_icon == 'key' %}
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
         </svg>
         {% endif %}
         <span>{{ action_text }}</span>

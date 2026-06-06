@@ -17,7 +17,6 @@
   },
   "nav": {
     "feeds": "Feedy",
-    "archive": "Archive",
     "favorites": "Favorites",
     "subscriptions": "Subscriptions",
     "settings": "Settings",
@@ -51,7 +50,7 @@
     "password_changed": "Password changed successfully"
   },
   "feeds": {
-    "title": "Your Feedy",
+    "title": "News",
     "subtitle": "Stay updated with your favorite sources",
     "add_feed": "Add Feed",
     "back_to_feeds": "Back to feeds",
@@ -68,11 +67,26 @@
     "no_articles_title": "No articles yet",
     "no_articles_description": "Articles will appear here once the feed is fetched. Check back soon!"
   },
-  "reader": {
-    "back_to": "Back to {name}",
-    "mark_as_unread": "Mark as unread",
-    "mark_as_read": "Mark as read",
-    "add_to_favorites": "Add to favorites",
+  "epub": {
+    "book_title": "Feedy Articles",
+    "select_article": "Select for EPUB",
+    "add_to_epub": "Add to EPUB",
+    "remove_from_epub": "Remove from EPUB",
+    "selected_count": "{count} selected for EPUB",
+    "selection_hint": "Selections are kept while you browse",
+    "download": "Download EPUB",
+    "clear": "Clear",
+    "no_selection": "Select at least one article first.",
+    "export_failed": "Failed to generate EPUB.",
+    "too_many_articles": "You can export up to {count} articles at once.",
+    "articles_not_found": "Some selected articles no longer exist."
+  },
+    "reader": {
+      "back_to": "Back to {name}",
+      "mark_as_unread": "Mark as unread",
+      "mark_as_read": "Mark as read",
+      "mark_as_read_success": "Articles were marked as read.",
+      "add_to_favorites": "Add to favorites",
     "remove_from_favorites": "Remove from favorites",
     "original_article": "Original article",
     "block_domain": "Block {domain}",
@@ -86,7 +100,12 @@
     "already_blocked_message": "This domain is already blocked.",
     "block_failed": "Failed to block domain. Please try again.",
     "reading_time": "{minutes} min read",
-    "scroll_to_top": "Scroll to top"
+    "scroll_to_top": "Scroll to top",
+    "text_size": "Article text size",
+    "text_size_small": "Small article text",
+    "text_size_medium": "Medium article text",
+    "text_size_large": "Large article text",
+    "text_size_xlarge": "Extra large article text"
   },
   "favorites": {
     "title": "Favorites",
@@ -107,17 +126,6 @@
     "no_feeds_title": "No feeds yet",
     "no_feeds_description": "Add your first RSS feed in settings to start reading.",
     "add_feed": "Add Feed"
-  },
-  "archive": {
-    "title": "Archive",
-    "subtitle": "Previously read articles",
-    "search_placeholder": "Search by title, category, or URL...",
-    "no_results_title": "No results found",
-    "no_results_description": "No archived articles match \"{query}\". Try a different search term.",
-    "no_articles_title": "No archived articles",
-    "no_articles_description": "Articles you've read will appear here. Start reading from your feeds!",
-    "go_to_feeds": "Go to Feeds",
-    "no_articles_from_source": "No articles from this source"
   },
   "settings": {
     "title": "Settings",

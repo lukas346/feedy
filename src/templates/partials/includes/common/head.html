@@ -2,10 +2,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Feedy - RSS feed reader">
 
-<!-- Literata font for e-ink readability -->
+<!-- Fonts: Ubuntu for the UI, Literata for e-ink readability, Barrio for the navbar wordmark, Fascinate Inline for page headers -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,400;0,500;0,700;1,400;1,700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;0,7..72,700;1,7..72,400;1,7..72,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barrio&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fascinate+Inline&display=swap" rel="stylesheet">
 
 <!-- Tailwind CSS -->
 <link rel="stylesheet" href="/static/css/style.css?v={{ GIT_COMMIT }}">
@@ -18,6 +21,8 @@
 <script src="/static/js/templates.js?v={{ GIT_COMMIT }}" defer></script>
 <script src="/static/js/utils.js?v={{ GIT_COMMIT }}" defer></script>
 <script src="/static/js/crud.js?v={{ GIT_COMMIT }}" defer></script>
+<script src="/static/js/epub_selection.js?v={{ GIT_COMMIT }}" defer></script>
+<script src="/static/js/article_text_size.js?v={{ GIT_COMMIT }}" defer></script>
 
 <!-- Theme initialization script (runs before render to prevent flash) -->
 <script>
@@ -29,6 +34,21 @@
             document.documentElement.classList.add('dark');
         } else if (theme === 'monochrome') {
             document.documentElement.classList.add('monochrome');
+        }
+    })();
+</script>
+
+<!-- Article text size initialization (runs before render to prevent flash) -->
+<script>
+    (function() {
+        try {
+            var size = localStorage.getItem('feedy.articleTextSize');
+            var sizes = ['small', 'medium', 'large', 'xlarge'];
+            if (sizes.indexOf(size) !== -1) {
+                document.documentElement.setAttribute('data-article-text-size', size);
+            }
+        } catch (error) {
+            document.documentElement.removeAttribute('data-article-text-size');
         }
     })();
 </script>

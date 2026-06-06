@@ -1,19 +1,23 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import AsyncGenerator, Optional
+from typing import Any, AsyncGenerator, Optional
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+from starlette.middleware.base import (
+    BaseHTTPMiddleware,
+    RequestResponseEndpoint,
+)
 
 from api.routers import (
     articles,
     auth,
     blocked_domains,
     categories,
+    epub,
     opml,
     pages,
     websites,
@@ -24,8 +28,13 @@ from i18n import (
     create_t_function,
     parse_accept_language,
 )
-from infrastructure.config import get_git_commit, settings
-from infrastructure.database import engine, get_session
+from infrastructure.config import (
+    DEFAULT_LOAD_MORE_SIZE,
+    DEFAULT_PAGE_SIZE,
+    get_git_commit,
+    settings,
+)
+from infrastructure.database import engine, session_scope
 from infrastructure.repositories.auth_repository import AuthRepository
 from infrastructure.logging import setup_logging
 
@@ -53,7 +62,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "https://*.youtube.com https://*.youtube-nocookie.com "
             "https://*.vimeo.com https://player.vimeo.com "
             "https://*.dailymotion.com "
-            "https://*.twitch.tv https://player.twitch.tv https://clips.twitch.tv "
+            "https://*.twitch.tv https://player.twitch.tv "
+            "https://clips.twitch.tv "
             "https://*.ted.com https://embed.ted.com; "
             "frame-ancestors 'none'"
         )
@@ -78,8 +88,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
         # Check session token
         token = request.cookies.get("session_token")
-        db = next(get_session())
-        try:
+        with session_scope() as db:
             if not token or not auth_service.validate_session(db, token):
                 # Return 401 for API requests, redirect for page requests
                 if path.startswith("/api/"):
@@ -89,17 +98,18 @@ class AuthMiddleware(BaseHTTPMiddleware):
                     )
                 return RedirectResponse(url="/login", status_code=302)
 
-            # Check if password change is required (except for change-password page)
-            if path != "/change-password" and auth_service.must_change_password(db):
+            # Check password requirements except for the change-password page.
+            must_change_password = auth_service.must_change_password(db)
+            if path != "/change-password" and must_change_password:
                 if path.startswith("/api/"):
                     return JSONResponse(
                         status_code=403,
                         content={"detail": "Password change required"},
                     )
-                return RedirectResponse(url="/change-password", status_code=302)
-        finally:
-            db.close()
-
+                return RedirectResponse(
+                    url="/change-password",
+                    status_code=302,
+                )
         return await call_next(request)
 
 
@@ -116,14 +126,11 @@ class LanguageMiddleware(BaseHTTPMiddleware):
         # Try to get user's saved language preference from database
         token = request.cookies.get("session_token")
         if token:
-            db = next(get_session())
-            try:
+            with session_scope() as db:
                 repo = AuthRepository(db)
                 db_language = repo.get_language()
-            finally:
-                db.close()
 
-        # Determine language: user preference > Accept-Language header > default
+        # Determine language by user preference, header, then default.
         if db_language and db_language in SUPPORTED_LANGUAGES:
             lang = db_language
         else:
@@ -142,19 +149,36 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_DIR = BASE_DIR / "static"
 TEMPLATES_DIR = BASE_DIR / "templates"
 
-# Jinja2 templates configuration
-templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
+
+def i18n_context_processor(request: Request) -> dict[str, Any]:
+    """Context processor that provides i18n context for all templates."""
+    lang = getattr(request.state, "lang", "en")
+    user_language_set = getattr(request.state, "user_language_set", False)
+    return {
+        "t": create_t_function(lang),
+        "current_lang": lang,
+        "user_language_set": user_language_set,
+    }
+
+
+# Jinja2 templates configuration with i18n context processor
+templates = Jinja2Templates(
+    directory=str(TEMPLATES_DIR),
+    context_processors=[i18n_context_processor],
+)
 
 # Add supported languages, git commit, and base URL to template globals
 templates.env.globals["SUPPORTED_LANGUAGES"] = SUPPORTED_LANGUAGES
+# Lowercase alias for templates that use snake-case naming.
+templates.env.globals["supported_languages"] = SUPPORTED_LANGUAGES
 templates.env.globals["GIT_COMMIT"] = get_git_commit()
 templates.env.globals["BASE_URL"] = settings.base_url
+templates.env.globals["PAGE_SIZE"] = DEFAULT_PAGE_SIZE
+templates.env.globals["LOAD_MORE_SIZE"] = DEFAULT_LOAD_MORE_SIZE
 
-# Set templates and i18n for routers
+# Set templates for routers
 pages.set_templates(templates)
-pages.set_i18n(create_t_function, SUPPORTED_LANGUAGES)
 auth.set_templates(templates)
-auth.set_i18n(create_t_function, SUPPORTED_LANGUAGES)
 
 
 @asynccontextmanager
@@ -204,6 +228,7 @@ app.include_router(blocked_domains.router)
 app.include_router(categories.router)
 app.include_router(websites.router)
 app.include_router(opml.router)
+app.include_router(epub.router)
 
 
 @app.get("/health", response_model=dict[str, str])

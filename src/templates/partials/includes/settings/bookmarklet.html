@@ -1,18 +1,15 @@
+{% from 'partials/includes/components/section_header.html' import section_header %}
+
 <!-- Bookmarklet Section -->
 <section class="card p-6">
-    <div class="section-header mb-6">
-        <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 dark:from-indigo-500/10 dark:to-purple-500/10 flex items-center justify-center">
-                <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
-                </svg>
-            </div>
-            <div>
-                <h2 class="section-title">{{ t('settings.bookmarklet.title') }}</h2>
-                <p class="text-secondary">{{ t('settings.bookmarklet.subtitle') }}</p>
-            </div>
-        </div>
-    </div>
+    {{ section_header(
+        title=t('settings.bookmarklet.title'),
+        subtitle=t('settings.bookmarklet.subtitle'),
+        icon='bookmark',
+        gradient_from='indigo-500/20',
+        gradient_to='purple-500/20',
+        icon_color='indigo-600'
+    ) }}
 
     <div class="p-4 form-section">
         <h3 class="font-medium text-zinc-900 dark:text-zinc-100 mb-2">{{ t('settings.bookmarklet.add_to_browser') }}</h3>
@@ -28,7 +25,7 @@
             </a>
             <span class="text-secondary">{{ t('settings.bookmarklet.drag_arrow') }}</span>
         </div>
-        <div class="mt-4 p-3 bg-zinc-100 dark:bg-zinc-700/50 rounded-lg">
+        <div class="settings-help-panel mt-4 p-3 bg-zinc-100 dark:bg-zinc-700/50 rounded-lg">
             <h4 class="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">{{ t('settings.bookmarklet.how_to_use') }}</h4>
             <ol class="text-sm text-zinc-600 dark:text-zinc-400 list-decimal list-inside space-y-1">
                 <li>{{ t('settings.bookmarklet.step_1') }}</li>

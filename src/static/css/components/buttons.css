@@ -8,7 +8,7 @@
 
 .btn-primary {
   @apply bg-rose-600 text-white hover:bg-rose-700
-         focus:ring-rose-500 shadow-lg shadow-rose-500/25
+         focus:ring-rose-500
          dark:bg-rose-500 dark:hover:bg-rose-600;
 }
 
@@ -25,5 +25,5 @@
 
 .btn-danger {
   @apply bg-red-600 text-white hover:bg-red-700
-         focus:ring-red-500 shadow-lg shadow-red-500/25;
+         focus:ring-red-500;
 }

@@ -1,6 +1,6 @@
 {# Edit Category Modal - included in page, shown/hidden via JS #}
 <div id="edit-category-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden">
-    <div class="bg-white dark:bg-zinc-800 rounded-xl p-6 w-full max-w-md mx-4 shadow-2xl">
+    <div class="bg-white dark:bg-zinc-800 rounded-xl p-6 w-full max-w-md mx-4 border border-zinc-200 dark:border-zinc-700">
         <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">{{ t("settings.categories.edit_title") }}</h3>
         <div class="flex gap-4 mb-4">
             <div class="input-group">
@@ -10,7 +10,7 @@
                     <button type="button" id="edit-icon-picker-btn" onclick="toggleEditIconPicker()" class="w-12 h-12 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 flex items-center justify-center hover:border-blue-500 dark:hover:border-blue-400 transition-colors">
                         <span id="edit-selected-icon-preview" class="w-5 h-5 text-zinc-600 dark:text-zinc-300"></span>
                     </button>
-                    <div id="edit-icon-picker-popover" class="hidden absolute left-0 top-12 z-50 p-2 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-xl" style="width: 200px;">
+                    <div id="edit-icon-picker-popover" class="hidden absolute left-0 top-12 z-50 p-2 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700" style="width: 200px;">
                         <div class="grid grid-cols-4 gap-1" id="edit-icon-grid"></div>
                     </div>
                 </div>

@@ -1,45 +1,19 @@
+{% from 'partials/includes/components/section_header.html' import section_header %}
+
 <!-- Websites Section -->
 <section class="card p-6">
-    <div class="section-header mb-6">
-        <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 dark:from-emerald-500/10 dark:to-teal-500/10 flex items-center justify-center">
-                <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 5c7.18 0 13 5.82 13 13M6 11a7 7 0 017 7m-6 0a1 1 0 11-2 0 1 1 0 012 0z"/>
-                </svg>
-            </div>
-            <div>
-                <h2 class="section-title">{{ t('settings.feeds.title') }}</h2>
-                <p class="text-secondary">{{ t('settings.feeds.subtitle') }}</p>
-            </div>
-        </div>
-        <div class="flex items-center space-x-2">
-            <button
-                id="fetch-all-btn"
-                hx-post="/settings/fetch-all"
-                hx-target="#fetch-result-container"
-                hx-swap="innerHTML"
-                hx-indicator="#fetch-spinner"
-                class="btn btn-secondary inline-flex items-center space-x-2"
-            >
-                <svg id="fetch-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                </svg>
-                <span>{{ t('settings.feeds.fetch_all') }}</span>
-                <div id="fetch-spinner" class="htmx-indicator">
-                    <div class="spinner h-4 w-4"></div>
-                </div>
-            </button>
-            <button
-                onclick="showAddWebsiteForm()"
-                class="btn btn-primary inline-flex items-center space-x-2"
-            >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                </svg>
-                <span>{{ t('settings.feeds.add') }}</span>
-            </button>
-        </div>
-    </div>
+    {{ section_header(
+        title=t('settings.feeds.title'),
+        subtitle=t('settings.feeds.subtitle'),
+        icon='rss',
+        gradient_from='emerald-500/20',
+        gradient_to='teal-500/20',
+        icon_color='emerald-600',
+        actions=[
+            {'id': 'fetch-all-btn', 'text': t('settings.feeds.fetch_all'), 'icon': 'refresh', 'class': 'btn btn-secondary', 'hx_post': '/settings/fetch-all', 'hx_target': '#fetch-result-container', 'hx_swap': 'innerHTML', 'hx_indicator': '#fetch-spinner', 'indicator_id': 'fetch-spinner'},
+            {'text': t('settings.feeds.add'), 'onclick': 'showAddWebsiteForm()', 'icon': 'plus', 'class': 'btn btn-primary'}
+        ]
+    ) }}
 
     <!-- Fetch Result Container -->
     <div id="fetch-result-container" class="mb-4"></div>

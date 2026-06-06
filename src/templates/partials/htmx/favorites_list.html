@@ -7,7 +7,7 @@
         <!-- Articles list -->
         <div class="divide-y divide-zinc-300 dark:divide-zinc-600">
             {% for article in articles %}
-            {{ favorite_row(article) }}
+            {{ favorite_row(article, show_epub_select=true, epub_add_text=t('epub.add_to_epub'), epub_remove_text=t('epub.remove_from_epub')) }}
             {% endfor %}
         </div>
 
