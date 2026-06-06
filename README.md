@@ -3,7 +3,7 @@
 A self-hosted RSS reader that strips away the clutter. Feedy fetches articles and extracts clean, readable content.
 
 <p>
-<a href="docs/feedy.webp"><img src="docs/feedy.webp" width="59%"></a>
+<a href="docs/feedy.webp"><img src="docs/feedy.webp" width="75%"></a>
 </p>
 
 
