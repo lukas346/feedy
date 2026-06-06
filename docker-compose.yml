@@ -1,6 +1,6 @@
 services:
   app:
-    build: .
+    image: ghcr.io/lukas346/feedy:latest
     ports:
       - "${APP_PORT:-5532}:8000"
     volumes:
@@ -19,7 +19,7 @@ services:
 
 
   worker:
-    build: .
+    image: ghcr.io/lukas346/feedy:latest
     entrypoint: ["python", "-m", "worker"]
     command: []
     volumes:

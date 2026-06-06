@@ -32,6 +32,50 @@ cd <folder-name>
 docker compose up -d
 ```
 
+## Docker Compose
+
+```yml
+services:
+  app:
+    image: ghcr.io/lukas346/feedy:latest
+    ports:
+      - "${APP_PORT:-5532}:8000"
+    volumes:
+      - sqlite_data:/app/data
+      - logs_data:/app/logs
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-sqlite:////app/data/reader.db}
+      - WORKER_INTERVAL_MINUTES=${WORKER_INTERVAL_MINUTES:-15}
+      - BASE_URL=${BASE_URL:-https://feedy.example.com}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+
+  worker:
+    image: ghcr.io/lukas346/feedy:latest
+    entrypoint: ["python", "-m", "worker"]
+    command: []
+    volumes:
+      - sqlite_data:/app/data
+      - logs_data:/app/logs
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-sqlite:////app/data/reader.db}
+      - WORKER_INTERVAL_MINUTES=${WORKER_INTERVAL_MINUTES:-15}
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+
+
+volumes:
+  sqlite_data:
+  logs_data:
+```
+
 Open [http://localhost:5532](http://localhost:5532) and add your feeds. Default password `admin`.
 
 **Project is mirrored from private gitlab repo.**
