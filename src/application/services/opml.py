@@ -68,7 +68,7 @@ class OPMLService:
 
         # Group websites by category
         categories: dict[str, list[tuple[Website, str | None]]] = {}
-        for website, category_name in websites_with_categories:
+        for website, category_name, _category_icon in websites_with_categories:
             cat_name = category_name or "Uncategorized"
             if cat_name not in categories:
                 categories[cat_name] = []

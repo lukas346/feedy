@@ -386,6 +386,7 @@ def subscriptions_list(
         cat_icon = category_icon or "tag"
         if cat_name not in categories_dict:
             categories_dict[cat_name] = {
+                "id": website.category_id,
                 "name": cat_name,
                 "icon": cat_icon,
                 "websites": [],

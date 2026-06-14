@@ -11,16 +11,19 @@ Parameters:
   - use_link: bool - Use <a> tag instead of onclick (default: false)
   - mark_as_read_text: str - Translated "mark as read" text
   - mark_as_unread_text: str - Translated "mark as unread" text
+  - show_favorite_btn: bool - Show favorite toggle button (default: false)
+  - favorite_add_text: str - Translated add-to-favorites button label
+  - favorite_remove_text: str - Translated remove-from-favorites button label
   - show_epub_select: bool - Show EPUB selection button (default: false)
   - epub_add_text: str - Translated add-to-EPUB button label
   - epub_remove_text: str - Translated remove-from-EPUB button label
 #}
-{% macro article_row(article, show_favicon=false, show_source=false, show_read_btn=true, id_prefix='article-item', extra_classes='', apply_read_opacity=true, use_link=false, mark_as_read_text='Mark as read', mark_as_unread_text='Mark as unread', show_epub_select=false, epub_add_text='Add to EPUB', epub_remove_text='Remove from EPUB') %}
+{% macro article_row(article, show_favicon=false, show_source=false, show_read_btn=true, id_prefix='article-item', extra_classes='', apply_read_opacity=true, use_link=false, mark_as_read_text='Mark as read', mark_as_unread_text='Mark as unread', show_favorite_btn=false, favorite_add_text='Add to favorites', favorite_remove_text='Remove from favorites', show_epub_select=false, epub_add_text='Add to EPUB', epub_remove_text='Remove from EPUB') %}
 <div id="{{ id_prefix }}-{{ article.id }}" class="group {{ extra_classes }}"{% if apply_read_opacity %} style="opacity: {{ '0.6' if article.is_read else '1' }}"{% endif %}>
     {% if use_link %}
-    <a href="/article/{{ article.id }}" class="article-row-item">
+    <a href="/article/{{ article.id }}" target="_blank" rel="noopener noreferrer" class="article-row-item" data-article-link data-article-id="{{ article.id }}" data-is-read="{{ 'true' if article.is_read else 'false' }}" data-reader-url="/article/{{ article.id }}" data-original-url="{{ article.url }}">
     {% else %}
-    <div class="article-row-item cursor-pointer" onclick="window.location.href='/article/{{ article.id }}'">
+    <div class="article-row-item cursor-pointer" data-article-link data-article-id="{{ article.id }}" data-is-read="{{ 'true' if article.is_read else 'false' }}" data-reader-url="/article/{{ article.id }}" data-original-url="{{ article.url }}" onclick="window.location.href='/article/{{ article.id }}'">
     {% endif %}
         {% if show_favicon %}
         <img src="https://www.google.com/s2/favicons?domain={{ article.website.url }}&sz=64"
@@ -52,7 +55,7 @@ Parameters:
             {% endif %}
         </span>
 
-        {% if show_read_btn or show_epub_select %}
+        {% if show_read_btn or show_favorite_btn or show_epub_select %}
         <div class="flex flex-shrink-0 items-center gap-2">
             {% if show_read_btn %}
             <button class="mark-read-btn inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors
@@ -70,6 +73,26 @@ Parameters:
                     title="{{ mark_as_unread_text if article.is_read else mark_as_read_text }}">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+            </button>
+            {% endif %}
+
+            {% if show_favorite_btn %}
+            <button type="button"
+                    class="favorite-toggle-btn inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors
+                           {% if article.favorited_at %}bg-rose-50 dark:bg-rose-900/20 border-rose-300 dark:border-rose-500 text-rose-500 dark:text-rose-400{% else %}border-zinc-300 dark:border-zinc-600 text-zinc-500 dark:text-zinc-400{% endif %}
+                           hover:border-rose-500 hover:text-rose-600 dark:hover:border-rose-400 dark:hover:text-rose-400"
+                    data-favorite-toggle
+                    data-article-id="{{ article.id }}"
+                    data-is-favorite="{{ 'true' if article.favorited_at else 'false' }}"
+                    data-add-text="{{ favorite_add_text }}"
+                    data-remove-text="{{ favorite_remove_text }}"
+                    aria-pressed="{{ 'true' if article.favorited_at else 'false' }}"
+                    aria-label="{{ favorite_remove_text if article.favorited_at else favorite_add_text }}"
+                    onclick="event.stopPropagation();"
+                    title="{{ favorite_remove_text if article.favorited_at else favorite_add_text }}">
+                <svg class="w-4 h-4" fill="{% if article.favorited_at %}currentColor{% else %}none{% endif %}" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                 </svg>
             </button>
             {% endif %}
@@ -100,14 +123,9 @@ Parameters:
 </div>
 {% endmacro %}
 
-{# Favorite article row with heart icon #}
-{% macro favorite_row(article, show_epub_select=false, epub_add_text='Add to EPUB', epub_remove_text='Remove from EPUB') %}
-<div class="article-row-item group cursor-pointer" onclick="window.location.href='/article/{{ article.id }}'">
-    <svg class="w-4 h-4 text-rose-500 dark:text-rose-400 flex-shrink-0" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-    </svg>
-
+{# Favorite article row #}
+{% macro favorite_row(article, show_epub_select=false, favorite_add_text='Add to favorites', favorite_remove_text='Remove from favorites', epub_add_text='Add to EPUB', epub_remove_text='Remove from EPUB') %}
+<div class="article-row-item group cursor-pointer" data-favorite-list-row data-article-link data-article-id="{{ article.id }}" data-is-read="{{ 'true' if article.is_read else 'false' }}" data-reader-url="/article/{{ article.id }}" data-original-url="{{ article.url }}" onclick="window.location.href='/article/{{ article.id }}'">
     <span class="flex-1 truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100
                 group-hover:text-blue-600 dark:group-hover:text-blue-400">
         {{ article.title }}
@@ -125,21 +143,39 @@ Parameters:
         {{ article.favorited_at.strftime('%b %d') }}
     </span>
 
-    {% if show_epub_select %}
-    <button type="button"
-            class="epub-add-btn flex-shrink-0 inline-flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-300 text-zinc-500 transition-colors hover:border-rose-500 hover:text-rose-600 dark:border-zinc-600 dark:text-zinc-400 dark:hover:border-rose-400 dark:hover:text-rose-400"
-            data-epub-add
-            data-article-id="{{ article.id }}"
-            data-add-text="{{ epub_add_text }}"
-            data-remove-text="{{ epub_remove_text }}"
-            aria-pressed="false"
-            aria-label="{{ epub_add_text }}"
-            onclick="event.stopPropagation();"
-            title="{{ epub_add_text }}">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-        </svg>
-    </button>
-    {% endif %}
+    <div class="flex flex-shrink-0 items-center gap-2">
+        <button type="button"
+                class="favorite-toggle-btn inline-flex h-8 w-8 items-center justify-center rounded-lg border bg-rose-50 text-rose-500 transition-colors hover:border-rose-500 hover:text-rose-600 dark:bg-rose-900/20 border-rose-300 dark:border-rose-500 dark:text-rose-400 dark:hover:border-rose-400 dark:hover:text-rose-400"
+                data-favorite-toggle
+                data-article-id="{{ article.id }}"
+                data-is-favorite="true"
+                data-add-text="{{ favorite_add_text }}"
+                data-remove-text="{{ favorite_remove_text }}"
+                aria-pressed="true"
+                aria-label="{{ favorite_remove_text }}"
+                onclick="event.stopPropagation();"
+                title="{{ favorite_remove_text }}">
+            <svg class="w-4 h-4" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+        </button>
+
+        {% if show_epub_select %}
+        <button type="button"
+                class="epub-add-btn inline-flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-300 text-zinc-500 transition-colors hover:border-rose-500 hover:text-rose-600 dark:border-zinc-600 dark:text-zinc-400 dark:hover:border-rose-400 dark:hover:text-rose-400"
+                data-epub-add
+                data-article-id="{{ article.id }}"
+                data-add-text="{{ epub_add_text }}"
+                data-remove-text="{{ epub_remove_text }}"
+                aria-pressed="false"
+                aria-label="{{ epub_add_text }}"
+                onclick="event.stopPropagation();"
+                title="{{ epub_add_text }}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+        </button>
+        {% endif %}
+    </div>
 </div>
 {% endmacro %}

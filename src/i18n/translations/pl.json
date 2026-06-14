@@ -13,7 +13,9 @@
     "article": "artykuł",
     "articles": "artykuły",
     "show_more": "Pokaż {count} więcej",
-    "invalid_url": "Nieprawidłowy URL"
+    "invalid_url": "Nieprawidłowy URL",
+    "collapse_category": "Zwiń kategorię",
+    "expand_category": "Rozwiń kategorię"
   },
   "nav": {
     "feeds": "Feedy",
@@ -216,6 +218,13 @@
       "title": "Język",
       "subtitle": "Wybierz preferowany język",
       "auto": "Automatycznie"
+    },
+    "reader_mode": {
+      "title": "Linki artykułów",
+      "subtitle": "Wybierz, gdzie otwierają się linki na tym urządzeniu",
+      "reader": "Reader mode",
+      "rss": "RSS mode",
+      "hint": "Reader mode otwiera sparsowany widok artykułu w Feedy. RSS mode otwiera bezpośrednio oryginalny artykuł."
     },
     "bookmarklet": {
       "title": "Skryptozakładka",

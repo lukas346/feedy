@@ -343,7 +343,7 @@
   margin-bottom: 1.4em;
 }
 
-.monochrome .article-content :is(h1, h2, h3) {
+.monochrome .article-content :is(h1, h2, h3, h4, h5, h6) {
   font-weight: 600;
 }
 
@@ -363,6 +363,18 @@
   font-size: 1.35rem;
   margin-top: 1.25em;
   margin-bottom: 0.4em;
+}
+
+.monochrome .article-content h4 {
+  font-size: 1.2rem;
+  margin-top: 1.15em;
+  margin-bottom: 0.4em;
+}
+
+.monochrome .article-content :is(h5, h6) {
+  font-size: 1.05rem;
+  margin-top: 1em;
+  margin-bottom: 0.35em;
 }
 
 .monochrome .article-content blockquote {

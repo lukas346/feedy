@@ -53,8 +53,10 @@
                     hx-vals='{"is_read": {{ "false" if article.is_read else "true" }}}'
                     hx-swap="none"
                     hx-on::after-request="toggleReadStatus(this)"
+                    aria-label="{{ t('reader.mark_as_unread') if article.is_read else t('reader.mark_as_read') }}"
+                    title="{{ t('reader.mark_as_unread') if article.is_read else t('reader.mark_as_read') }}"
                     class="btn btn-secondary inline-flex items-center space-x-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="read-status-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     {% if article.is_read %}
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76"/>
@@ -193,13 +195,22 @@
     // Toggle read status button handler
     function toggleReadStatus(button) {
         var isRead = button.getAttribute('hx-vals').includes('"is_read": true');
+        var iconEl = document.getElementById('read-status-icon');
         var textEl = document.getElementById('read-status-text');
+        var readIcon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>';
+        var unreadIcon = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76"/>';
 
         if (isRead) {
+            iconEl.innerHTML = unreadIcon;
             textEl.textContent = '{{ t("reader.mark_as_unread") }}';
+            button.setAttribute('aria-label', '{{ t("reader.mark_as_unread") }}');
+            button.setAttribute('title', '{{ t("reader.mark_as_unread") }}');
             button.setAttribute('hx-vals', '{"is_read": false}');
         } else {
+            iconEl.innerHTML = readIcon;
             textEl.textContent = '{{ t("reader.mark_as_read") }}';
+            button.setAttribute('aria-label', '{{ t("reader.mark_as_read") }}');
+            button.setAttribute('title', '{{ t("reader.mark_as_read") }}');
             button.setAttribute('hx-vals', '{"is_read": true}');
         }
         // Re-process the element for HTMX

@@ -9,12 +9,15 @@ from .base import BaseDomainParser, DomainParser
 from .github import GitHubParser
 from .hey_world import HeyWorldParser
 from .medium import MediumParser
+from .ppe import PPEParser
 from .seangoedecke import SeanGoedeckeParser
 from .registry import (
     DomainParserRegistry,
     domain_parser_registry,
     register_parser,
 )
+from .substack import SubstackParser
+from .tjll import TJLLBlogParser
 from .video import VideoEmbedParser
 from .wikipedia import WikipediaParser
 
@@ -26,6 +29,9 @@ register_parser(MediumParser())
 register_parser(VideoEmbedParser())
 register_parser(HeyWorldParser())
 register_parser(SeanGoedeckeParser())
+register_parser(SubstackParser())
+register_parser(TJLLBlogParser())
+register_parser(PPEParser())
 
 __all__ = [
     "AntirezParser",
@@ -38,6 +44,9 @@ __all__ = [
     "GitHubParser",
     "HeyWorldParser",
     "MediumParser",
+    "PPEParser",
     "SeanGoedeckeParser",
+    "SubstackParser",
+    "TJLLBlogParser",
     "VideoEmbedParser",
 ]

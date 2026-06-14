@@ -4,9 +4,25 @@
 {% if categories %}
 <div class="space-y-6">
     {% for category in categories %}
-    <div class="card category-color-card animate-slide-up">
+    <div class="card category-color-card animate-slide-up"
+         data-category-collapse-card
+         data-category-collapse-scope="subscriptions"
+         data-category-collapse-id="{{ category.id }}">
         <!-- Category header -->
         <div class="category-card-header flex items-center gap-3 p-4 border-b">
+            <button type="button"
+                    class="inline-flex flex-shrink-0 items-center justify-center text-zinc-400 dark:text-zinc-500 focus:outline-none"
+                    data-category-collapse-toggle
+                    data-collapse-text="{{ t('common.collapse_category') }}"
+                    data-expand-text="{{ t('common.expand_category') }}"
+                    aria-expanded="true"
+                    aria-controls="subscriptions-category-{{ category.id }}-content"
+                    aria-label="{{ t('common.collapse_category') }}"
+                    title="{{ t('common.collapse_category') }}">
+                <svg class="h-5 w-5" data-category-collapse-icon fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
             <div class="category-icon-frame category-icon-frame-sm">
                 <span class="w-5 h-5">{{ category_icon(category.icon) }}</span>
             </div>
@@ -16,7 +32,7 @@
         </div>
 
         <!-- Websites in this category -->
-        <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
+        <div id="subscriptions-category-{{ category.id }}-content" class="divide-y divide-zinc-100 dark:divide-zinc-800" data-category-collapse-panel>
             {% for website in category.websites %}
             <a href="/articles?website_id={{ website.id }}"
                class="category-feed-link flex items-center gap-3 px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors group">

@@ -2,7 +2,7 @@
 {% from 'partials/includes/components/show_more.html' import show_more %}
 
 {% for article in articles %}
-{{ article_row(article, show_favicon=false, show_source=false, show_read_btn=true, id_prefix='article-item', extra_classes='lazy-loaded-item', mark_as_read_text=t('reader.mark_as_read'), mark_as_unread_text=t('reader.mark_as_unread'), show_epub_select=true, epub_add_text=t('epub.add_to_epub'), epub_remove_text=t('epub.remove_from_epub')) }}
+{{ article_row(article, show_favicon=false, show_source=false, show_read_btn=true, id_prefix='article-item', extra_classes='lazy-loaded-item', mark_as_read_text=t('reader.mark_as_read'), mark_as_unread_text=t('reader.mark_as_unread'), show_favorite_btn=true, favorite_add_text=t('reader.add_to_favorites'), favorite_remove_text=t('reader.remove_from_favorites'), show_epub_select=true, epub_add_text=t('epub.add_to_epub'), epub_remove_text=t('epub.remove_from_epub')) }}
 {% endfor %}
 
 {% if has_more %}

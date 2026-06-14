@@ -6,10 +6,26 @@
 {% if categories %}
     <div class="space-y-6">
     {% for category in categories %}
-    <div class="card category-color-card animate-slide-up">
+    <div class="card category-color-card animate-slide-up"
+         data-category-collapse-card
+         data-category-collapse-scope="feeds"
+         data-category-collapse-id="{{ category.id }}">
         <!-- Category header -->
         <div class="category-card-header flex items-center justify-between gap-4 p-6 border-b">
             <div class="flex min-w-0 items-center space-x-3">
+                <button type="button"
+                        class="inline-flex flex-shrink-0 items-center justify-center text-zinc-400 dark:text-zinc-500 focus:outline-none"
+                        data-category-collapse-toggle
+                        data-collapse-text="{{ t('common.collapse_category') }}"
+                        data-expand-text="{{ t('common.expand_category') }}"
+                        aria-expanded="true"
+                        aria-controls="feeds-category-{{ category.id }}-content"
+                        aria-label="{{ t('common.collapse_category') }}"
+                        title="{{ t('common.collapse_category') }}">
+                    <svg class="h-5 w-5" data-category-collapse-icon fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
                 <div class="category-icon-frame category-icon-frame-md">
                     <span class="w-5 h-5">{{ category_icon(category.icon) }}</span>
                 </div>
@@ -21,7 +37,7 @@
                 </div>
             </div>
             <button type="button"
-                    class="category-read-all-btn inline-flex flex-shrink-0 items-center gap-2 whitespace-nowrap rounded-xl border px-4 py-2.5 text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-[0.98]"
+                    class="category-read-all-btn inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border p-0 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-[0.98]"
                     hx-post="/feeds/categories/{{ category.id }}/read-all"
                     hx-target="#feeds-list"
                     hx-swap="innerHTML"
@@ -30,15 +46,15 @@
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
-                <span>{{ t('reader.mark_as_read') }}</span>
             </button>
         </div>
 
         <!-- Articles -->
+        <div id="feeds-category-{{ category.id }}-content" data-category-collapse-panel>
         {% if category.articles %}
             <div class="divide-y divide-zinc-300 dark:divide-zinc-600" id="category-{{ category.id }}-list">
                 {% for article in category.articles %}
-                {{ article_row(article, show_favicon=true, show_source=true, id_prefix='feed-article', apply_read_opacity=false, mark_as_read_text=t('reader.mark_as_read'), mark_as_unread_text=t('reader.mark_as_unread'), show_epub_select=true, epub_add_text=t('epub.add_to_epub'), epub_remove_text=t('epub.remove_from_epub')) }}
+                {{ article_row(article, show_favicon=true, show_source=true, id_prefix='feed-article', apply_read_opacity=false, mark_as_read_text=t('reader.mark_as_read'), mark_as_unread_text=t('reader.mark_as_unread'), show_favorite_btn=true, favorite_add_text=t('reader.add_to_favorites'), favorite_remove_text=t('reader.remove_from_favorites'), show_epub_select=true, epub_add_text=t('epub.add_to_epub'), epub_remove_text=t('epub.remove_from_epub')) }}
                 {% endfor %}
 
                 {% if category.has_more %}
@@ -54,6 +70,7 @@
         {% else %}
         {{ empty_state_inline(icon='document', title=t('feeds.no_articles_in_category')) }}
         {% endif %}
+        </div>
     </div>
     {% endfor %}
     </div>

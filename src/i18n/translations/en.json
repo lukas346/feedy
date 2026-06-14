@@ -13,7 +13,9 @@
     "article": "article",
     "articles": "articles",
     "show_more": "Show {count} more",
-    "invalid_url": "Invalid URL"
+    "invalid_url": "Invalid URL",
+    "collapse_category": "Collapse category",
+    "expand_category": "Expand category"
   },
   "nav": {
     "feeds": "Feedy",
@@ -216,6 +218,13 @@
       "title": "Language",
       "subtitle": "Choose your preferred language",
       "auto": "Auto"
+    },
+    "reader_mode": {
+      "title": "Article links",
+      "subtitle": "Choose where article links open on this device",
+      "reader": "Reader mode",
+      "rss": "RSS mode",
+      "hint": "Reader mode opens Feedy's parsed article view. RSS mode opens the original article directly."
     },
     "bookmarklet": {
       "title": "Bookmarklet",
