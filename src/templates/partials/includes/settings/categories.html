@@ -19,7 +19,7 @@
         hx-swap="innerHTML"
         hx-on::after-request="handleCategoryFormResponse(event)"
     >
-        <div class="flex flex-col sm:flex-row gap-4">
+        <div class="settings-icon-name-row flex flex-col sm:flex-row gap-4">
             <!-- Icon Picker -->
             <div class="input-group">
                 <label class="input-label">{{ t('settings.categories.icon') }}</label>
@@ -55,7 +55,7 @@
                     placeholder="{{ t('settings.categories.name_placeholder') }}"
                 >
             </div>
-            <div class="flex items-end gap-2">
+            <div class="settings-form-actions flex items-end gap-2">
                 <button type="submit" id="save-category-btn" class="btn btn-primary inline-flex items-center space-x-2">
                     <span class="btn-text">{{ t('common.save') }}</span>
                     <span class="btn-spinner hidden">

@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.sql.selectable import ScalarSelect
 
-from domain.models import Article, BlockedDomain
+from domain.models import Article, BlockedDomain, Website
 from infrastructure.config import DEFAULT_PAGE_SIZE
 
 
@@ -74,6 +74,102 @@ class ArticleRepository:
         """Get an article by its URL."""
         stmt = select(Article).where(Article.url == url)
         return self.session.scalars(stmt).first()
+
+    def get_reader_neighbors(
+        self, article: Article
+    ) -> tuple[Article | None, Article | None]:
+        """Get previous and next article in the website article list order."""
+        blocked_domains = self._blocked_domains_subquery()
+        ordered_articles = (
+            select(
+                Article.id.label("id"),
+                func.lag(Article.id)
+                .over(
+                    order_by=(
+                        Article.published_at.desc().nullslast(),
+                        Article.fetched_at.desc(),
+                        Article.id.desc(),
+                    )
+                )
+                .label("previous_id"),
+                func.lead(Article.id)
+                .over(
+                    order_by=(
+                        Article.published_at.desc().nullslast(),
+                        Article.fetched_at.desc(),
+                        Article.id.desc(),
+                    )
+                )
+                .label("next_id"),
+            )
+            .where(Article.website_id == article.website_id)
+            .where(~Article.domain.in_(blocked_domains))
+            .subquery()
+        )
+
+        row = self.session.execute(
+            select(ordered_articles.c.previous_id, ordered_articles.c.next_id).where(
+                ordered_articles.c.id == article.id
+            )
+        ).one_or_none()
+        if row is None:
+            return None, None
+
+        previous_id = cast(str | None, row[0])
+        next_id = cast(str | None, row[1])
+        previous_article = self.get_by_id(previous_id) if previous_id else None
+        next_article = self.get_by_id(next_id) if next_id else None
+
+        return previous_article, next_article
+
+    def get_reader_neighbors_for_category(
+        self, article: Article, category_id: str
+    ) -> tuple[Article | None, Article | None]:
+        """Get previous and next unread article in the category list order."""
+        blocked_domains = self._blocked_domains_subquery()
+        ordered_articles = (
+            select(
+                Article.id.label("id"),
+                func.lag(Article.id)
+                .over(
+                    order_by=(
+                        Article.published_at.desc().nullslast(),
+                        Article.fetched_at.desc(),
+                        Article.id.desc(),
+                    )
+                )
+                .label("previous_id"),
+                func.lead(Article.id)
+                .over(
+                    order_by=(
+                        Article.published_at.desc().nullslast(),
+                        Article.fetched_at.desc(),
+                        Article.id.desc(),
+                    )
+                )
+                .label("next_id"),
+            )
+            .join(Website, Article.website_id == Website.id)
+            .where(Website.category_id == category_id)
+            .where(~Article.domain.in_(blocked_domains))
+            .where(or_(Article.is_read == False, Article.id == article.id))  # noqa: E712
+            .subquery()
+        )
+
+        row = self.session.execute(
+            select(ordered_articles.c.previous_id, ordered_articles.c.next_id).where(
+                ordered_articles.c.id == article.id
+            )
+        ).one_or_none()
+        if row is None:
+            return None, None
+
+        previous_id = cast(str | None, row[0])
+        next_id = cast(str | None, row[1])
+        previous_article = self.get_by_id(previous_id) if previous_id else None
+        next_article = self.get_by_id(next_id) if next_id else None
+
+        return previous_article, next_article
 
     def get_for_website(
         self,

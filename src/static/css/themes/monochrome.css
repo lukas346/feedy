@@ -99,6 +99,7 @@
 }
 
 .monochrome .mark-read-btn,
+.monochrome .favorite-toggle-btn,
 .monochrome .category-read-all-btn,
 .monochrome [data-epub-add],
 .monochrome [data-epub-add]:hover,
@@ -110,6 +111,7 @@
 }
 
 .monochrome .mark-read-btn,
+.monochrome .favorite-toggle-btn,
 .monochrome .category-read-all-btn {
   border-radius: 0 !important;
   box-shadow: none !important;
@@ -121,6 +123,8 @@
 .monochrome .category-read-all-btn:focus-visible,
 .monochrome .mark-read-btn[data-is-read="true"],
 .monochrome .mark-read-btn[data-is-read="true"]:hover,
+.monochrome .favorite-toggle-btn[aria-pressed="true"],
+.monochrome .favorite-toggle-btn[aria-pressed="true"]:hover,
 .monochrome [data-epub-add][aria-pressed="true"],
 .monochrome [data-epub-add][aria-pressed="true"]:hover,
 .monochrome .language-btn[aria-pressed="true"],
@@ -170,7 +174,7 @@
 }
 
 .monochrome .settings-feed-category-header {
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 0.75rem;
   border-bottom-width: 1px;
   border-bottom-color: black;
 }

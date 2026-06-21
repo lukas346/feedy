@@ -2,6 +2,192 @@
 
 {% block title %}{{ t('settings.title') }} - {{ t('common.rss_reader') }}{% endblock %}
 
+{% block head %}
+<style>
+    .settings-page {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .settings-page .feed-page-brand {
+        font-size: clamp(2.25rem, 12vw, 3rem);
+    }
+
+    .settings-page .section-header-main,
+    .settings-page .section-header-main > div:last-child,
+    .settings-page .settings-feed-main,
+    .settings-page .settings-item > div:first-child {
+        min-width: 0;
+    }
+
+    .settings-page .section-header-actions {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .settings-page .section-header-actions > * + * {
+        margin-left: 0 !important;
+    }
+
+    .settings-page .section-title,
+    .settings-page .text-secondary,
+    .settings-page .settings-feed-title,
+    .settings-page .settings-item .font-black,
+    .settings-page .settings-item .font-medium {
+        overflow-wrap: anywhere;
+    }
+
+    .settings-page .settings-feed-actions {
+        max-width: 100%;
+    }
+
+    @media (max-width: 639px) {
+        .settings-page > :not([hidden]) ~ :not([hidden]) {
+            margin-top: 1rem;
+        }
+
+        .settings-page .card {
+            padding: 1rem !important;
+            border-radius: 1rem;
+        }
+
+        .settings-page .section-header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.75rem;
+            padding: 0.875rem;
+        }
+
+        .settings-page .section-header-main {
+            align-items: flex-start;
+        }
+
+        .settings-page .section-header-actions,
+        .settings-page .settings-selector,
+        .settings-page .settings-form-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+            width: 100%;
+            gap: 0.5rem;
+        }
+
+        .settings-page .section-header-action,
+        .settings-page .settings-card-action,
+        .settings-page .settings-form-actions .btn,
+        .settings-page .settings-selector .language-btn {
+            width: 100%;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .settings-page .form-section {
+            padding: 1rem !important;
+        }
+
+        .settings-page .settings-inline-control,
+        .settings-page .settings-icon-name-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .settings-page .settings-inline-control .btn,
+        .settings-page .settings-inline-control .input {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .settings-page #icon-picker-popover,
+        .settings-page #edit-icon-picker-popover {
+            max-width: calc(100vw - 3.5rem);
+        }
+
+        .settings-page .settings-item {
+            gap: 0.75rem;
+            padding: 0.75rem;
+            cursor: default;
+        }
+
+        .settings-page .settings-item > div:first-child {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .settings-page .settings-item > div:last-child {
+            flex: 0 0 auto;
+            justify-content: flex-end;
+        }
+
+        .settings-page .settings-item .font-black,
+        .settings-page .settings-item .font-medium {
+            min-width: 0;
+        }
+
+        .settings-page #blocked-domains-list .settings-item .font-medium {
+            word-break: break-word;
+        }
+
+        .settings-page .settings-feed-group {
+            padding: 0.75rem;
+            border-radius: 1rem;
+        }
+
+        .settings-page .settings-feed-category-header {
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .settings-page .settings-feed-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
+
+        .settings-page .settings-feed-title,
+        .settings-page .settings-feed-url {
+            overflow: visible;
+            text-overflow: clip;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        .settings-page #add-website-form input[name="fetch_interval_minutes"] {
+            max-width: none;
+        }
+
+        #edit-icon-picker-popover {
+            max-width: calc(100vw - 3.5rem);
+        }
+
+        .settings-modal-panel {
+            max-height: calc(100dvh - 2rem);
+            overflow-y: auto;
+            padding: 1rem !important;
+        }
+
+        .settings-modal-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+
+        .settings-modal-actions .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .settings-modal-category-row {
+            flex-direction: column;
+        }
+    }
+
+    @media (min-width: 420px) and (max-width: 639px) {
+        .settings-page .section-header-actions,
+        .settings-page .settings-form-actions {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Full-page loading overlay (reusable) -->
 <div id="loading-overlay" class="loading-overlay hidden">
@@ -12,7 +198,7 @@
     </div>
 </div>
 
-<div class="space-y-8 animate-fade-in">
+<div class="settings-page space-y-8 animate-fade-in">
     <!-- Header -->
     <div>
         <h1 class="feed-page-brand">{{ t('settings.title') }}</h1>

@@ -14,7 +14,7 @@
     <div class="p-4 form-section">
         <h3 class="font-medium text-zinc-900 dark:text-zinc-100 mb-2">{{ t('settings.bookmarklet.add_to_browser') }}</h3>
         <p class="text-secondary mb-4">{{ t('settings.bookmarklet.drag_hint') }}</p>
-        <div class="flex items-center gap-4">
+        <div class="settings-inline-control flex items-center gap-4">
             <a
                 id="add-feed-bookmarklet"
                 href="javascript:(function(){window.location='{{ BASE_URL if BASE_URL else request.url.scheme ~ '://' ~ request.url.netloc }}/settings?url='+encodeURIComponent(window.location.href);})()"

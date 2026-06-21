@@ -34,6 +34,10 @@ html.dark:not(.monochrome) .section-header {
   @apply border-rose-200 dark:border-rose-800 bg-rose-50/50 dark:bg-rose-900/20;
 }
 
+.settings-category-item {
+  @apply p-2;
+}
+
 /* Settings feed list */
 .settings-feed-groups {
   @apply space-y-4;
@@ -45,15 +49,15 @@ html.dark:not(.monochrome) .section-header {
 }
 
 .settings-feed-category-header {
-  @apply flex items-center justify-between gap-3 px-2 pb-3;
+  @apply flex items-center justify-between gap-2 px-2 pb-2.5;
 }
 
 .settings-feed-category-title {
-  @apply flex min-w-0 items-center gap-3;
+  @apply flex min-w-0 items-center gap-2;
 }
 
 .settings-feed-category-icon {
-  @apply flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl
+  @apply flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg
          border-2 border-blue-300 bg-transparent text-blue-600
          dark:border-blue-400/70 dark:text-blue-300;
 }

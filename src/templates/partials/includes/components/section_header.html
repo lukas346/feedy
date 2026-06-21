@@ -14,7 +14,7 @@ Parameters:
 #}
 {% macro section_header(title, subtitle, icon='folder', gradient_from='blue-500/20', gradient_to='cyan-500/20', icon_color='blue-600', action_text='', action_onclick='', action_icon='plus', actions=none) %}
 <div class="section-header mb-6">
-    <div class="flex items-center space-x-3">
+    <div class="section-header-main flex items-center space-x-3">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-{{ gradient_from }} to-{{ gradient_to }} dark:from-{{ gradient_from.replace('/20', '/10') }} dark:to-{{ gradient_to.replace('/20', '/10') }} flex items-center justify-center">
             {% if icon == 'tag' %}
             <svg class="w-5 h-5 text-{{ icon_color }} dark:text-{{ icon_color.replace('600', '400') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,7 +64,7 @@ Parameters:
         </div>
     </div>
     {% if actions %}
-    <div class="flex items-center space-x-2">
+    <div class="section-header-actions flex items-center space-x-2">
         {% for action in actions %}
         <button
             {% if action.id %}id="{{ action.id }}"{% endif %}
@@ -73,7 +73,7 @@ Parameters:
             {% if action.hx_target %}hx-target="{{ action.hx_target }}"{% endif %}
             {% if action.hx_swap %}hx-swap="{{ action.hx_swap }}"{% endif %}
             {% if action.hx_indicator %}hx-indicator="{{ action.hx_indicator }}"{% endif %}
-            class="{{ action.class|default('btn btn-primary') }} inline-flex items-center space-x-2"
+            class="{{ action.class|default('btn btn-primary') }} section-header-action inline-flex items-center space-x-2"
         >
             {% if action.icon == 'plus' %}
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,7 +98,7 @@ Parameters:
         {% endfor %}
     </div>
     {% elif action_text %}
-    <button onclick="{{ action_onclick }}" class="btn btn-primary inline-flex items-center space-x-2">
+    <button onclick="{{ action_onclick }}" class="btn btn-primary section-header-action inline-flex items-center space-x-2">
         {% if action_icon == 'plus' %}
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>

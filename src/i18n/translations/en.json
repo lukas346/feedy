@@ -103,6 +103,8 @@
     "block_failed": "Failed to block domain. Please try again.",
     "reading_time": "{minutes} min read",
     "scroll_to_top": "Scroll to top",
+    "previous_article": "Previous",
+    "next_article": "Next",
     "text_size": "Article text size",
     "text_size_small": "Small article text",
     "text_size_medium": "Medium article text",

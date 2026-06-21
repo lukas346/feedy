@@ -1,6 +1,6 @@
 {# Edit Website Modal - included in page, shown/hidden via JS #}
 <div id="edit-website-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden">
-    <div class="bg-white dark:bg-zinc-800 rounded-xl p-6 w-full max-w-sm mx-4 border border-zinc-200 dark:border-zinc-700 animate-scale-in">
+    <div class="settings-modal-panel bg-white dark:bg-zinc-800 rounded-xl p-6 w-full max-w-sm mx-4 border border-zinc-200 dark:border-zinc-700 animate-scale-in">
         <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">{{ t("settings.feeds.edit_title") }}</h3>
         <input type="hidden" id="edit-website-id">
         <div class="space-y-4 mb-4">
@@ -25,7 +25,7 @@
                 <input type="number" id="edit-website-interval" class="input" min="5">
             </div>
         </div>
-        <div class="flex justify-end gap-2">
+        <div class="settings-modal-actions flex justify-end gap-2">
             <button type="button" onclick="hideEditWebsiteModal()" class="btn btn-secondary">{{ t("common.cancel") }}</button>
             <button type="button" id="edit-website-save-btn" onclick="saveEditWebsite()" class="btn btn-primary inline-flex items-center space-x-2">
                 <span class="btn-text">{{ t("common.save") }}</span>

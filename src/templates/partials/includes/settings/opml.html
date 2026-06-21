@@ -18,7 +18,7 @@
             <p class="text-secondary mb-4">{{ t('settings.opml.export_hint') }}</p>
             <a
                 href="/api/opml/export"
-                class="btn btn-secondary inline-flex items-center space-x-2"
+                class="btn btn-secondary settings-card-action inline-flex items-center space-x-2"
                 download="feeds.opml"
             >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -32,7 +32,7 @@
         <div class="p-4 form-section">
             <h3 class="font-medium text-zinc-900 dark:text-zinc-100 mb-2">{{ t('settings.opml.import') }}</h3>
             <p class="text-secondary mb-4">{{ t('settings.opml.import_hint') }}</p>
-            <div class="flex items-center gap-2">
+            <div class="settings-inline-control flex items-center gap-2">
                 <input
                     type="file"
                     id="opml-file-input"
@@ -44,7 +44,7 @@
                     type="button"
                     id="import-opml-btn"
                     onclick="document.getElementById('opml-file-input').click()"
-                    class="btn btn-secondary inline-flex items-center space-x-2"
+                    class="btn btn-secondary settings-card-action inline-flex items-center space-x-2"
                 >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>

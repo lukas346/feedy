@@ -290,10 +290,11 @@ class ArticleFetcher:
         except Exception as e:
             logger.warning(f"Failed to fetch content for {parsed.url}: {e}")
 
-        # Return the better result (prefer longer content)
+        # Return the better result by extraction quality, not raw HTML length.
         if rss_content and fetched_content:
-            # Return whichever is longer/more complete
-            if len(fetched_content.strip()) > len(rss_content.strip()):
+            fetched_score = self.content_converter.score_content(fetched_content)
+            rss_score = self.content_converter.score_content(rss_content)
+            if fetched_score > rss_score:
                 return fetched_content
             return rss_content
         elif fetched_content:

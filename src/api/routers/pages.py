@@ -3,6 +3,7 @@
 import re
 import unicodedata
 from typing import Annotated, Any
+from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse
@@ -248,6 +249,7 @@ def reader_page(
     request: Request,
     article_id: str,
     session: Annotated[Session, Depends(get_session)],
+    category_id: str | None = None,
 ) -> HTMLResponse:
     """Render the article reader page."""
     assert templates is not None
@@ -260,6 +262,22 @@ def reader_page(
         return HTMLResponse(content="Article not found", status_code=404)
 
     website = website_repo.get_by_id(article.website_id)
+
+    category_context_id = (
+        category_id
+        if category_id is not None
+        and website is not None
+        and website.category_id == category_id
+        else None
+    )
+    if category_context_id is not None:
+        previous_article, next_article = article_repo.get_reader_neighbors_for_category(
+            article, category_context_id
+        )
+        reader_context_query = f"?{urlencode({'category_id': category_context_id})}"
+    else:
+        previous_article, next_article = article_repo.get_reader_neighbors(article)
+        reader_context_query = ""
 
     # Mark article as read when viewing
     if not article.is_read:
@@ -276,6 +294,9 @@ def reader_page(
             "website": website,
             "content_html": article.content_html,
             "article_domain": article_domain,
+            "previous_article": previous_article,
+            "next_article": next_article,
+            "reader_context_query": reader_context_query,
         },
     )
 

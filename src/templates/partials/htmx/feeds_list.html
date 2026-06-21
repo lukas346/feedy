@@ -11,8 +11,8 @@
          data-category-collapse-scope="feeds"
          data-category-collapse-id="{{ category.id }}">
         <!-- Category header -->
-        <div class="category-card-header flex items-center justify-between gap-4 p-6 border-b">
-            <div class="flex min-w-0 items-center space-x-3">
+        <div class="category-card-header flex items-center justify-between gap-3 px-4 py-3 border-b">
+            <div class="flex min-w-0 items-center space-x-2">
                 <button type="button"
                         class="inline-flex flex-shrink-0 items-center justify-center text-zinc-400 dark:text-zinc-500 focus:outline-none"
                         data-category-collapse-toggle
@@ -22,22 +22,22 @@
                         aria-controls="feeds-category-{{ category.id }}-content"
                         aria-label="{{ t('common.collapse_category') }}"
                         title="{{ t('common.collapse_category') }}">
-                    <svg class="h-5 w-5" data-category-collapse-icon fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    <svg class="h-5 w-5" data-category-collapse-icon fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 16.5 5.25 9h13.5L12 16.5Z"/>
                     </svg>
                 </button>
-                <div class="category-icon-frame category-icon-frame-md">
-                    <span class="w-5 h-5">{{ category_icon(category.icon) }}</span>
+                <div class="category-icon-frame category-icon-frame-sm">
+                    <span class="w-4 h-4">{{ category_icon(category.icon) }}</span>
                 </div>
                 <div class="min-w-0">
-                    <h2 class="truncate text-xl font-black tracking-wide text-zinc-900 dark:text-zinc-100">{{ category.name }}</h2>
-                    <p class="text-secondary">
+                    <h2 class="truncate text-lg leading-tight font-black tracking-wide text-zinc-900 dark:text-zinc-100">{{ category.name }}</h2>
+                    <p class="text-secondary leading-tight">
                         {{ category.total_count }} {{ t('common.articles') if category.total_count != 1 else t('common.article') }}
                     </p>
                 </div>
             </div>
             <button type="button"
-                    class="category-read-all-btn inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border p-0 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-[0.98]"
+                    class="category-read-all-btn inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border p-0 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-[0.98]"
                     hx-post="/feeds/categories/{{ category.id }}/read-all"
                     hx-target="#feeds-list"
                     hx-swap="innerHTML"
@@ -54,7 +54,7 @@
         {% if category.articles %}
             <div class="divide-y divide-zinc-300 dark:divide-zinc-600" id="category-{{ category.id }}-list">
                 {% for article in category.articles %}
-                {{ article_row(article, show_favicon=true, show_source=true, id_prefix='feed-article', apply_read_opacity=false, mark_as_read_text=t('reader.mark_as_read'), mark_as_unread_text=t('reader.mark_as_unread'), show_favorite_btn=true, favorite_add_text=t('reader.add_to_favorites'), favorite_remove_text=t('reader.remove_from_favorites'), show_epub_select=true, epub_add_text=t('epub.add_to_epub'), epub_remove_text=t('epub.remove_from_epub')) }}
+                {{ article_row(article, show_favicon=true, show_source=true, id_prefix='feed-article', apply_read_opacity=false, mark_as_read_text=t('reader.mark_as_read'), mark_as_unread_text=t('reader.mark_as_unread'), show_favorite_btn=true, favorite_add_text=t('reader.add_to_favorites'), favorite_remove_text=t('reader.remove_from_favorites'), show_epub_select=true, epub_add_text=t('epub.add_to_epub'), epub_remove_text=t('epub.remove_from_epub'), reader_url='/article/' ~ article.id ~ '?category_id=' ~ category.id) }}
                 {% endfor %}
 
                 {% if category.has_more %}

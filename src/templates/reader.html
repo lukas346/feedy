@@ -2,8 +2,198 @@
 
 {% block title %}{{ article.title }} - {{ t('common.rss_reader') }}{% endblock %}
 
+{% block head %}
+<style>
+    .reader-keycap {
+        width: 2rem;
+        height: 2rem;
+        border-bottom-width: 3px;
+        box-shadow: inset 0 -1px 0 rgb(0 0 0 / 0.08);
+    }
+
+    .monochrome .reader-keycap {
+        color: black !important;
+        background-color: white !important;
+        border-color: black !important;
+        border-radius: 0 !important;
+        border-width: 1px 1px 4px !important;
+        box-shadow: none !important;
+    }
+
+    .reader-supbar-visible .scroll-to-top-btn {
+        bottom: 6rem;
+    }
+
+    .reader-supbar-visible main {
+        padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+    }
+
+    #reader-supbar {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .reader-supbar-inner {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        max-width: 72rem;
+        margin: 0 auto;
+        padding: 0.5rem 1rem;
+    }
+
+    .reader-supbar-link {
+        display: flex;
+        min-width: 0;
+        flex: 1 1 0;
+        align-items: center;
+        gap: 0.5rem;
+        justify-content: flex-start;
+    }
+
+    .reader-supbar-link-next {
+        justify-content: flex-end;
+        text-align: right;
+    }
+
+    .reader-supbar-copy {
+        display: flex;
+        min-width: 0;
+        flex: 1 1 auto;
+        flex-direction: column;
+    }
+
+    .reader-supbar-label {
+        display: none;
+        color: rgb(113 113 122);
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        line-height: 1;
+        text-transform: uppercase;
+    }
+
+    .dark .reader-supbar-label {
+        color: rgb(161 161 170);
+    }
+
+    .reader-supbar-title {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    @media (max-width: 639px) {
+        .reader-supbar-visible main {
+            padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
+        }
+
+        .reader-supbar-inner {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            padding: 0.5rem 0.75rem;
+        }
+
+        .reader-supbar-link {
+            padding: 0.5rem 0.625rem;
+        }
+
+        .reader-supbar-link-single {
+            grid-column: 1 / -1;
+        }
+
+        .reader-supbar-label {
+            display: block;
+        }
+
+        .reader-supbar-title {
+            font-size: 0.875rem;
+            line-height: 1.2;
+        }
+
+        .reader-keycap {
+            display: none;
+        }
+
+        .reader-supbar-visible .scroll-to-top-btn {
+            right: 1rem;
+            bottom: calc(5.75rem + env(safe-area-inset-bottom));
+            width: 2.75rem;
+            height: 2.75rem;
+        }
+
+        .reader-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+
+        .reader-actions .btn {
+            width: 100%;
+            min-width: 0;
+            justify-content: center;
+        }
+
+        .reader-actions .btn span {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        #block-domain-btn {
+            grid-column: 1 / -1;
+        }
+    }
+
+    @media (min-width: 420px) and (max-width: 639px) {
+        .reader-actions {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+</style>
+{% endblock %}
+
 
 {% block content %}
+{% if previous_article or next_article %}
+<div id="reader-supbar"
+     class="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200 dark:border-zinc-700 bg-white/95 dark:bg-zinc-900/95 backdrop-blur">
+    <div class="reader-supbar-inner">
+        {% if previous_article %}
+        <a href="/article/{{ previous_article.id }}{{ reader_context_query }}"
+           data-reader-nav="previous"
+           aria-label="{{ t('reader.previous_article') }}: {{ previous_article.title }}"
+           title="{{ previous_article.title }}"
+           class="btn btn-secondary reader-supbar-link reader-supbar-link-previous {% if not next_article %}reader-supbar-link-single{% endif %}">
+             <kbd class="reader-keycap inline-flex shrink-0 items-center justify-center rounded-md border border-zinc-300 bg-white font-mono text-sm font-bold leading-none text-zinc-800 shadow-sm dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100">h</kbd>
+             <span class="reader-supbar-copy">
+                 <span class="reader-supbar-label">{{ t('reader.previous_article') }}</span>
+                 <span class="reader-supbar-title">{{ previous_article.title }}</span>
+             </span>
+        </a>
+        {% else %}
+        <div class="reader-supbar-spacer hidden sm:block flex-1"></div>
+        {% endif %}
+
+        {% if next_article %}
+        <a href="/article/{{ next_article.id }}{{ reader_context_query }}"
+           data-reader-nav="next"
+           aria-label="{{ t('reader.next_article') }}: {{ next_article.title }}"
+           title="{{ next_article.title }}"
+           class="btn btn-secondary reader-supbar-link reader-supbar-link-next {% if not previous_article %}reader-supbar-link-single{% endif %}">
+             <span class="reader-supbar-copy">
+                 <span class="reader-supbar-label">{{ t('reader.next_article') }}</span>
+                 <span class="reader-supbar-title">{{ next_article.title }}</span>
+             </span>
+             <kbd class="reader-keycap inline-flex shrink-0 items-center justify-center rounded-md border border-zinc-300 bg-white font-mono text-sm font-bold leading-none text-zinc-800 shadow-sm dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100">l</kbd>
+        </a>
+        {% else %}
+        <div class="reader-supbar-spacer hidden sm:block flex-1"></div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
 <article class="w-full animate-fade-in">
     <!-- Article header -->
     <header class="mb-10">
@@ -45,7 +235,7 @@
         </div>
 
         <!-- Action buttons -->
-        <div class="flex flex-wrap items-center gap-3">
+        <div class="reader-actions flex flex-wrap items-center gap-3">
             <!-- Read status toggle -->
             <button id="toggle-read"
                     hx-patch="/api/articles/{{ article.id }}/read"
@@ -268,15 +458,71 @@
             });
         });
 
-        // Close lightbox on Escape key
+        initializeReaderSupbar();
+
+        // Reader keyboard handlers
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 var lightbox = document.getElementById('lightbox');
                 lightbox.classList.remove('active');
                 document.body.style.overflow = '';
+                return;
+            }
+
+            if (shouldIgnoreReaderShortcut(event)) {
+                return;
+            }
+
+            var key = event.key.toLowerCase();
+            if (key === 'h') {
+                navigateReaderArticle('previous');
+                event.preventDefault();
+            } else if (key === 'l') {
+                navigateReaderArticle('next');
+                event.preventDefault();
             }
         });
     });
+
+    function shouldIgnoreReaderShortcut(event) {
+        if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+            return true;
+        }
+
+        var lightbox = document.getElementById('lightbox');
+        if (lightbox && lightbox.classList.contains('active')) {
+            return true;
+        }
+
+        var target = event.target;
+        if (!target) {
+            return false;
+        }
+
+        var tagName = target.tagName ? target.tagName.toLowerCase() : '';
+        return target.isContentEditable || ['input', 'textarea', 'select'].indexOf(tagName) !== -1;
+    }
+
+    function navigateReaderArticle(direction) {
+        var link = document.querySelector('[data-reader-nav="' + direction + '"]');
+        if (!link) {
+            return;
+        }
+        window.location.href = link.href;
+    }
+
+    function initializeReaderSupbar() {
+        handleReaderSupbarVisibility();
+    }
+
+    function handleReaderSupbarVisibility() {
+        var supbar = document.getElementById('reader-supbar');
+        if (!supbar) {
+            return;
+        }
+        supbar.classList.remove('hidden');
+        document.body.classList.add('reader-supbar-visible');
+    }
 
     // Scroll to top handler
     function scrollToTop() {
@@ -298,6 +544,7 @@
     }
 
     window.addEventListener('scroll', handleScrollToTopVisibility);
+    window.addEventListener('scroll', handleReaderSupbarVisibility);
 
     // Block domain handler
     async function blockDomain(articleId, domain) {

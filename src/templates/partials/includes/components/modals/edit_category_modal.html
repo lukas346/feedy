@@ -1,8 +1,8 @@
 {# Edit Category Modal - included in page, shown/hidden via JS #}
 <div id="edit-category-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden">
-    <div class="bg-white dark:bg-zinc-800 rounded-xl p-6 w-full max-w-md mx-4 border border-zinc-200 dark:border-zinc-700">
+    <div class="settings-modal-panel bg-white dark:bg-zinc-800 rounded-xl p-6 w-full max-w-md mx-4 border border-zinc-200 dark:border-zinc-700">
         <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">{{ t("settings.categories.edit_title") }}</h3>
-        <div class="flex gap-4 mb-4">
+        <div class="settings-modal-category-row flex gap-4 mb-4">
             <div class="input-group">
                 <label class="input-label">{{ t("settings.categories.icon") }}</label>
                 <input type="hidden" id="edit-category-icon" value="tag">
@@ -21,7 +21,7 @@
             </div>
         </div>
         <input type="hidden" id="edit-category-id">
-        <div class="flex justify-end gap-2">
+        <div class="settings-modal-actions flex justify-end gap-2">
             <button type="button" onclick="hideEditCategoryModal()" class="btn btn-secondary">{{ t("common.cancel") }}</button>
             <button type="button" id="edit-category-save-btn" onclick="saveEditCategory()" class="btn btn-primary inline-flex items-center space-x-2">
                 <span class="btn-text">{{ t("common.save") }}</span>

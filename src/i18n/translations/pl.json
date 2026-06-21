@@ -103,6 +103,8 @@
     "block_failed": "Nie udało się zablokować domeny. Spróbuj ponownie.",
     "reading_time": "{minutes} min czytania",
     "scroll_to_top": "Przewiń do góry",
+    "previous_article": "Poprzedni",
+    "next_article": "Następny",
     "text_size": "Rozmiar tekstu artykułu",
     "text_size_small": "Mały tekst artykułu",
     "text_size_medium": "Średni tekst artykułu",

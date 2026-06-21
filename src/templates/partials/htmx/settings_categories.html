@@ -46,7 +46,7 @@
 {% if categories %}
 <div class="space-y-2">
     {% for category in categories %}
-    <div class="settings-item category-color-card animate-fade-in" data-category-id="{{ category.id }}">
+    <div class="settings-item settings-category-item category-color-card animate-fade-in" data-category-id="{{ category.id }}">
         <div class="flex items-center space-x-2">
             <span class="category-icon-frame category-icon-frame-sm flex-shrink-0">
                 <span class="w-4 h-4">{{ category_icon(category.icon) }}</span>

@@ -52,11 +52,16 @@ class ContentConverter:
         "data-src",
         "data-lazy-src",
         "data-original",
-        "data-srcset",
         "data-lazy",
         "data-url",
         "data-image",
         "loading-src",
+    ]
+
+    LAZY_SRCSET_ATTRS: list[str] = [
+        "data-srcset",
+        "data-lazy-srcset",
+        "data-original-srcset",
     ]
 
     # Elements to remove for fallback extraction
@@ -86,6 +91,41 @@ class ContentConverter:
         "gdpr",
         "promo",
         "sponsor",
+        "advert",
+        "related",
+        "recommend",
+        "comments",
+        "reklama",
+        "sponsorowane",
+        "czytaj-takze",
+        "zobacz-takze",
+    ]
+
+    BOILERPLATE_TEXT_PATTERNS: list[str] = [
+        "cookie",
+        "privacy policy",
+        "terms of service",
+        "subscribe",
+        "sign up",
+        "follow us",
+        "share this",
+        "advertisement",
+        "copyright",
+        "all rights reserved",
+        "loading...",
+        "reklama",
+        "materia\u0142 sponsorowany",
+        "material sponsorowany",
+        "polityka prywatno\u015bci",
+        "regulamin",
+        "subskrybuj",
+        "zapisz si\u0119",
+        "udost\u0119pnij",
+        "czytaj tak\u017ce",
+        "zobacz tak\u017ce",
+        "zobacz r\u00f3wnie\u017c",
+        "polecane artyku\u0142y",
+        "komentarze",
     ]
 
     def to_html(
@@ -185,6 +225,16 @@ class ContentConverter:
 
         return best.content
 
+    def score_content(self, content: Optional[str]) -> float:
+        """Score extracted HTML content using the generic quality heuristic."""
+        if not content:
+            return 0.0
+
+        content_lower = content.lower()
+        has_images = "<img" in content_lower
+        has_code = "<pre" in content_lower or "<code" in content_lower
+        return self._score_content(content, has_images, has_code)
+
     def _preprocess_html(
         self, html_content: str, base_url: Optional[str] = None
     ) -> str:
@@ -203,21 +253,29 @@ class ContentConverter:
                 if not isinstance(img, Tag):
                     continue
                 src = img.get("src", "")
-                # Skip if already has valid src
-                if (
-                    isinstance(src, str)
-                    and src
-                    and not src.startswith("data:")
-                    and "placeholder" not in src.lower()
-                ):
+
+                promoted_srcset = self._promote_lazy_srcset(img)
+
+                if not self._is_placeholder_src(src):
                     continue
 
-                # Try to find real image URL in lazy-load attributes
+                # Try to find real image URL in lazy-load attributes first.
                 for attr in self.LAZY_IMG_ATTRS:
                     lazy_src = img.get(attr)
                     if lazy_src and isinstance(lazy_src, str):
                         img["src"] = lazy_src
                         break
+
+                if self._is_placeholder_src(img.get("src")) and promoted_srcset:
+                    srcset_url = self._best_srcset_url(promoted_srcset)
+                    if srcset_url:
+                        img["src"] = srcset_url
+
+            # Fix lazy-loaded <source> elements inside <picture> and media tags.
+            for source in soup.find_all("source"):
+                if not isinstance(source, Tag):
+                    continue
+                self._promote_lazy_srcset(source)
 
             # Fix noscript images (often contain non-lazy versions)
             for noscript in soup.find_all("noscript"):
@@ -240,6 +298,71 @@ class ContentConverter:
         except Exception as e:
             logger.debug(f"HTML preprocessing failed: {e}")
             return html_content
+
+    def _is_placeholder_src(self, src: object) -> bool:
+        """Return whether an image src is missing or points to a placeholder."""
+        if not isinstance(src, str) or not src.strip():
+            return True
+
+        normalized = src.strip().lower()
+        return (
+            normalized.startswith("data:")
+            or normalized in {"#", "about:blank"}
+            or "placeholder" in normalized
+            or "transparent" in normalized
+        )
+
+    def _is_placeholder_srcset(self, srcset: object) -> bool:
+        """Return whether a srcset is missing or only contains placeholders."""
+        if not isinstance(srcset, str) or not srcset.strip():
+            return True
+
+        normalized = srcset.strip().lower()
+        return normalized.startswith("data:") or "placeholder" in normalized
+
+    def _promote_lazy_srcset(self, element: Tag) -> Optional[str]:
+        """Promote lazy srcset attributes to a browser-readable srcset."""
+        srcset = element.get("srcset")
+        if not self._is_placeholder_srcset(srcset):
+            return str(srcset)
+
+        for attr in self.LAZY_SRCSET_ATTRS:
+            lazy_srcset = element.get(attr)
+            if isinstance(lazy_srcset, str) and lazy_srcset.strip():
+                element["srcset"] = lazy_srcset
+                return lazy_srcset
+
+        return None
+
+    def _best_srcset_url(self, srcset: str) -> Optional[str]:
+        """Return the largest width URL from a srcset, falling back to the first."""
+        fallback_url: Optional[str] = None
+        best_url: Optional[str] = None
+        best_width = -1
+
+        for part in srcset.split(","):
+            tokens = part.strip().split()
+            if not tokens:
+                continue
+
+            url = tokens[0]
+            if not url or url.startswith("data:"):
+                continue
+
+            if fallback_url is None:
+                fallback_url = url
+
+            width = 0
+            for descriptor in tokens[1:]:
+                if descriptor.endswith("w") and descriptor[:-1].isdigit():
+                    width = int(descriptor[:-1])
+                    break
+
+            if width > best_width:
+                best_width = width
+                best_url = url
+
+        return best_url or fallback_url
 
     def _fix_relative_urls(self, soup: BeautifulSoup, base_url: str) -> None:
         """
@@ -283,6 +406,10 @@ class ContentConverter:
                 and not src.startswith(("http://", "https://", "data:"))
             ):
                 media["src"] = urljoin(base_url, src)
+
+            srcset = media.get("srcset")
+            if isinstance(srcset, str) and srcset:
+                media["srcset"] = self._fix_srcset(srcset, base_url)
 
         # Fix links (optional, but helpful for reference links)
         for a in soup.find_all("a"):
@@ -354,8 +481,8 @@ class ContentConverter:
         ]
         score += min(len(meaningful_paragraphs) * 5, 30)
 
-        # Sentence structure (proper sentences end with punctuation)
-        sentences = re.findall(r"[A-Z][^.!?]*[.!?]", text)
+        # Sentence structure without assuming ASCII uppercase starts.
+        sentences = re.findall(r"\S[^.!?…]{20,}[.!?…]", text)
         score += min(len(sentences) * 0.5, 20)
 
         # Penalize if too many links (often navigation)
@@ -363,22 +490,17 @@ class ContentConverter:
         if len(links) > 20:
             score -= (len(links) - 20) * 0.5
 
+        if length > 0 and links:
+            link_text_length = sum(
+                len(link.get_text(" ", strip=True)) for link in links
+            )
+            link_density = link_text_length / length
+            if link_density > 0.35:
+                score -= min((link_density - 0.35) * 100, 35)
+
         # Penalize common boilerplate patterns
-        boilerplate = [
-            "cookie",
-            "privacy policy",
-            "terms of service",
-            "subscribe",
-            "sign up",
-            "follow us",
-            "share this",
-            "advertisement",
-            "copyright",
-            "all rights reserved",
-            "loading...",
-        ]
         text_lower = text.lower()
-        for pattern in boilerplate:
+        for pattern in self.BOILERPLATE_TEXT_PATTERNS:
             if pattern in text_lower:
                 score -= 5
 
@@ -499,9 +621,25 @@ class ContentConverter:
 
         for selector in selectors:
             try:
-                element = soup.select_one(selector)
-                if element and len(element.get_text(strip=True)) > 100:
-                    return BeautifulSoup(str(element), "html.parser")
+                candidates: list[tuple[float, BeautifulSoup]] = []
+                seen: set[int] = set()
+                for element in soup.select(selector):
+                    if not isinstance(element, Tag) or id(element) in seen:
+                        continue
+                    seen.add(id(element))
+
+                    if len(element.get_text(" ", strip=True)) <= 100:
+                        continue
+
+                    candidate = BeautifulSoup(str(element), "html.parser")
+                    self._remove_unwanted_tags(candidate)
+                    self._remove_ad_elements(candidate)
+                    score = self.score_content(str(candidate))
+                    if score > 20:
+                        candidates.append((score, candidate))
+
+                if candidates:
+                    return max(candidates, key=lambda item: item[0])[1]
             except Exception:
                 continue
 
@@ -652,6 +790,9 @@ class ContentConverter:
             # (title is already displayed in article header)
             self._remove_leading_title(soup, title)
 
+            # Keep only trusted video embeds, regardless of extraction source.
+            self._filter_iframes(soup)
+
             # Convert short inline <pre> elements to <code>
             # Trafilatura sometimes wraps inline code in <pre> instead of <code>
             self._convert_inline_pre_to_code(soup)
@@ -667,6 +808,7 @@ class ContentConverter:
                 "tr",
                 "th",
                 "td",
+                "picture",
                 "iframe",
                 "video",
                 "audio",
@@ -677,6 +819,7 @@ class ContentConverter:
                     # Check for media content before removing
                     has_media = (
                         element.find("img")
+                        or element.find("picture")
                         or element.find("iframe")
                         or element.find("video")
                     )
@@ -718,7 +861,7 @@ class ContentConverter:
         """
         # Strategy 1: Trafilatura fetch (handles many edge cases)
         result = self._fetch_with_trafilatura(url)
-        if result and self._score_content(result) > 30:
+        if result and self.score_content(result) > 30:
             return result
 
         # Strategy 2: Direct fetch with httpx + multi-extraction
@@ -727,7 +870,7 @@ class ContentConverter:
                 html_content = await self._fetch_html(url, timeout)
                 if html_content:
                     result = self.to_html(html_content, url)
-                    if result and self._score_content(result) > 20:
+                    if result and self.score_content(result) > 20:
                         return result
             except Exception as e:
                 logger.debug(f"Fetch attempt {attempt + 1} failed for {url}: {e}")
@@ -743,6 +886,7 @@ class ContentConverter:
         try:
             downloaded = trafilatura.fetch_url(url)
             if downloaded:
+                downloaded = self._preprocess_html(downloaded, url)
                 result = trafilatura.extract(
                     downloaded,
                     output_format="html",
@@ -852,6 +996,26 @@ class ContentConverter:
         if html_content:
             # Preprocess to fix lazy images and relative URLs
             html_content = self._preprocess_html(html_content, url)
+
+            # Try trafilatura on the already-fetched HTML too. Its own fetcher
+            # can fail or receive different markup than the browser-like fetch.
+            trafilatura_result = self._extract_with_trafilatura(html_content, title)
+            if trafilatura_result:
+                has_images = "<img" in trafilatura_result.lower()
+                has_code = (
+                    "<pre" in trafilatura_result.lower()
+                    or "<code" in trafilatura_result.lower()
+                )
+                score = self._score_content(trafilatura_result, has_images, has_code)
+                results.append(
+                    ExtractionResult(
+                        trafilatura_result,
+                        "trafilatura-html",
+                        score,
+                        has_images,
+                        has_code,
+                    )
+                )
 
             # Try readability
             readability_result = self._extract_with_readability(html_content, title)

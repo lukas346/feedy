@@ -17,13 +17,15 @@ Parameters:
   - show_epub_select: bool - Show EPUB selection button (default: false)
   - epub_add_text: str - Translated add-to-EPUB button label
   - epub_remove_text: str - Translated remove-from-EPUB button label
+  - reader_url: str - Reader URL, optionally with list context (default: /article/{id})
 #}
-{% macro article_row(article, show_favicon=false, show_source=false, show_read_btn=true, id_prefix='article-item', extra_classes='', apply_read_opacity=true, use_link=false, mark_as_read_text='Mark as read', mark_as_unread_text='Mark as unread', show_favorite_btn=false, favorite_add_text='Add to favorites', favorite_remove_text='Remove from favorites', show_epub_select=false, epub_add_text='Add to EPUB', epub_remove_text='Remove from EPUB') %}
+{% macro article_row(article, show_favicon=false, show_source=false, show_read_btn=true, id_prefix='article-item', extra_classes='', apply_read_opacity=true, use_link=false, mark_as_read_text='Mark as read', mark_as_unread_text='Mark as unread', show_favorite_btn=false, favorite_add_text='Add to favorites', favorite_remove_text='Remove from favorites', show_epub_select=false, epub_add_text='Add to EPUB', epub_remove_text='Remove from EPUB', reader_url='') %}
+{% set article_reader_url = reader_url or ('/article/' ~ article.id) %}
 <div id="{{ id_prefix }}-{{ article.id }}" class="group {{ extra_classes }}"{% if apply_read_opacity %} style="opacity: {{ '0.6' if article.is_read else '1' }}"{% endif %}>
     {% if use_link %}
-    <a href="/article/{{ article.id }}" target="_blank" rel="noopener noreferrer" class="article-row-item" data-article-link data-article-id="{{ article.id }}" data-is-read="{{ 'true' if article.is_read else 'false' }}" data-reader-url="/article/{{ article.id }}" data-original-url="{{ article.url }}">
+    <a href="{{ article_reader_url }}" target="_blank" rel="noopener noreferrer" class="article-row-item" data-article-link data-article-id="{{ article.id }}" data-is-read="{{ 'true' if article.is_read else 'false' }}" data-reader-url="{{ article_reader_url }}" data-original-url="{{ article.url }}">
     {% else %}
-    <div class="article-row-item cursor-pointer" data-article-link data-article-id="{{ article.id }}" data-is-read="{{ 'true' if article.is_read else 'false' }}" data-reader-url="/article/{{ article.id }}" data-original-url="{{ article.url }}" onclick="window.location.href='/article/{{ article.id }}'">
+    <div class="article-row-item cursor-pointer" data-article-link data-article-id="{{ article.id }}" data-is-read="{{ 'true' if article.is_read else 'false' }}" data-reader-url="{{ article_reader_url }}" data-original-url="{{ article.url }}" onclick="window.location.href='{{ article_reader_url }}'">
     {% endif %}
         {% if show_favicon %}
         <img src="https://www.google.com/s2/favicons?domain={{ article.website.url }}&sz=64"
@@ -44,10 +46,10 @@ Parameters:
         {% endif %}
 
         {% if article.reading_time_minutes %}
-        <span class="text-metadata flex-shrink-0">{{ article.reading_time_minutes }} min</span>
+        <span class="article-meta article-reading-time text-metadata flex-shrink-0">{{ article.reading_time_minutes }} min</span>
         {% endif %}
 
-        <span class="text-metadata flex-shrink-0 w-12">
+        <span class="article-meta article-date text-metadata flex-shrink-0 w-12">
             {% if article.published_at %}
             {{ article.published_at.strftime('%b %d') }}
             {% else %}
@@ -56,7 +58,7 @@ Parameters:
         </span>
 
         {% if show_read_btn or show_favorite_btn or show_epub_select %}
-        <div class="flex flex-shrink-0 items-center gap-2">
+        <div class="article-row-actions flex flex-shrink-0 items-center gap-2">
             {% if show_read_btn %}
             <button class="mark-read-btn inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors
                            {% if article.is_read %}bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-500 text-green-600 dark:text-green-400{% else %}border-zinc-300 dark:border-zinc-600 text-zinc-500 dark:text-zinc-400{% endif %}
